@@ -1,6 +1,12 @@
 // Model, Schema for postgreSQL
 
-export const productSchema = new Schema({
+const productSchema = new Schema({
+  id: {
+    type: Number,
+    primaryKey: true,
+    autoIncrement: true, // Auto-generate unique IDs
+    required: true,
+  },
   name: { type: String, required: true },
   brand: { type: String, required: true },
   category: {

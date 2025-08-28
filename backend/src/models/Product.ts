@@ -16,7 +16,6 @@ interface ProductAttributes {
   averageRating?: number;
   reviewCount?: number;
   tags?: string[];
-  // createdAt?: Date;
 }
 
 interface ProductCreationAttributes extends Optional<ProductAttributes, "id"> {}
@@ -37,7 +36,6 @@ class Product
   public averageRating?: number;
   public reviewCount?: number;
   public tags?: string[];
-  // public createdAt?: Date;
 }
 
 Product.init(
@@ -82,12 +80,10 @@ Product.init(
     averageRating: { type: DataTypes.FLOAT, defaultValue: 0 },
     reviewCount: { type: DataTypes.INTEGER, defaultValue: 0 },
     tags: DataTypes.ARRAY(DataTypes.STRING),
-    // createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   },
   {
     sequelize,
     tableName: "products",
-    // timestamps: false, will auto do createdAt and updatedAt
   }
 );
 

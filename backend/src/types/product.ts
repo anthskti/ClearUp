@@ -1,21 +1,20 @@
 // Product DTO for application communication
 
 export interface Product {
-  id: string;
+  id: number;
   name: string;
   brand: string;
   category: ProductCategory;
-  skin_types: SkinType[];
+  skinTypes: SkinType[];
   benefits: string;
   ingredients: string;
   country: string;
-  // might add size later
-  image_urls: string[];
-  average_rating: number;
-  review_count: number;
+  imageUrls: string[];
+  averageRating: number;
+  reviewCount: number;
   tags: string[];
-  created_at: Date;
 }
+
 export type ProductCategory =
   | "Cleanser"
   | "Toner"

@@ -19,13 +19,30 @@ export class ProductService {
     return this.productRepository.findById(id);
   }
 
+  // CREATE a product
+  async createProduct(productData: {
+    // id: number; already auto increpemnted
+    name: string;
+    brand: string;
+    category: ProductCategory;
+    skinTypes: SkinType[];
+    benefits: string;
+    ingredients: string;
+    country: string;
+    imageUrls: string[];
+    tags: string[];
+  }): Promise<Product> {
+    return this.productRepository.create(productData);
+  }
+
   // UPDATE single product via ID
   async updateProduct(
     id: number,
     updates: Partial<{
       name: string;
       brand: string;
-      skinTypes: string; // DB expects string, not array
+      category: ProductCategory;
+      skinTypes: SkinType[];
       benefits: string;
       ingredients: string;
       country: string;

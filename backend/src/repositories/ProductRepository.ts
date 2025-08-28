@@ -1,65 +1,48 @@
 // Translates storage format to application format
 
+import ProductModel from "../models/Product";
 import { Product, ProductCategory, SkinType } from "../types/product";
 
-const ProductModel = require("../models/Product");
 export class ProductRepository {
   // Get all products
   async findAll(): Promise<Product[]> {
-    try {
-      const products = await ProductModel.findAll();
-      return products.map((product: any) => this.mapToProductType(product));
-    } catch (error: any) {
-      throw new Error(`Failed to fetch all products: ${error.message}`);
-    }
+    const products = await ProductModel.findAll();
+    return products.map((product: any) => this.mapToProductType(product));
   }
 
   // GET products by Category
   async findByCategory(category: ProductCategory): Promise<Product[]> {
-    try {
-      const products = await ProductModel.findAll({
-        where: { category },
-      });
-      return products.map((product: any) => this.mapToProductType(product));
-    } catch (error: any) {
-      throw new Error(`Failed to find products by category: ${error.message}`);
-    }
+    const products = await ProductModel.findAll({ where: { category } });
+    return products.map((product: any) => this.mapToProductType(product));
   }
 
   // GET products by Id
   async findById(id: string): Promise<Product | null> {
-    try {
-      const product = await ProductModel.findByPk(id); // finds by primary key
-      return product ? this.mapToProductType(product) : null;
-    } catch (error: any) {
-      throw new Error(`Failed to find product: ${error.message}`);
-    }
+    const product = await ProductModel.findByPk(parseInt(id));
+    return product ? this.mapToProductType(product) : null;
   }
 
   // POST a single product
-  async createProduct(productData: {
-    // id: number; already auto increpemnted
+  async create(productData: {
     name: string;
     brand: string;
     category: ProductCategory;
-    skinTypes: string; // DB expects string, not array
-    benefits?: string;
-    ingredients?: string;
-    country?: string;
-    imageUrls?: string[];
-    averageRating?: number;
-    reviewCount?: number;
-    tags?: string[];
+    skinTypes: SkinType[];
+    benefits: string;
+    ingredients: string;
+    country: string;
+    imageUrls: string[];
+    tags: string[];
   }): Promise<Product> {
     try {
       const product = await ProductModel.create(productData);
 
       return this.mapToProductType(product);
     } catch (error: any) {
-      if (error.code === 11000) {
+      if (error.name === "SequelizeUniqueConstraintError") {
         throw new Error("Product with already exists.");
       }
-      throw new Error(`Failed to create product: ${error.message}`);
+      throw error;
     }
   }
 
@@ -69,7 +52,8 @@ export class ProductRepository {
     updates: Partial<{
       name: string;
       brand: string;
-      skinTypes: string; // DB expects string, not array
+      category: ProductCategory;
+      skinTypes: SkinType[];
       benefits: string;
       ingredients: string;
       country: string;
@@ -77,41 +61,33 @@ export class ProductRepository {
       tags: string[];
     }>
   ): Promise<Product | null> {
-    try {
-      const product = await ProductModel.findOneAndUpdate({ id }, updates, {
-        new: true,
-      });
-      return product ? this.mapToProductType(product) : null;
-    } catch (error: any) {
-      throw new Error(`Failed to update product: ${error.message}`);
-    }
+    const [rows, [updatedProduct]] = await ProductModel.update(updates, {
+      where: { id },
+      returning: true,
+    });
+    return rows > 0 ? this.mapToProductType(updatedProduct) : null;
   }
 
   // DELETE product by ID
   async delete(id: number): Promise<boolean> {
-    try {
-      const del = await ProductModel.deleteOne({ id });
-      return del.deletedCount > 0;
-    } catch (error: any) {
-      throw new Error(`Failed to delete product: ${error.message}`);
-    }
+    const deleted = await ProductModel.destroy({ where: { id } });
+    return deleted > 0;
   }
 
   private mapToProductType(dbProduct: any): Product {
     return {
-      id: dbProduct.id.toString(), // audo generated in model
+      id: dbProduct.id,
       name: dbProduct.name,
       brand: dbProduct.brand,
-      category: dbProduct.category as ProductCategory,
-      skin_types: [dbProduct.skinTypes], // Convert to array
-      benefits: dbProduct.benefits || "",
-      ingredients: dbProduct.ingredients || "",
-      country: dbProduct.country || "",
-      image_urls: dbProduct.imageUrls || [],
-      average_rating: dbProduct.averageRating || 0,
-      review_count: dbProduct.reviewCount || 0,
+      category: dbProduct.category,
+      skinTypes: dbProduct.skinTypes || [],
+      benefits: dbProduct.benefits,
+      ingredients: dbProduct.ingredients,
+      country: dbProduct.country,
+      imageUrls: dbProduct.imageUrls || [],
+      averageRating: dbProduct.averageRating || 0,
+      reviewCount: dbProduct.reviewCount || 0,
       tags: dbProduct.tags || [],
-      created_at: dbProduct.createdAt,
     };
   }
 }

@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:15
+    container_name: skincare-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: skincare
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

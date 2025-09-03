@@ -1,6 +1,7 @@
 import sequelize from "../db";
 import Product from "../models/Product";
 
+// purpose is to test if postgre db connects with sequelize and properly inputs products
 (async () => {
   await sequelize.sync({ force: true });
 

@@ -1,6 +1,6 @@
-import express from 'express';
-import { ProductController } from './controllers/productController';
-import productRoutes from './routes/productRoutes'; // You'll need to create this
+import express from "express";
+import { ProductController } from "./controllers/ProductController";
+import productRoutes from "./routes/productRoutes"; // You'll need to create this
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,11 +9,11 @@ const port = process.env.PORT || 3000;
 app.use(express.json()); // parsing JSON bodies
 
 // Routes
-app.use('/api/products', productRoutes);
+app.use("/api/products", productRoutes);
 
-// Health 
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running!' });
+// Health
+app.get("/health", (req, res) => {
+  res.json({ status: "OK", message: "Server is running!" });
 });
 
 // Start the server

@@ -9,6 +9,11 @@ export class ProductService {
     this.productRepository = new ProductRepository();
   }
 
+  // GET all products
+  async getAllProducts(): Promise<Product[]> {
+    return this.productRepository.findAll();
+  }
+
   // GET category products (ex. cleanser, toner)
   async getProductsByCategory(category: ProductCategory): Promise<Product[]> {
     return this.productRepository.findByCategory(category);

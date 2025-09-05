@@ -8,6 +8,16 @@ export class ProductController {
     this.productService = new ProductService();
   }
 
+  // GET /api/products/
+  async getAllProducts(req: Request, res: Response): Promise<void> {
+    try {
+      const products = await this.productService.getAllProducts();
+      res.json(products);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   // GET /api/products/:category
   async getProductsByCategory(req: Request, res: Response): Promise<void> {
     try {

@@ -5,7 +5,7 @@ interface RoutineAttributes {
   id: number;
   name: string;
   description?: string;
-  userId: string;
+  userId: number;
 }
 
 interface RoutineCreationAttributes extends Optional<RoutineAttributes, "id"> {}
@@ -17,7 +17,7 @@ class Routine
   public id!: number;
   public name!: string;
   public description?: string;
-  public userId!: string;
+  public userId!: number;
 }
 
 Routine.init(

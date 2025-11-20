@@ -2,6 +2,7 @@ import { Product, ProductCategory, SkinType } from "../types/product";
 export declare class ProductService {
     private productRepository;
     constructor();
+    getAllProducts(): Promise<Product[]>;
     getProductsByCategory(category: ProductCategory): Promise<Product[]>;
     getProductById(id: string): Promise<Product | null>;
     createProduct(productData: {

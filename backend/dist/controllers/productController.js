@@ -6,6 +6,16 @@ class ProductController {
     constructor() {
         this.productService = new ProductService_1.ProductService();
     }
+    // GET /api/products/
+    async getAllProducts(req, res) {
+        try {
+            const products = await this.productService.getAllProducts();
+            res.json(products);
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
     // GET /api/products/:category
     async getProductsByCategory(req, res) {
         try {
@@ -72,4 +82,4 @@ class ProductController {
     }
 }
 exports.ProductController = ProductController;
-//# sourceMappingURL=productController.js.map
+//# sourceMappingURL=ProductController.js.map

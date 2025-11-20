@@ -1,6 +1,6 @@
 import express from "express";
-import { ProductController } from "./controllers/ProductController";
-import productRoutes from "./routes/productRoutes"; // You'll need to create this
+import productRoutes from "./routes/productRoutes";
+import routineRoutes from "./routes/routineRoutes";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -10,6 +10,7 @@ app.use(express.json()); // parsing JSON bodies
 
 // Routes
 app.use("/api/products", productRoutes);
+app.use("/api/routines", routineRoutes);
 
 // Health
 app.get("/health", (req, res) => {

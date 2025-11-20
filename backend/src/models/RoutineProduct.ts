@@ -1,4 +1,4 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../db";
 
 interface RoutineProductAttributes {
@@ -9,9 +9,10 @@ interface RoutineProductAttributes {
   timeOfDay?: "morning" | "evening" | "both";
   notes?: string;
 }
+interface RoutineProductCreationAttributes extends Optional<RoutineProductAttributes, "id"> {}
 
 class RoutineProduct
-  extends Model<RoutineProductAttributes>
+  extends Model<RoutineProductAttributes, RoutineProductCreationAttributes>
   implements RoutineProductAttributes
 {
   public id!: number;

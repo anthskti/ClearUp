@@ -7,6 +7,10 @@ class ProductService {
     constructor() {
         this.productRepository = new ProductRepository_1.ProductRepository();
     }
+    // GET all products
+    async getAllProducts() {
+        return this.productRepository.findAll();
+    }
     // GET category products (ex. cleanser, toner)
     async getProductsByCategory(category) {
         return this.productRepository.findByCategory(category);

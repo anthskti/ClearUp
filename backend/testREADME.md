@@ -252,3 +252,5 @@ or can comment any of the following lines (ex. just want to update the notes) bu
     "notes": "This should be the first step, emusify first in hands. Give 2 minutes to settle on face for oils to get out."
 }
 ```
+
+Only thing i want to improve is automatic category generation, since each product knows their category

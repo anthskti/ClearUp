@@ -42,7 +42,7 @@ const startServer = async () => {
 
     console.log("Syncing database models...");
     if (syncOptions.force) {
-      console.warn("⚠️  WARNING: Using force sync - all existing data will be deleted!");
+      console.warn("WARNING: Using force sync - all existing data will be deleted!");
     }
     await sequelize.sync(syncOptions);
     console.log("Database models synced successfully.");

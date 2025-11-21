@@ -164,12 +164,17 @@ GET /health
 ```
 Returns server status.
 
-### Product Endpoints#### Get All Products
+### Product Endpoints
+
+#### Get All Products
 ```bash
 GET /api/products/
 ```
-Returns all products in the database. 
-**Response:** Array of Product objects#### Get Products by Category
+Returns all products in the database.
+
+**Response:** Array of Product objects
+
+#### Get Products by Category
 ```bash
 GET /api/products/:category
 ```

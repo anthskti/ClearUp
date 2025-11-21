@@ -5,7 +5,7 @@ import { RoutineProduct } from "../types/routine";
 import { ProductCategory } from "../types/product";
 
 export class RoutineProductRepository {
-  // Get all routine products for a routine. Won't be used. 
+  // Gets all RoutineProduct records for a specific routine. For foreign key to Routine. 
   async findByRoutineId(routineId: number): Promise<RoutineProduct[]> {
     const routineProducts = await RoutineProductModel.findAll({
       where: { routineId },
@@ -13,7 +13,7 @@ export class RoutineProductRepository {
     return routineProducts.map((rp: any) => this.mapToRoutineProductType(rp));
   }
 
-  // Get a specific routine product by ID
+  // Gets a single RoutineProduct by its internal primary key. 
   async findById(id: string): Promise<RoutineProduct | null> {
     const routineProduct = await RoutineProductModel.findByPk(parseInt(id));
     return routineProduct ? this.mapToRoutineProductType(routineProduct) : null;

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { UserIcon } from "lucide-react";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -33,7 +34,7 @@ function Header() {
       <nav className="container mx-auto py-4 grid grid-cols-3 items-center">
         <div className="flex items-center justify-start">
           {/* Add Icon or change next line to custom image*/}
-          <p className="font-normal text-xl">ClearUp</p>
+          <p className="font-bold tracking-widest text-lg">CLEARUP</p>
         </div>
 
         <div className="flex items-center justify-center space-x-6">
@@ -57,10 +58,18 @@ function Header() {
         </div>
 
         <div className="flex item-center justify-end space-x-4">
-          <Link href="/profile" className="flex items-center">
-            {/* Account Icon, find later */}
-            My Account
-          </Link>
+          <button
+            className={`text-black text-xs px-2 py-2 transition-all duration-300 rounded-md border${
+              isScrolled
+                ? " border-gray-400 hover:bg-gray-200" // Scrolled
+                : " border-white hover:bg-gray-100/50" // Unscrolled
+            }`}
+          >
+            <Link href="/profile" className="flex items-center">
+              <UserIcon className="ml-2 w-4 h-4" />
+              Log In
+            </Link>
+          </button>
         </div>
       </nav>
     </div>

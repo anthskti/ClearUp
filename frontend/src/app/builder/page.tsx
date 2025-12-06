@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
-
-import { Copy } from "lucide-react";
+import { Copy, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Categories = [
   "Face Cleanser",
@@ -15,7 +15,7 @@ const Categories = [
 
 const Builder: React.FC = () => {
   return (
-    <div className="relative w-full min-h-screen bg-[#F6FBFF] pt-20 pb-20">
+    <div className="relative w-full min-h-screen bg-[#F8F8F8] pt-20 pb-20">
       <div className="max-w-6xl mx-auto px-6">
         <h1 className="text-5xl text-[#2E2E2E] pt-12 mb-8">
           Build Your Routine.
@@ -35,7 +35,7 @@ const Builder: React.FC = () => {
         </div>
 
         {/* Table header */}
-        <div className="grid grid-cols-[180px_1fr_120px_100px] items-center border-b py-6">
+        <div className="grid grid-cols-[180px_1fr_120px_100px] items-center border-b border-zinc-200 py-5">
           <div className="text-xs">Category</div>
           <div className="text-xs">Selection</div>
           <div className="text-xs">Where</div>
@@ -43,11 +43,11 @@ const Builder: React.FC = () => {
         </div>
 
         {/* Categories list */}
-        <div className="space-y-2">
+        <div>
           {Categories.map((category) => (
             <div
               key={category}
-              className="grid grid-cols-[180px_1fr_120px_100px] items-center border-b py-4"
+              className="grid grid-cols-[180px_1fr_120px_100px] items-center border-b border-zinc-200 py-5"
             >
               {/* Category */}
               <div className="text-sm text-gray-800">{category}</div>
@@ -55,9 +55,12 @@ const Builder: React.FC = () => {
               {/* Selection (long) */}
               <div className="flex items-center justify-between">
                 {category === "Essence" ? (
-                  <button className="bg-[#0e4b84] text-white px-4 py-2 rounded-md shadow-md hover:bg-[#0a345c] transition-all duration-300">
-                    + Choose an Essence
-                  </button>
+                  <Button variant="secondary" size="lg" asChild>
+                    <Link href="/">
+                      <Plus size={18} />
+                      Choose an Essence
+                    </Link>
+                  </Button>
                 ) : (
                   // Some Image Placeholder. Grab First Image of Product
                   // If Empty, have the add button with "+ Choose a [Category]"

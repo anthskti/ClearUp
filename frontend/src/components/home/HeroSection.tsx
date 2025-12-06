@@ -23,13 +23,13 @@ const HeroSection = () => {
         <div className="flex gap-2 flex-col">
           <Link href="/builder" passHref>
             {/* input icon */}
-            <button className="bg-[#F8F8F8] hover:bg-gray-400 text-black hover:text-stone-800 px-6 py-2 rounded-md text-md items-center gap-2 transition colors duration-200">
+            <button className="bg-[#F8F8F8] hover:bg-[#F8F8F8]/90 text-black hover:text-stone-800 px-6 py-2 rounded-md text-md items-center gap-2 transition colors duration-200">
               Start Your Build
             </button>
           </Link>
           <Link href="/" passHref>
             {/* input icon */}
-            <button className="bg-[#0E4B84] hover:bg-[#0A345C] text-[#F8F8F8] hover:text-gray-400 px-6 py-2 rounded-md text-md items-center gap-2 transition colors duration-200">
+            <button className="bg-[#0E4B84] hover:bg-[#0A345C]/90 text-[#F8F8F8] hover:text-gray-400 px-6 py-2 rounded-md text-md items-center gap-2 transition colors duration-200">
               View Guides
             </button>
           </Link>

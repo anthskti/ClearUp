@@ -106,7 +106,7 @@ const ProductDatabasePage = () => {
             </div>
           </div>
 
-          {/* 2. Routine Builder */}
+          {/* 2. Add to Routine */}
           <div className="bg-white p-4 border border-zinc-100 rounded-lg shadow-md mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <div className="text-xs font-bold text-zinc-400 tracking-wider mb-1">
@@ -176,9 +176,9 @@ const ProductDatabasePage = () => {
               </span> */}
             </div>
 
-            <div className="overflow-hidden border border-zinc-100 rounded-lg">
+            <div className="overflow-hidden rounded-lg">
               <table className="w-full text-sm text-left">
-                <thead className="bg-zinc-50 text-zinc-500 font-medium uppercase text-xs">
+                <thead className="text-zinc-500 font-medium uppercase text-xs border-b border-zinc-200">
                   <tr>
                     <th className="px-4 py-3">Merchant</th>
                     <th className="px-4 py-3">Availability</th>
@@ -190,7 +190,7 @@ const ProductDatabasePage = () => {
                   {product.merchants.map((merchant, i) => (
                     <tr
                       key={i}
-                      className="hover:bg-zinc-50/50 transition-colors"
+                      className="hover:bg-zinc-50 transition-colors border-b border-zinc-200"
                     >
                       <td className="px-4 py-4 font-medium text-zinc-900">
                         {merchant.name}
@@ -259,7 +259,7 @@ const ProductDatabasePage = () => {
                 Community Comments
               </h3>
             </div>
-            <Button variant="outline">Write an Entry</Button>
+            <Button variant="outline">Add a Comment</Button>
           </div>
 
           <div className="space-y-8">
@@ -329,7 +329,6 @@ const ProductDatabasePage = () => {
 
                 <div className="mt-3 flex gap-4 text-xs text-zinc-400 font-medium cursor-pointer">
                   <span className="hover:text-zinc-600">Helpful (4)</span>
-                  <span className="hover:text-zinc-600">Reply</span>
                 </div>
               </div>
             </div>

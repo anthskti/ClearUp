@@ -14,7 +14,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-white/40" />
 
       <div className="container mx-auto relative flex flex-col justify-center h-full">
-        <h1 className="text-5xl font-bold text-stone-900 mb-6 max-w-3xl ">
+        <h1 className="text-5xl font-bold text-stone-900 mb-6 max-w-3xl">
           Pick Products. <br />
           Build Your Routine. <br />
           Improve Your Skin.

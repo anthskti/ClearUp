@@ -2,6 +2,7 @@ import Link from "next/link";
 import React from "react";
 import { Copy, Plus, ExternalLink, X, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import WaveBackground from "@/components/themes/wavebackground";
 
 const mockRoutine = [
   { id: "cleanser", label: "Cleanser", product: null },
@@ -42,8 +43,9 @@ const Builder: React.FC = () => {
   const totalItems = mockRoutine.filter((step) => step.product).length;
 
   return (
-    <div className="min-h-screen w-full bg-[#F8F8F8] pt-20 pb-20">
-      <div className="max-w-6xl mx-auto px-6">
+    <div className="relative min-h-screen w-full bg-[#F8F8F8] pt-20 pb-20">
+      <WaveBackground />
+      <div className="relative z-10 max-w-6xl mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#2E2E2E] uppercase">
             Build Your Routine.

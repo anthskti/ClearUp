@@ -3,7 +3,7 @@ import React, { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Minus, Plus, SlidersHorizontal, Search } from "lucide-react";
 import { CATEGORY_CONFIG, CategoryKey } from "@/constants/filters"; // The config from above
-import WaveBackground from "@/components/themes/wavebackground";
+import ProceduralWave from "@/components/themes/ProceduralWave";
 
 // Implement, when Smaller, ahve
 
@@ -62,7 +62,7 @@ const MOCK_PRODUCTS = [
 const ProductListPage = () => {
   const searchParams = useSearchParams();
 
-  const categorySlug = searchParams.get("category") || "cleanser";
+  const categorySlug = searchParams.get("category") || "";
   const config =
     CATEGORY_CONFIG[categorySlug as CategoryKey] || CATEGORY_CONFIG.default;
   const [openFilters, setOpenFilters] = useState<Record<string, boolean>>({
@@ -131,9 +131,9 @@ const ProductListPage = () => {
     }
   };
   return (
-    <div className="relative min-h-screen bg-[#F8F8F8] pt-24 px-6">
-      <WaveBackground value="1000" />
-      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
+    <div className="relative min-h-screen bg-[#F8F8F8] pt-24">
+      <ProceduralWave seed={6} offset={2} />
+      <div className="relative z-1 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 px-6">
         {/* --- LEFT SIDEBAR (FILTERS) --- */}
         <aside className="lg:col-span-3 space-y-6">
           <div>

@@ -3,9 +3,9 @@ import Link from "next/link";
 
 const HeroSection = () => {
   return (
-    <div className="relative w-full h-[80vh] overflow-hidden">
+    <div className="relative w-full h-[70vh] overflow-hidden">
       <Image
-        src="/assets/home.jpg"
+        src="/assets/home.jpg" // EDIT BACKGROUND IMAGE TO BE WIDER
         alt="Home Background"
         fill
         className="object-cover"

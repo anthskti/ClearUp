@@ -3,13 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { UserIcon } from "lucide-react";
+import { UserIcon, ChevronDown } from "lucide-react";
 
 const navItems = [
   { name: "Home", href: "/" },
   { name: "Builder", href: "/builder" },
   { name: "Products", href: "/products" },
   { name: "Guides", href: "/guides" },
+];
+
+const productCategories = [
+  { name: "Cleansers", href: "/products?category=cleanser" },
+  { name: "Toners", href: "/products?category=toner" },
+  { name: "Essences", href: "/products?category=essence" },
+  { name: "Serums", href: "/products?category=serum" },
+  { name: "Moisturizers", href: "/products?category=moisturizer" },
+  { name: "Sunscreens", href: "/products?category=sunscreen" },
 ];
 
 function Header() {
@@ -37,24 +46,59 @@ function Header() {
           <p className="font-bold tracking-widest text-lg">CLEARUP</p>
         </div>
 
-        <div className="flex items-center justify-center space-x-6">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`transition-colors ${
-                isScrolled
-                  ? path === item.href // Scrolled; honestly i don't think it looks that great, but good feature to have.
-                    ? "text-gray-700"
+        <div className="flex items-center justify-center space-x-6 text-xs uppercase">
+          {navItems.map((item) => {
+            // Check if this item is the "Products" dropdown
+            if (item.name === "Products") {
+              return (
+                <div key={item.name} className="relative group ">
+                  {/* The Trigger Button */}
+                  <button
+                    className={`flex items-center transition-colors text-xs uppercase ${
+                      path.startsWith("/products") // Highlight if we are in any product page
+                        ? "text-gray-700 font-medium"
+                        : "text-black hover:text-gray-700"
+                    }`}
+                  >
+                    {item.name}
+                    <ChevronDown className="ml-1 w-4 h-4 transition-transform duration-200 group-hover:rotate-180" />
+                  </button>
+
+                  {/* The Dropdown Menu (Hidden by default, shown on group-hover) */}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top">
+                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-100"></div>
+
+                    <div className="relative bg-white rounded-md overflow-hidden py-2">
+                      {productCategories.map((category) => (
+                        <Link
+                          key={category.name}
+                          href={category.href}
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                        >
+                          {category.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            // Standard Links (Home, Builder, Guides)
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`transition-colors ${
+                  path === item.href
+                    ? "text-gray-700 font-medium"
                     : "text-black hover:text-gray-700"
-                  : path === item.href // Unscrolled
-                  ? "text-gray-700"
-                  : "text-black hover:text-gray-700"
-              }`}
-            >
-              {item.name}
-            </Link>
-          ))}
+                }`}
+              >
+                {item.name}
+              </Link>
+            );
+          })}
         </div>
 
         <div className="flex item-center justify-end space-x-4">

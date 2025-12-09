@@ -2,7 +2,7 @@ import Link from "next/link";
 import React from "react";
 import { Copy, Plus, ExternalLink, X, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import WaveBackground from "@/components/themes/wavebackground";
+import ProceduralWave from "@/components/themes/ProceduralWave";
 
 const mockRoutine = [
   { id: "cleanser", label: "Cleanser", product: null },
@@ -43,9 +43,9 @@ const Builder: React.FC = () => {
   const totalItems = mockRoutine.filter((step) => step.product).length;
 
   return (
-    <div className="relative min-h-screen w-full bg-[#F8F8F8] pt-20 pb-20">
-      <WaveBackground />
-      <div className="relative z-10 max-w-6xl mx-auto px-6">
+    <div className="relative min-h-screen w-full bg-[#F8F8F8]">
+      <ProceduralWave seed={3} height={190} />
+      <div className="relative z-1 max-w-6xl mx-auto px-6 pt-20 pb-20">
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#2E2E2E] uppercase">
             Build Your Routine.
@@ -139,7 +139,7 @@ const Builder: React.FC = () => {
                   </div>
                 ) : (
                   // EMPTY STATE (Dashed Slot)
-                  <Link href={`/browse?category=${step.id}`}>
+                  <Link href={`/products?category=${step.id}`}>
                     <div className="w-full h-14 md:h-16 border-2 border-dashed border-zinc-300 rounded-lg flex items-center justify-center gap-2 text-zinc-400 hover:border-zinc-400 hover:text-zinc-600 hover:bg-zinc-50 transition-all cursor-pointer">
                       <Plus size={18} />
                       <span className="font-medium text-sm">

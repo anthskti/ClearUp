@@ -103,9 +103,9 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       },
     ],
     tableColumns: [
-      { id: "name", label: "Product", width: "col-span-5 text-left" },
+      { id: "name", label: "Product", width: "col-span-6 text-left" },
       { id: "texture", label: "Texture", width: "col-span-1" },
-      { id: "skinType", label: "SkinType", width: "col-span-2" },
+      { id: "skinType", label: "SkinType", width: "col-span-1" },
       { id: "country", label: "Country", width: "col-span-1" },
       { id: "rating", label: "Rating", width: "col-span-1 text-center" },
       { id: "price", label: "Price", width: "col-span-1 text-right" },
@@ -137,7 +137,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
   },
 
   default: {
-    category: "Other",
+    category: "All",
     specificFilters: [],
     tableColumns: [
       { id: "name", label: "Product", width: "col-span-6 text-left" },

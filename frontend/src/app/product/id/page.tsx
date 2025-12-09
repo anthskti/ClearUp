@@ -13,6 +13,7 @@ import {
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import ProceduralWave from "@/components/themes/ProceduralWave";
 
 const ProductDatabasePage = () => {
   // Mock Data based on your screenshot
@@ -61,8 +62,9 @@ const ProductDatabasePage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#F8F8F8] pt-20">
-      <main className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12">
+    <div className="relative min-h-screen w-full bg-[#F8F8F8] pt-20">
+      <ProceduralWave seed={10} height={140} offset={1} />
+      <main className="relative z-1 max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left Column: Visuals */}
         <div className="lg:col-span-5 space-y-4">
           <div className="text-sm text-zinc-500">

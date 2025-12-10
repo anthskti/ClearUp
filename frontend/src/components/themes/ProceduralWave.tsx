@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
 
+// Set math.sin to fixedAt(2) for hydration consistency
+
 interface ProceduralWaveProps {
   className?: string;
   fill?: string;
@@ -9,7 +11,7 @@ interface ProceduralWaveProps {
   frequency?: number; // How many bumps
   offset?: number; // Phase shift
   seed?: number; // Randomness; Use this the most
-  flip?: boolean; // NEW: Toggle between Top and Bottom
+  flip?: boolean; // Toggle between Top and Bottom
 }
 
 const ProceduralWave: React.FC<ProceduralWaveProps> = ({
@@ -18,7 +20,7 @@ const ProceduralWave: React.FC<ProceduralWaveProps> = ({
   height = 180,
   width = 1440,
   amplitude = 10,
-  frequency = 1.3,
+  frequency = 3,
   offset = 0,
   seed = 5,
   flip = true,
@@ -28,7 +30,7 @@ const ProceduralWave: React.FC<ProceduralWaveProps> = ({
     const segments = 200;
     const waveHeight = height / 2;
 
-    // --- CHANGE 1: START POINT ---
+    // --- START POINT ---
     // If flip is true, start at Top-Left (0,0). If false, Bottom-Left (0, height)
     points.push(flip ? `M 0 0` : `M 0 ${height}`);
 
@@ -42,20 +44,22 @@ const ProceduralWave: React.FC<ProceduralWaveProps> = ({
       );
       const y2 =
         Math.sin(
-          normalizedX * Math.PI * 2 * (frequency * 2.5) + offset + seed * 2
+          normalizedX * Math.PI * 2 * (frequency * 1.2) + offset + seed * 2
         ) * 0.5;
       const y3 =
         Math.sin(
-          normalizedX * Math.PI * 2 * (frequency * 4) + offset + seed * 3
+          normalizedX * Math.PI * 2 * (frequency * 2.1) + offset + seed * 3
         ) * 0.2;
 
       const combinedY = (y1 + y2 + y3) * amplitude;
       const finalY = waveHeight - combinedY;
 
-      points.push(`L ${x} ${finalY}`);
+      // --- HYDRATION FIX IS HERE ---
+      // We round values to 2 decimal places to ensure Server and Client match perfectly.
+      points.push(`L ${x.toFixed(2)} ${finalY.toFixed(2)}`);
     }
 
-    // --- CHANGE 2: END POINT ---
+    // --- END POINT ---
     // If flip is true, close at Top-Right (width, 0). If false, Bottom-Right (width, height)
     points.push(flip ? `L ${width} 0` : `L ${width} ${height}`);
 

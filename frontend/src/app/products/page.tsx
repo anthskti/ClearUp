@@ -132,7 +132,7 @@ const ProductListPage = () => {
   };
   return (
     <div className="relative min-h-screen bg-[#F8F8F8] pt-24">
-      <ProceduralWave seed={6} offset={2} />
+      <ProceduralWave seed={6} offset={2} frequency={1.5} />
       <div className="relative z-1 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 px-6">
         {/* --- LEFT SIDEBAR (FILTERS) --- */}
         <aside className="lg:col-span-3 space-y-6">

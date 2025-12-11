@@ -1,20 +1,38 @@
-import express from "express";
+import express, { Router } from "express";
 import { ProductController } from "../controllers/ProductController";
 
 const router = express.Router();
 const productController = new ProductController();
 
-router.get("/", (req, res) => productController.getAllProducts(req, res));
-router.get("/:category", (req, res) =>
-  productController.getProductsByCategory(req, res)
+router.put("/product-merchant/:id", (req, res) =>
+  productController.updateProductMerchant(req, res)
 );
-router.get("/id/:id", (req, res) => productController.getProductById(req, res));
+router.delete("/product-merchant/:id", (req, res) =>
+  productController.removeMerchantFromProduct(req, res)
+);
+
+router.get("/", (req, res) => productController.getAllProducts(req, res));
 router.post("/", (req, res) => productController.createProduct(req, res));
+
+// Using REST practice Query Parameters (?category=x)
+// router.get("/category/:category", (req, res) =>
+//   productController.getProductsByCategory(req, res)
+// );
+
+// Standard Product CRUD
+router.get("/id/:id", (req, res) => productController.getProductById(req, res));
 router.put("/id/:id", (req, res) =>
   productController.updateProductbyId(req, res)
 );
 router.delete("/id/:id", (req, res) =>
   productController.DeleteProductbyId(req, res)
+);
+
+router.get("/id/:id/merchants", (req, res) =>
+  productController.getMerchantsById(req, res)
+);
+router.post("/id/:id/merchants", (req, res) =>
+  productController.addMerchantByProductId(req, res)
 );
 
 export default router;

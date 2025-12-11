@@ -5,14 +5,15 @@ interface ProductMerchantAttributes {
   id: number;
   productId: number;
   merchantId: number;
+  website: string;
   price: number;
-  stock: number;
+  stock: boolean;
   shipping?: string;
   lastUpdated: Date;
 }
 
 interface ProductMerchantCreationAttributes
-  extends Optional<ProductMerchantAttributes, "id"> {}
+  extends Optional<ProductMerchantAttributes, "id" | "lastUpdated"> {}
 class ProductMerchant
   extends Model<ProductMerchantCreationAttributes>
   implements ProductMerchantAttributes
@@ -20,8 +21,9 @@ class ProductMerchant
   public id!: number;
   public productId!: number;
   public merchantId!: number;
+  public website!: string;
   public price!: number;
-  public stock!: number;
+  public stock!: boolean;
   public shipping?: string;
   public lastUpdated!: Date;
 }
@@ -41,12 +43,13 @@ ProductMerchant.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    website: { type: DataTypes.STRING, allowNull: false },
     price: {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
     stock: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
     shipping: {
@@ -61,5 +64,8 @@ ProductMerchant.init(
     sequelize,
     tableName: "product_merchants",
     timestamps: true,
+    updatedAt: "lastUpdated",
   }
 );
+
+export default ProductMerchant;

@@ -7,11 +7,11 @@ export class RoutineService {
   private routineRepository: RoutineRepository;
   private routineProductRepository: RoutineProductRepository;
 
-  // for dependency injection
   constructor() {
     this.routineRepository = new RoutineRepository();
     this.routineProductRepository = new RoutineProductRepository();
   }
+  // Standard CRUD Methods
 
   // GET all routines
   async getAllRoutines(): Promise<Routine[]> {
@@ -23,19 +23,19 @@ export class RoutineService {
     return this.routineRepository.findByUserId(userId);
   }
 
-  // GET singular routine by id (ex. "Combination Glass Look Routine")
+  // GET routine (singular) by Id
   async getRoutineById(id: string): Promise<Routine | null> {
     return this.routineRepository.findById(id);
   }
 
-  // GET routine with products
+  // GET routine with its products
   async getRoutineWithProducts(
     id: string
   ): Promise<RoutineWithProducts | null> {
     return this.routineRepository.findByIdWithProducts(id);
   }
 
-  // CREATE a routine
+  // POST a single routine
   async createRoutine(routineData: {
     name: string;
     description?: string;
@@ -44,7 +44,7 @@ export class RoutineService {
     return this.routineRepository.create(routineData);
   }
 
-  // UPDATE single routine via ID
+  // PUT update a single routine by ID
   async updateRoutine(
     id: number,
     updates: Partial<{
@@ -56,12 +56,12 @@ export class RoutineService {
     return this.routineRepository.update(id, updates);
   }
 
-  // DELETE routine
+  // DELETE routine by ID
   async deleteRoutine(id: number): Promise<boolean> {
     return this.routineRepository.delete(id);
   }
 
-  // Add a product to a routine
+  // POST Add a product to a routine
   async addProductToRoutine(
     routineId: number,
     productData: {
@@ -71,51 +71,40 @@ export class RoutineService {
       notes?: string;
     }
   ): Promise<RoutineProduct> {
-    // Verify routine exists
-    const routine = await this.routineRepository.findById(
-      routineId.toString()
-    );
-    if (!routine) {
-      throw new Error("Routine not found");
-    }
-
     return this.routineProductRepository.create({
       routineId,
       ...productData,
     });
   }
 
-  // Remove a product from a routine
+  // DELETE a product from a routine
   async removeProductFromRoutine(
-    routineId: number,
-    productId: number
+    routineProductId: number,
+    userId: number
   ): Promise<boolean> {
-    return this.routineProductRepository.deleteByRoutineAndProduct(
-      routineId,
-      productId
-    );
+    // TODO: security check when Auth is implemented
+    /*
+    const item = await this.routineProductRepository.findById(routineProductId.toString());
+    const routine = await this.routineRepository.findById(item.routineId.toString());
+    if (routine.userId !== userId) throw new Error("Unauthorized");
+    */
+    return this.routineProductRepository.delete(routineProductId);
   }
 
-  // Update a product in a routine
+  // PUT update a routineProducts info in a routine
   async updateProductInRoutine(
-    routineId: number,
-    productId: number,
+    routineProductId: number,
     updates: Partial<{
       category: ProductCategory;
       timeOfDay?: "morning" | "evening" | "both";
       notes?: string;
     }>
   ): Promise<RoutineProduct | null> {
-    return this.routineProductRepository.updateByRoutineAndProduct(
-      routineId,
-      productId,
-      updates
-    );
+    return this.routineProductRepository.update(routineProductId, updates);
   }
 
-  // Get all products in a routine
+  //GET all products in a routine
   async getRoutineProducts(routineId: number): Promise<RoutineProduct[]> {
     return this.routineProductRepository.findByRoutineId(routineId);
   }
 }
-

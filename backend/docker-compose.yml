@@ -1,7 +1,6 @@
-version: "3.8"
 services:
   postgres:
-    # image: postgres:15 - not supported in docker compose v2
+    image: postgres:15
     container_name: skincare-db
     ports:
       - "5432:5432"

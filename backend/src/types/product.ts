@@ -4,15 +4,20 @@ export interface Product {
   id: number;
   name: string;
   brand: string;
-  category: ProductCategory;
-  skinTypes: SkinType[];
-  benefits: string;
-  ingredients: string;
+
+  category: string;
+  labels: string[];
+  skinType: string[];
   country: string;
-  imageUrls: string[];
+  capacity: string;
+  price: number;
+
+  instructions: string[];
+  ingredients?: string;
+  imageUrls?: string[];
   averageRating: number;
   reviewCount: number;
-  tags: string[];
+  tags?: string[];
 }
 
 export type ProductCategory =
@@ -20,7 +25,7 @@ export type ProductCategory =
   | "Toner"
   | "Essence"
   | "Serum"
-  | "Eye Cream"
+  // | "Eye Cream"
   | "Moisturizer"
   | "Sunscreen"
   | "Other";

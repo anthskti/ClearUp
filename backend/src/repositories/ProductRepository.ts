@@ -10,13 +10,13 @@ export class ProductRepository {
     return products.map((product: any) => this.mapToProductType(product));
   }
 
-  // GET products by Category
+  // GET products by category (ex. cleanser, toner)
   async findByCategory(category: ProductCategory): Promise<Product[]> {
     const products = await ProductModel.findAll({ where: { category } });
     return products.map((product: any) => this.mapToProductType(product));
   }
 
-  // GET products by Id
+  // GET product (Singular) by Id
   async findById(id: string): Promise<Product | null> {
     const product = await ProductModel.findByPk(parseInt(id));
     return product ? this.mapToProductType(product) : null;
@@ -27,10 +27,13 @@ export class ProductRepository {
     name: string;
     brand: string;
     category: ProductCategory;
-    skinTypes: SkinType[];
-    benefits: string;
-    ingredients: string;
+    labels: string[];
+    skinType: SkinType[];
     country: string;
+    capacity: string;
+    price: number;
+    instructions: string[];
+    ingredients: string;
     imageUrls: string[];
     tags: string[];
   }): Promise<Product> {
@@ -40,23 +43,26 @@ export class ProductRepository {
       return this.mapToProductType(product);
     } catch (error: any) {
       if (error.name === "SequelizeUniqueConstraintError") {
-        throw new Error("Product with already exists.");
+        throw new Error("Product already exists.");
       }
       throw error;
     }
   }
 
-  // PUT / UPDATE a single product via ID
+  // PUT update a single product by ID
   async update(
     id: number,
     updates: Partial<{
       name: string;
       brand: string;
       category: ProductCategory;
-      skinTypes: SkinType[];
-      benefits: string;
-      ingredients: string;
+      labels: string[];
+      skinType: SkinType[];
       country: string;
+      capacity: string;
+      price: number;
+      instructions: string[];
+      ingredients: string;
       imageUrls: string[];
       tags: string[];
     }>
@@ -79,11 +85,16 @@ export class ProductRepository {
       id: dbProduct.id,
       name: dbProduct.name,
       brand: dbProduct.brand,
+
       category: dbProduct.category,
-      skinTypes: dbProduct.skinTypes || [],
-      benefits: dbProduct.benefits,
-      ingredients: dbProduct.ingredients,
+      labels: dbProduct.labels || [],
+      skinType: dbProduct.skinType || [],
       country: dbProduct.country,
+      capacity: dbProduct.capacity,
+      price: dbProduct.price,
+
+      instructions: dbProduct.instructions || [],
+      ingredients: dbProduct.ingredients,
       imageUrls: dbProduct.imageUrls || [],
       averageRating: dbProduct.averageRating || 0,
       reviewCount: dbProduct.reviewCount || 0,

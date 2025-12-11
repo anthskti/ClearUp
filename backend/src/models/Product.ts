@@ -9,11 +9,12 @@ interface ProductAttributes {
   brand: string;
 
   category: string;
-  filter: string[];
+  labels: string[];
   skinType: string[];
   country?: string;
   capacity: string;
   price: number;
+
   instructions: string[];
   ingredients?: string; // Not added in frontend yet
   imageUrls?: string[];
@@ -33,7 +34,7 @@ class Product
   public brand!: string;
 
   public category!: string;
-  public filter!: string[]; // hold filter information (ex. texture, active ingredients, spf on main page too)
+  public labels!: string[]; // hold filter information (ex. texture, active ingredients, spf on main page too)
   public skinType!: string[];
   public country!: string;
   public capacity!: string;
@@ -69,8 +70,8 @@ Product.init(
       ),
       allowNull: false,
     },
-    filter: {
-      type: DataTypes.STRING,
+    labels: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false,
     },
     skinType: {
@@ -91,6 +92,7 @@ Product.init(
     price: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0 },
 
     instructions: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false },
+    ingredients: { type: DataTypes.STRING, allowNull: false },
     imageUrls: DataTypes.ARRAY(DataTypes.STRING),
     averageRating: { type: DataTypes.FLOAT, defaultValue: 0 },
     reviewCount: { type: DataTypes.INTEGER, defaultValue: 0 },

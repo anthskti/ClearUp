@@ -11,13 +11,14 @@ router.delete("/product-merchant/:id", (req, res) =>
   productController.removeMerchantFromProduct(req, res)
 );
 
+// GET for filtering with ?filters=greentea etc
 router.get("/", (req, res) => productController.getAllProducts(req, res));
 router.post("/", (req, res) => productController.createProduct(req, res));
 
-// Using REST practice Query Parameters (?category=x)
-// router.get("/category/:category", (req, res) =>
-//   productController.getProductsByCategory(req, res)
-// );
+// GET /api/products/category/
+router.get("/category/:category", (req, res) =>
+  productController.getProductsByCategory(req, res)
+);
 
 // Standard Product CRUD
 router.get("/id/:id", (req, res) => productController.getProductById(req, res));

@@ -9,8 +9,8 @@ export interface ProductMerchant {
   productId: number;
   merchantId: number;
   website: string;
-  price: boolean;
-  stock: number;
+  price: number;
+  stock: boolean;
   shipping: string;
   lastUpdated: Date;
 }

@@ -16,6 +16,7 @@ interface ProductAttributes {
   price: number;
 
   instructions: string[];
+  activeIngredient?: string[];
   ingredients?: string; // Not added in frontend yet
   imageUrls?: string[];
   averageRating?: number;
@@ -41,7 +42,8 @@ class Product
   public price!: number;
 
   public instructions!: string[];
-  public ingredients!: string; // All ingredents
+  public activeIngredient?: string[];
+  public ingredients?: string; // All ingredents
   public imageUrls!: string[];
   public averageRating?: number;
   public reviewCount?: number;
@@ -92,7 +94,8 @@ Product.init(
     price: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0 },
 
     instructions: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false },
-    ingredients: { type: DataTypes.STRING, allowNull: false },
+    activeIngredient: { type: DataTypes.ARRAY(DataTypes.STRING) },
+    ingredients: { type: DataTypes.STRING },
     imageUrls: DataTypes.ARRAY(DataTypes.STRING),
     averageRating: { type: DataTypes.FLOAT, defaultValue: 0 },
     reviewCount: { type: DataTypes.INTEGER, defaultValue: 0 },

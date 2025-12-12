@@ -42,6 +42,7 @@ export class ProductService {
     capacity: string;
     price: number;
     instructions: string[];
+    activeIngredient: string[];
     ingredients: string;
     imageUrls: string[];
     tags: string[];
@@ -62,6 +63,7 @@ export class ProductService {
       capacity?: string;
       price?: number;
       instructions?: string[];
+      activeIngredient?: string[];
       ingredients?: string;
       imageUrls?: string[];
       tags?: string[];

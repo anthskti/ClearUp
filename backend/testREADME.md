@@ -4,9 +4,9 @@
 - [Product Testing](#product-testing)
 - [Routine Testing](#routine-testing)
 
-## Setup
+## SETUP
 
-### Start backend services
+### DOCKER RELATED
 
 To start all Docker containers:
 
@@ -15,19 +15,34 @@ cd backend
 docker-compose up --build
 ```
 
-run this to run containers in background when everything is already built.
+Background when everything is already built:
 
 ```bash
 docker-compose up -d
 ```
 
-### Stopping docker services
-
-To stop all Docker containers:
+Stop all Docker containers:
 
 ```bash
 docker-compose down
 ```
+
+Look at Local Postgre Table via Docker
+on windows:
+
+````bash
+docker exec -it skincare-db psql -U postgres -d skincare
+``
+on mac:
+```bash
+docker exec -it skincare-postgres psql -U postgres -d skincare
+````
+
+cmds
+do \dt to see all tables
+do \q to quit
+
+### TERMINAL RELATED
 
 To run backend Server in cd backend:
 
@@ -35,31 +50,17 @@ To run backend Server in cd backend:
 npm run dev
 ```
 
+notes:
 Development/testing: npm run dev
 Production deployment: npm run build then npm start
 Docker/AWS deployment: Use npm run build + npm start
 
-Look at Local Postgre Table via Docker
-on windows:
+## POSTMAN TESTING
+
+### Testing All Features Script:
 
 ```bash
-docker exec -it skincare-db psql -U postgres -d skincare
-```
-
-on mac:
-
-```bash
-docker exec -it skincare-postgres psql -U postgres -d skincare
-```
-
-do \q to quit
-
-## Product Testing
-
-### Testing Product Script:
-
-```bash
-npx ts-node src/scripts/testProduct.ts
+npx ts-node src/scripts/testRoutine.ts
 ```
 
 ### Testing _product_ REST commands using Postman:

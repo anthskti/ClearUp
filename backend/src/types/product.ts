@@ -13,6 +13,7 @@ export interface Product {
   price: number;
 
   instructions: string[];
+  activeIngredient?: string[];
   ingredients?: string;
   imageUrls?: string[];
   averageRating: number;
@@ -25,7 +26,7 @@ export type ProductCategory =
   | "Toner"
   | "Essence"
   | "Serum"
-  // | "Eye Cream"
+  | "Eye Cream"
   | "Moisturizer"
   | "Sunscreen"
   | "Other";

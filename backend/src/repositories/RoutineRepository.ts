@@ -17,13 +17,13 @@ export class RoutineRepository {
     return routines.map((routine: any) => this.mapToRoutineType(routine));
   }
 
-  // GET routine by Id
+  // GET routine (singular) by Id
   async findById(id: string): Promise<Routine | null> {
     const routine = await RoutineModel.findByPk(parseInt(id));
     return routine ? this.mapToRoutineType(routine) : null;
   }
 
-  // GET routine by Id, outputting the routine's products
+  // GET routine (singular) by Id, outputting the routine's products
   async findByIdWithProducts(id: string): Promise<RoutineWithProducts | null> {
     const routine = await RoutineModel.findByPk(parseInt(id), {
       include: [
@@ -36,21 +36,17 @@ export class RoutineRepository {
     return routine ? this.mapToRoutineWithProductsType(routine) : null;
   }
 
-  // findRoutinesByProducts(productIds: number[]); this will be when generally searching, can filter routines by a specifc product.
-  // Can implement later
-
   // POST a single routine
   async create(routineData: {
     name: string;
     description?: string;
     userId: number;
   }): Promise<Routine> {
-      const routine = await RoutineModel.create(routineData);
-      return this.mapToRoutineType(routine);
+    const routine = await RoutineModel.create(routineData);
+    return this.mapToRoutineType(routine);
   }
 
-  // PUT / UPDATE a single routine via ID
-  // Will update the routines name and description
+  // PUT update a single routine by ID
   async update(
     id: number,
     updates: Partial<{
@@ -99,4 +95,3 @@ export class RoutineRepository {
     };
   }
 }
-

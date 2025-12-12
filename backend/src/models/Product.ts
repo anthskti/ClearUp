@@ -7,11 +7,17 @@ interface ProductAttributes {
   id: number;
   name: string;
   brand: string;
+
   category: string;
-  skinTypes: string[];
-  benefits?: string;
-  ingredients?: string;
+  labels: string[];
+  skinType: string[];
   country?: string;
+  capacity: string;
+  price: number;
+
+  instructions: string[];
+  activeIngredient?: string[];
+  ingredients?: string; // Not added in frontend yet
   imageUrls?: string[];
   averageRating?: number;
   reviewCount?: number;
@@ -27,11 +33,17 @@ class Product
   public id!: number;
   public name!: string;
   public brand!: string;
+
   public category!: string;
-  public skinTypes!: string[];
-  public benefits!: string;
-  public ingredients!: string;
+  public labels!: string[]; // hold filter information (ex. texture, active ingredients, spf on main page too)
+  public skinType!: string[];
   public country!: string;
+  public capacity!: string;
+  public price!: number;
+
+  public instructions!: string[];
+  public activeIngredient?: string[];
+  public ingredients?: string; // All ingredents
   public imageUrls!: string[];
   public averageRating?: number;
   public reviewCount?: number;
@@ -49,18 +61,22 @@ Product.init(
     brand: { type: DataTypes.STRING, allowNull: false },
     category: {
       type: DataTypes.ENUM(
-        "Cleanser",
-        "Toner",
-        "Essence",
-        "Serum",
-        "Eye Cream",
-        "Moisturizer",
-        "Sunscreen",
-        "Other"
+        "cleanser",
+        "toner",
+        "essence",
+        "serum",
+        // "eye-cream",
+        "moisturizer",
+        "sunscreen",
+        "other"
       ),
       allowNull: false,
     },
-    skinTypes: {
+    labels: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false,
+    },
+    skinType: {
       type: DataTypes.ARRAY(
         DataTypes.ENUM(
           "oily",
@@ -73,9 +89,13 @@ Product.init(
       ),
       allowNull: false,
     },
-    benefits: DataTypes.STRING,
-    ingredients: DataTypes.STRING,
-    country: DataTypes.STRING,
+    country: { type: DataTypes.STRING },
+    capacity: { type: DataTypes.STRING, defaultValue: "0ml" },
+    price: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0 },
+
+    instructions: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false },
+    activeIngredient: { type: DataTypes.ARRAY(DataTypes.STRING) },
+    ingredients: { type: DataTypes.STRING },
     imageUrls: DataTypes.ARRAY(DataTypes.STRING),
     averageRating: { type: DataTypes.FLOAT, defaultValue: 0 },
     reviewCount: { type: DataTypes.INTEGER, defaultValue: 0 },

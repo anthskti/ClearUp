@@ -4,11 +4,12 @@ import Routine from "./models/Routine";
 import Product from "./models/Product";
 import RoutineProduct from "./models/RoutineProduct";
 
-// Import all models
-// Note: You might need to adjust import paths based on your structure
+import Merchant from "./models/Merchant";
+import ProductMerchant from "./models/ProductMerchant";
+
+// You might need to adjust import paths based on your structure
 
 const defineAssociations = () => {
-  // Many-to-Many relationship with additional metadata
   Routine.belongsToMany(Product, {
     through: RoutineProduct,
     foreignKey: "routineId",
@@ -23,19 +24,35 @@ const defineAssociations = () => {
     as: "routines",
   });
 
-  // Direct relationships for easier querying
   Routine.hasMany(RoutineProduct, {
     foreignKey: "routineId",
     as: "routineProducts",
   });
 
-  RoutineProduct.belongsTo(Routine, {
-    foreignKey: "routineId",
+  RoutineProduct.belongsTo(Routine, { foreignKey: "routineId" });
+  RoutineProduct.belongsTo(Product, { foreignKey: "productId" });
+
+  Merchant.belongsToMany(Product, {
+    through: ProductMerchant,
+    foreignKey: "merchantId",
+    otherKey: "productId",
+    as: "products",
   });
 
-  RoutineProduct.belongsTo(Product, {
+  Product.belongsToMany(Merchant, {
+    through: ProductMerchant,
     foreignKey: "productId",
+    otherKey: "merchantId",
+    as: "merchants",
   });
+
+  Product.hasMany(ProductMerchant, {
+    foreignKey: "productId",
+    as: "productMerchants",
+  });
+  ProductMerchant.belongsTo(Product, { foreignKey: "productId" });
+  ProductMerchant.belongsTo(Merchant, { foreignKey: "merchantId" });
+
   // For testing
   console.log("Database associations defined.");
 };

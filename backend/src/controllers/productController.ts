@@ -8,11 +8,21 @@ export class ProductController {
     this.productService = new ProductService();
   }
 
-  // GET /api/products/
+  // GET /api/products OR /api/prodcuts?category=cleanser
   async getAllProducts(req: Request, res: Response): Promise<void> {
     try {
-      const products = await this.productService.getAllProducts();
-      res.json(products);
+      const searchQuery = req.query.search as string | undefined;
+
+      if (searchQuery) {
+        // TODO: You need to implement this method in ProductService later
+        // const products = await this.productService.searchProducts(searchQuery);
+        // res.json(products);
+        console.log(`Searching all products for: ${searchQuery}`);
+        res.json([]); // Placeholder
+      } else {
+        const products = await this.productService.getAllProducts();
+        res.json(products);
+      }
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -22,6 +32,12 @@ export class ProductController {
   async getProductsByCategory(req: Request, res: Response): Promise<void> {
     try {
       const { category } = req.params;
+
+      const searchQuery = req.query.search as string | undefined;
+      if (searchQuery) {
+        // TODO Future implementation
+        // await this.productService.searchProductsInCategory(category, searchQuery);
+      }
       const products = await this.productService.getProductsByCategory(
         category as any
       );
@@ -71,11 +87,71 @@ export class ProductController {
     }
   }
 
-  // Delete /api/product/:id
+  // DELETE /api/product/:id
   async DeleteProductbyId(req: Request, res: Response): Promise<void> {
     try {
       const id = parseInt(req.params.id);
       const success = await this.productService.deleteProduct(id);
+
+      if (!success) {
+        res.status(404).json({ error: "Product not found" });
+      }
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  // GET /api/id/:id/merchants
+  async getMerchantsById(req: Request, res: Response): Promise<void> {
+    try {
+      const productId = parseInt(req.params.id);
+      const pm = await this.productService.getMerchantsByProductId(productId);
+      res.json(pm);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  // POST /api/id/:id/merchants
+  async addMerchantByProductId(req: Request, res: Response): Promise<void> {
+    try {
+      const productId = parseInt(req.params.id);
+      const pm = await this.productService.addMerchantByProductId(
+        productId,
+        req.body
+      );
+
+      res.status(201).json(pm);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  // PUT /api/product-merchant/:id
+  async updateProductMerchant(req: Request, res: Response): Promise<void> {
+    try {
+      const productMerchantId = parseInt(req.params.id);
+      const pm = await this.productService.updateProductMerchant(
+        productMerchantId,
+        req.body
+      );
+      if (!pm) {
+        res.status(404).json({ error: "Product not found" });
+        return;
+      }
+
+      res.json(pm);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  // DELETE /api/product-merchant/:id
+  async removeMerchantFromProduct(req: Request, res: Response): Promise<void> {
+    try {
+      const productMerchantId = parseInt(req.params.id);
+      const success = await this.productService.removeMerchantFromProduct(
+        productMerchantId
+      );
 
       if (!success) {
         res.status(404).json({ error: "Product not found" });

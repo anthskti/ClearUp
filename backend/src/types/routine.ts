@@ -21,4 +21,3 @@ export interface RoutineProduct {
 export interface RoutineWithProducts extends Routine {
   products?: RoutineProduct[];
 }
-

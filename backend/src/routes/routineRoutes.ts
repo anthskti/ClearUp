@@ -19,6 +19,7 @@ router.put("/id/:id", (req, res) =>
 router.delete("/id/:id", (req, res) =>
   routineController.deleteRoutineById(req, res)
 );
+// Routine Products
 router.post("/:id/products", (req, res) =>
   routineController.addProductToRoutine(req, res)
 );
@@ -30,4 +31,3 @@ router.put("/:id/products/:productId", (req, res) =>
 );
 
 export default router;
-

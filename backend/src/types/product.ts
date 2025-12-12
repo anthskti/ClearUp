@@ -4,26 +4,32 @@ export interface Product {
   id: number;
   name: string;
   brand: string;
-  category: ProductCategory;
-  skinTypes: SkinType[];
-  benefits: string;
-  ingredients: string;
+
+  category: string;
+  labels: string[];
+  skinType: string[];
   country: string;
-  imageUrls: string[];
+  capacity: string;
+  price: number;
+
+  instructions: string[];
+  activeIngredient?: string[];
+  ingredients?: string;
+  imageUrls?: string[];
   averageRating: number;
   reviewCount: number;
-  tags: string[];
+  tags?: string[];
 }
 
 export type ProductCategory =
-  | "Cleanser"
-  | "Toner"
-  | "Essence"
-  | "Serum"
-  | "Eye Cream"
-  | "Moisturizer"
-  | "Sunscreen"
-  | "Other";
+  | "cleanser"
+  | "toner"
+  | "essence"
+  | "serum"
+  // | "eye cream"
+  | "moisturizer"
+  | "sunscreen"
+  | "other";
 
 export type SkinType =
   | "oily"

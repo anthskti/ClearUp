@@ -120,18 +120,20 @@ export class RoutineController {
     }
   }
 
-  // DELETE /api/routines/:id/products/:productId
+  // DELETE /api/routine-products/:id
   async removeProductFromRoutine(req: Request, res: Response): Promise<void> {
     try {
-      const routineId = parseInt(req.params.id);
-      const productId = parseInt(req.params.productId);
+      const routineProductId = parseInt(req.params.id);
+
+      const userId = parseInt(req.params.userId);
+
       const success = await this.routineService.removeProductFromRoutine(
-        routineId,
-        productId
+        routineProductId,
+        userId
       );
 
       if (!success) {
-        res.status(404).json({ error: "Product not found in routine" });
+        res.status(404).json({ error: "Item not found" });
         return;
       }
       res.status(204).send();
@@ -140,19 +142,18 @@ export class RoutineController {
     }
   }
 
-  // PUT /api/routines/:id/products/:productId
+  // PUT /api/routine-products/:id
   async updateProductInRoutine(req: Request, res: Response): Promise<void> {
     try {
-      const routineId = parseInt(req.params.id);
-      const productId = parseInt(req.params.productId);
+      const routineProductId = parseInt(req.params.id);
+
       const routineProduct = await this.routineService.updateProductInRoutine(
-        routineId,
-        productId,
+        routineProductId,
         req.body
       );
 
       if (!routineProduct) {
-        res.status(404).json({ error: "Product not found in routine" });
+        res.status(404).json({ error: "Item not found" });
         return;
       }
 
@@ -162,4 +163,3 @@ export class RoutineController {
     }
   }
 }
-

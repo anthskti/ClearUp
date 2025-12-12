@@ -63,117 +63,172 @@ Docker/AWS deployment: Use npm run build + npm start
 npx ts-node src/scripts/testRoutine.ts
 ```
 
-### Testing _product_ REST commands using Postman:
+### Testing _product and productmerchants_ REST commands using Postman:
 
-get all products
+GET all products
 
 ```bash
 GET http://localhost:3000/api/products/
 ```
 
-get by category
+GET by category
 
 ```bash
-GET http://localhost:3000/api/products/Cleanser
+GET http://localhost:3000/api/products/serum
 ```
 
-get by id
+GET product by id
 
 ```bash
 GET http://localhost:3000/api/products/id/2
 ```
 
-post a product
+POST a product
 
 ```bash
 POST http://localhost:3000/api/products/
 ```
 
-body - raw \* NOTE Be sure to have one of the skinTypes: oily, dry, combination, sensitive, normal, acne-prone
+body -> raw
+Be sure to have one of the category: cleanser, toner, essence, serum, moisturizer, sunscreen, other.
+Be sure to have one of the skinTypes: oily, dry, combination, sensitive, normal, acne-prone.
 
 ```bash
 {
-"name": "Madagascar Centella Ampoule",
-"brand": "SKIN 1004",
-"category": "Serum",
-"skinTypes": ["combination"],
-"benefits": "centella benefits",
-"ingredients": "centella ingredients",
-"country": "South Korea",
-"imageUrls": ["test.jpg"],
-"tags": ["glass skin", "daily-use"]
+    "name": "Heartleaf Oil Cleanser",
+    "brand": "Anua",
+    "category": "cleanser",
+    "labels": ["oil"],
+    "skinType": ["sensitive", "oily", "dry"],
+    "country": "South Korea",
+    "capacity": "100ml",
+    "price": 21.99,
+    "instructions": [
+      "After cleansing and toning, apply 2-3 drops on face.",
+      "Pat gently for better absorption."
+    ],
+    "activeIngredient": ["Heartleaf Extract"],
+    "ingredients": "Heartleaf Extract, Water.",
+    "imageUrls": ["/placeholder-image.jpg"],
+    "averageRating": 4.6,
+    "reviewCount": 1,
+    "tags": ["hydrating"]
 }
 ```
 
 update a product
 
 ```bash
-PUT http://localhost:3000/api/products/id/2
+PUT http://localhost:3000/api/products/id/3
 ```
 
-body - raw
+body -> raw
+All subjects can be updated independently.
 
 ```bash
 {
-    "name": "Madagascar Centella Ampoule",
-    "brand": "SKIN 1004",
-    "category": "Serum",
-    "skinTypes": ["oily"],
-    "benefits": "centella ampoule benefits",
-    "ingredients": "centella ampouleingredients",
+    "skinType": ["sensitive", "combination", "oily", "dry"],
     "country": "South Korea",
-    "imageUrls": ["test.jpg", "test2.jpg"],
-    "tags": ["glass skin", "daily-use"]
+    "capacity": "100ml",
+    "price": 20.99,
+    "instructions": [
+      "After cleansing and toning, apply 2-3 drops on face.",
+      "Pat gently for better absorption."
+    ],
+    "ingredients": "Heartleaf Extract, Saylicic Acid, Water.",
+    "averageRating": 4.7,
+    "reviewCount": 3,
+    "tags": ["Makeup Melter", "Lightweight"]
 }
 ```
 
-delete a product
+DEL a product
 
 ```bash
-DELETE http://localhost:3000/api/products/id/2
+DELETE http://localhost:3000/api/products/id/3
 ```
 
-## Routine Testing
-
-### Testing Product Script:
+GET merchant by product Id
 
 ```bash
-npx ts-node src/scripts/testRoutine.ts
+GET http://localhost:3000/api/products/id/1/merchants
 ```
 
-### Testing _routines and products_ REST commands using Postman:
+POST new merchant for a product
 
-getting all routines
+```bash
+POST http://localhost:3000/api/products/id/2/merchants
+```
+
+body -> raw
+
+```bash
+{
+    "productId": 2,
+    "merchantId": 1,
+    "website":
+      "https://global.oliveyoung.com/product/detail?snailmucin",
+    "price": 21.32,
+    "stock": true,
+    "shipping": "Free Shipping < US$60"
+}
+```
+
+PUT a product-merchant info
+
+```bash
+PUT http://localhost:3000/api/products/product-merchant/2
+```
+
+body -> raw
+
+```bash
+{
+    "price": 15.32,
+    "stock": false,
+    "shipping": "Free Shipping < US$50"
+}
+```
+
+DEL a products merchant
+
+```bash
+DEL http://localhost:3000/api/products/product-merchant/2
+```
+
+### Testing _routines and routineproducts_ REST commands using Postman:
+
+GET all routines
 
 ```bash
 GET http://localhost:3000/api/routines/
 ```
 
-getting a specifics user routines (will update the id once user is created)
+GET routine (singular) by Id
 
 ```bash
 GET http://localhost:3000/api/routines/user/1
 ```
 
-getting a specific routine
+GET routine with its products
 
 ```bash
 GET http://localhost:3000/api/routines/id/1
 ```
 
-getting routine along with products \*NOTE if products is empty, will return an empty list.
+GET routines products
 
 ```bash
 GET http://localhost:3000/api/routines/id/1/products
 ```
 
-posting routine
+POST a single routine
 
 ```bash
 POST http://localhost:3000/api/routines
 ```
 
-body - raw
+body -> raw
 
 ```bash
 {
@@ -183,75 +238,105 @@ body - raw
 }
 ```
 
-updating routine by id
+PUT a single routine by ID
 
 ```bash
 PUT http://localhost:3000/api/routines/id/1
 ```
 
-body - raw
+body -> raw
 
 ```bash
 {
-    "name": "My Second Routine",
-    "description": "updating my second routine",
+    "name": "My first Routine",
+    "description": "updating my first routine",
     "userId": 1
 }
 ```
 
-deleting routine by id
+DEL routine by id
 
 ```bash
 DELETE http://localhost:3000/api/routines/id/2
 ```
 
-adding a product to a routine
+POST add a product to a routine
 
 ```bash
 POST http://localhost:3000/api/routines/id/2/products
 ```
 
-raw - body
+raw -> body
 
 ```bash
 {
     "productId": 3,
-    "category": "Cleanser",
+    "category": "cleanser",
     "timeOfDay": "evening",
     "notes": "First to apply. Usually used with regular cleanser"
 }
 ```
 
-deleting specific product from a routine
+DELETE a product from a routine
 
 ```bash
 http://localhost:3000/api/routines/1/products/3
 ```
 
-updating a products personal information
+PUT a products personal information
 
 ```bash
 http://localhost:3000/api/routines/1/products/2
 ```
 
-body - raw
-full
+body -> raw
+Note: any var is available for change.
 
 ```bash
 {
-    "productId": 2,
-    "category": "Cleanser",
-    "timeOfDay": "morning",
-    "notes": "This should be the first step, emusify first in hands. Give 2 minutes to settle on face for oils to get out."
+    "timeOfDay": "morning"
 }
 ```
 
-or can comment any of the following lines (ex. just want to update the notes) but need full link.
+### Testing _merchants_ REST commands using Postman:
+
+GET all merchants
+
+```bash
+GET http://localhost:3000/api/merchant/
+```
+
+POST a merchant
+
+```bash
+POST http://localhost:3000/api/merchant/
+```
+
+body -> raw
 
 ```bash
 {
-    "notes": "This should be the first step, emusify first in hands. Give 2 minutes to settle on face for oils to get out."
+    "name": "Amazon",
+    "logo": "/placeholder-image.jpg"
 }
 ```
 
-Only thing i want to improve is automatic category generation, since each product knows their category
+PUT update a merchant
+
+```bash
+PUT http://localhost:3000/api/merchant/
+```
+
+body -> raw
+
+```bash
+{
+    "logo": "/placeholder-image22.jpg"
+}
+```
+
+DEL a merchant
+
+```bash
+DEL http://localhost:3000/api/merchant/3
+```

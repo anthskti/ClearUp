@@ -61,14 +61,14 @@ Product.init(
     brand: { type: DataTypes.STRING, allowNull: false },
     category: {
       type: DataTypes.ENUM(
-        "Cleanser",
-        "Toner",
-        "Essence",
-        "Serum",
-        // "Eye Cream",
-        "Moisturizer",
-        "Sunscreen",
-        "Other"
+        "cleanser",
+        "toner",
+        "essence",
+        "serum",
+        // "eye-cream",
+        "moisturizer",
+        "sunscreen",
+        "other"
       ),
       allowNull: false,
     },

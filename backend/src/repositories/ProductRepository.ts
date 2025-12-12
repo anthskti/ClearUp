@@ -63,7 +63,7 @@ export class ProductRepository {
       capacity: string;
       price: number;
       instructions: string[];
-      activeIngredient?: string[];
+      activeIngredient: string[];
       ingredients?: string;
       imageUrls: string[];
       tags: string[];

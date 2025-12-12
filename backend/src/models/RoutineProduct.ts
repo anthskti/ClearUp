@@ -9,7 +9,8 @@ interface RoutineProductAttributes {
   timeOfDay?: "morning" | "evening" | "both";
   notes?: string;
 }
-interface RoutineProductCreationAttributes extends Optional<RoutineProductAttributes, "id"> {}
+interface RoutineProductCreationAttributes
+  extends Optional<RoutineProductAttributes, "id"> {}
 
 class RoutineProduct
   extends Model<RoutineProductAttributes, RoutineProductCreationAttributes>
@@ -20,7 +21,7 @@ class RoutineProduct
   public productId!: number;
   public category!: string;
   public timeOfDay?: "morning" | "evening" | "both";
-  public notes?: string;
+  public notes?: string; // Instruction notes
 }
 
 RoutineProduct.init(
@@ -40,14 +41,14 @@ RoutineProduct.init(
     },
     category: {
       type: DataTypes.ENUM(
-        "Cleanser",
-        "Toner",
-        "Essence",
-        "Serum",
-        "Eye Cream",
-        "Moisturizer",
-        "Sunscreen",
-        "Other"
+        "cleanser",
+        "toner",
+        "essence",
+        "serum",
+        // "Eye Cream",
+        "moisturizer",
+        "sunscreen",
+        "other"
       ),
       allowNull: false,
     },

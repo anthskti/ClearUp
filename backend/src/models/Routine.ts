@@ -16,7 +16,7 @@ class Routine
 {
   public id!: number;
   public name!: string;
-  public description?: string;
+  public description?: string; // Routine Description "Anti-ance proofing"
   public userId!: number;
 }
 

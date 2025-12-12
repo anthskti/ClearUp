@@ -30,7 +30,7 @@ export class MerchantService {
   ): Promise<Merchant | null> {
     return this.merchantRepository.update(id, updates);
   }
-
+  // DELETE a merchant
   async deleteMerchant(id: number): Promise<boolean> {
     return this.merchantRepository.delete(id);
   }

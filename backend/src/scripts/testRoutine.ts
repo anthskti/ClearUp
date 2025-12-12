@@ -8,6 +8,7 @@ import defineAssociations from "../associations";
 
 (async () => {
   await sequelize.sync({ force: true });
+  await sequelize.sync({ force: true });
   defineAssociations(); // Define associations between models
 
   // Create test products first
@@ -15,7 +16,7 @@ import defineAssociations from "../associations";
     name: "Centella Ampoule",
     brand: "Skin1004",
 
-    category: "Serum",
+    category: "serum",
     labels: ["Watery"], // Textre
     skinType: ["combination", "oily", "dry"],
     country: "South Korea",
@@ -26,6 +27,7 @@ import defineAssociations from "../associations";
       "After cleansing and toning, apply 2-3 drops on face.",
       "Pat gently for better absorption.",
     ],
+    activeIngredient: [],
     ingredients: "Centella Asiatica extract",
     imageUrls: ["/placeholder-image.jpg"],
     averageRating: 4.3,
@@ -37,7 +39,7 @@ import defineAssociations from "../associations";
     name: "Snail Mucin Ampoule",
     brand: "COSRX",
 
-    category: "Essence",
+    category: "essence",
     labels: ["Hydrating"],
     skinType: ["sensitive", "dry"],
     country: "South Korea",
@@ -47,6 +49,7 @@ import defineAssociations from "../associations";
       "After cleansing and toner, pump product once on each side of the face.",
       "Deeply massage facial areas such as under eyes and let it rest for one minute before moving on.",
     ],
+    activeIngredient: [],
     ingredients: "snail mucin, formaldahyde",
     imageUrls: ["/placeholder-image.jpg", "/placeholder-image.jpg"],
     averageRating: 4.5,

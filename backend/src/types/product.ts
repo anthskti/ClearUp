@@ -22,14 +22,14 @@ export interface Product {
 }
 
 export type ProductCategory =
-  | "Cleanser"
-  | "Toner"
-  | "Essence"
-  | "Serum"
-  | "Eye Cream"
-  | "Moisturizer"
-  | "Sunscreen"
-  | "Other";
+  | "cleanser"
+  | "toner"
+  | "essence"
+  | "serum"
+  // | "eye cream"
+  | "moisturizer"
+  | "sunscreen"
+  | "other";
 
 export type SkinType =
   | "oily"

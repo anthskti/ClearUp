@@ -1,11 +1,11 @@
 import fs from "fs";
 import path from "path";
-import csv from "csv-parser";
 import sequelize from "../db";
 import { ProductService } from "../services/ProductService";
 import { MerchantService } from "../services/MerchantService";
 import defineAssociations from "../associations";
 
+const csv = require("csv-parser");
 const productService = new ProductService();
 const merchantService = new MerchantService();
 
@@ -15,9 +15,9 @@ function readCSV(filePath: string): Promise<any[]> {
     const results: any[] = [];
     fs.createReadStream(filePath)
       .pipe(csv())
-      .on("data", (data) => results.push(data))
+      .on("data", (data: any) => results.push(data))
       .on("end", () => resolve(results))
-      .on("error", (err) => reject(err));
+      .on("error", (err: any) => reject(err));
   });
 }
 

@@ -95,8 +95,8 @@ Product.init(
 
     instructions: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false },
     activeIngredient: { type: DataTypes.ARRAY(DataTypes.STRING) },
-    ingredients: { type: DataTypes.STRING },
-    imageUrls: DataTypes.ARRAY(DataTypes.STRING),
+    ingredients: { type: DataTypes.TEXT },
+    imageUrls: DataTypes.ARRAY(DataTypes.TEXT), // Can revert back to STRING. but for safety measure keeping as text
     averageRating: { type: DataTypes.FLOAT, defaultValue: 0 },
     reviewCount: { type: DataTypes.INTEGER, defaultValue: 0 },
     tags: DataTypes.ARRAY(DataTypes.STRING),

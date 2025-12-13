@@ -8,7 +8,6 @@ import defineAssociations from "../associations";
 
 (async () => {
   await sequelize.sync({ force: true });
-  await sequelize.sync({ force: true });
   defineAssociations(); // Define associations between models
 
   // Create test products first

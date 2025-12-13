@@ -45,6 +45,8 @@ export class ProductService {
     activeIngredient: string[];
     ingredients: string;
     imageUrls: string[];
+    averageRating: number;
+    reviewCount: number;
     tags: string[];
   }): Promise<Product> {
     return this.productRepository.create(productData);

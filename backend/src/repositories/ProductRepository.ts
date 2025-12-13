@@ -65,6 +65,8 @@ export class ProductRepository {
       instructions: string[];
       activeIngredient: string[];
       ingredients?: string;
+      averageRating: number;
+      reviewCount: number;
       imageUrls: string[];
       tags: string[];
     }>

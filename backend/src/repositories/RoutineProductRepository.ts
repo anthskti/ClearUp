@@ -22,8 +22,6 @@ export class RoutineProductRepository {
     routineId: number;
     productId: number;
     category: ProductCategory;
-    timeOfDay?: "morning" | "evening" | "both";
-    notes?: string;
   }): Promise<RoutineProduct> {
     try {
       const routineProduct = await RoutineProductModel.create(
@@ -46,8 +44,6 @@ export class RoutineProductRepository {
     id: number,
     updates: Partial<{
       category: ProductCategory;
-      timeOfDay?: "morning" | "evening" | "both";
-      notes?: string;
     }>
   ): Promise<RoutineProduct | null> {
     const [rows, [updatedRoutineProduct]] = await RoutineProductModel.update(
@@ -74,8 +70,6 @@ export class RoutineProductRepository {
       routineId: dbRoutineProduct.routineId,
       productId: dbRoutineProduct.productId,
       category: dbRoutineProduct.category,
-      timeOfDay: dbRoutineProduct.timeOfDay,
-      notes: dbRoutineProduct.notes,
     };
   }
 }

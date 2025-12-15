@@ -13,12 +13,12 @@ const navItems = [
 ];
 
 const productCategories = [
-  { name: "Cleansers", href: "/products?category=cleanser" },
-  { name: "Toners", href: "/products?category=toner" },
-  { name: "Essences", href: "/products?category=essence" },
-  { name: "Serums", href: "/products?category=serum" },
-  { name: "Moisturizers", href: "/products?category=moisturizer" },
-  { name: "Sunscreens", href: "/products?category=sunscreen" },
+  { name: "Cleansers", href: "/products/category/cleanser" },
+  { name: "Toners", href: "/products/category/toner" },
+  { name: "Essences", href: "/products/category/essence" },
+  { name: "Serums", href: "/products/category/serum" },
+  { name: "Moisturizers", href: "/products/category/moisturizer" },
+  { name: "Sunscreens", href: "/products/category/sunscreen" },
 ];
 
 function Header() {

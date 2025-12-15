@@ -76,4 +76,6 @@ tmp/
 temp/
 *.tmp
 
+* text=auto
+
 

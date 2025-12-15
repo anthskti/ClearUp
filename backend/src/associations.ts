@@ -30,7 +30,9 @@ const defineAssociations = () => {
   });
 
   RoutineProduct.belongsTo(Routine, { foreignKey: "routineId" });
-  RoutineProduct.belongsTo(Product, { foreignKey: "productId" });
+  RoutineProduct.belongsTo(Product, { foreignKey: "productId", 
+    as: "product" 
+  });
 
   Merchant.belongsToMany(Product, {
     through: ProductMerchant,

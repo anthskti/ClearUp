@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   ExternalLink,
   Plus,
@@ -13,76 +14,110 @@ import {
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Carousel from "@/components/ui/Carousel";
 import ProceduralWave from "@/components/themes/ProceduralWave";
+import { DETAIL_CONFIG, CategoryKey } from "@/components/product/details";
 
-const ProductDatabasePage = () => {
-  // Mock Data based on your screenshot
-  const product = {
-    brand: "SKIN1004",
-    name: "Madagascar Centella Asiatica 100 Ampoule",
-    rating: 4.8,
-    reviews: 1240,
-    description:
-      "A soothing ampoule that helps calm and restore imbalance in the skin caused by harsh environments. Made with 100% Centella Asiatica Extract.",
-    details: [
-      {
-        label: "Capacity",
-        value: "100ml",
-        icon: <FlaskConical size={16} />,
-      },
-      {
-        label: "Country",
-        value: "South Korea",
-        icon: <MapPin size={16} />,
-      },
-      {
-        label: "Texture",
-        value: "Watery, Non-sticky",
-        icon: <Droplets size={16} />,
-      },
-      {
-        label: "Key Active",
-        value: "Centella Asiatica Extract",
-        icon: <Info size={16} />,
-      },
-    ],
-    instructions: [
-      "After cleansing and toning, apply 2-3 drops on face.",
-      "Pat gently for better absorption.",
-    ],
-    merchants: [
-      { name: "Amazon", price: 9.99, stock: true, shipping: "Free with Prime" },
-      { name: "Stylevana", price: 10.99, stock: true, shipping: "$3.99" },
-      { name: "YesStyle", price: 12.5, stock: false, shipping: "Free > $50" },
-    ],
-    compatible: [
-      { name: "Gardening Gel Moisturizer", brand: "SKIN 1004" },
-      { name: "Tapestry Balm Cleanser", brand: "SKIN 1004" },
-    ],
-  };
+import { Product } from "@/types/product";
+import { Merchant } from "@/types/merchant";
+
+interface ProductClientProps {
+  product: Product;
+  merchantList: Merchant[];
+}
+
+export default function ProductClient({
+  product,
+  merchantList,
+}: ProductClientProps) {
+  //   const product = {
+  //     brand: "SKIN1004",
+  //     name: "Madagascar Centella Asiatica 100 Ampoule",
+  //     rating: 4.8,
+  //     reviews: 1240,
+  //     description:
+  //       "A soothing ampoule that helps calm and restore imbalance in the skin caused by harsh environments. Made with 100% Centella Asiatica Extract.",
+  //     details: [
+  //       {
+  //         label: "Capacity",
+  //         value: "100ml",
+  //         icon: <FlaskConical size={16} />,
+  //       },
+  //       {
+  //         label: "Country",
+  //         value: "South Korea",
+  //         icon: <MapPin size={16} />,
+  //       },
+  //       {
+  //         label: "Texture",
+  //         value: "Watery, Non-sticky",
+  //         icon: <Droplets size={16} />,
+  //       },
+  //       {
+  //         label: "Key Active",
+  //         value: "Centella Asiatica Extract",
+  //         icon: <Info size={16} />,
+  //       },
+  //     ],
+  //     instructions: [
+  //       "After cleansing and toning, apply 2-3 drops on face.",
+  //       "Pat gently for better absorption.",
+  //     ],
+  //     merchants: [
+  //       { name: "Amazon", price: 9.99, stock: true, shipping: "Free with Prime" },
+  //       { name: "Stylevana", price: 10.99, stock: true, shipping: "$3.99" },
+  //       { name: "YesStyle", price: 12.5, stock: false, shipping: "Free > $50" },
+  //     ],
+  //     compatible: [
+  //       { name: "Gardening Gel Moisturizer", brand: "SKIN 1004" },
+  //       { name: "Tapestry Balm Cleanser", brand: "SKIN 1004" },
+  //     ],
+  //   };
+  const config =
+    DETAIL_CONFIG[product.category as CategoryKey] || DETAIL_CONFIG.default;
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8] pt-20">
-      <ProceduralWave seed={10} height={140} offset={1} />
+      <ProceduralWave seed={20} height={140} offset={1} />
       <main className="relative z-1 max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left Column: Visuals */}
         <div className="lg:col-span-5 space-y-4">
           <div className="text-sm text-zinc-500">
-            Products / Serums / Skin 1004
+            Products / <span>{product.category}</span> / Skin 1004
           </div>
+
           {/* Main Image Placeholder */}
-          <div className="aspect-4/5 bg-zinc-100 rounded-sm flex items-center justify-center relative overflow-hidden group">
-            <span className="text-zinc-400">Product Image</span>
-            {/* Hover visual cue */}
-            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </div>
+          <Carousel>
+            {product.imageUrls.map((url, index) => (
+              <Image
+                key={index}
+                src={url}
+                alt={`Thumbnail ${index}`}
+                width={50}
+                height={50}
+                className={`
+                    group flex flex-col items-center justify-center
+                    w-full
+                    bg-[#e8f6ff] hover:bg-[#87a1b1]
+                    rounded-sm shadow-sm transition-all duration-300
+                    text-zinc-900 hover:text-white font-medium
+                `}
+                unoptimized={true}
+              />
+            ))}
+          </Carousel>
 
           {/* Carousel Thumbnails */}
           <div className="grid grid-cols-4 gap-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="aspect-square bg-zinc-50 hover:bg-zinc-100 cursor-pointer border border-transparent hover:border-zinc-300 transition-all"
+            {product.imageUrls.map((url, index) => (
+              <Image
+                key={index}
+                src={url}
+                alt={`Thumbnail ${index}`}
+                width={100}
+                height={100}
+                className="object-cover"
+                unoptimized={true}
               />
             ))}
           </div>
@@ -103,7 +138,7 @@ const ProductDatabasePage = () => {
               <span className="flex text-yellow-600">★★★★★</span>{" "}
               {/* Input Function for stars later */}
               <span className="text-zinc-400">
-                ({product.reviews} verified logs)
+                ({product.reviewCount} review logs)
               </span>
             </div>
           </div>
@@ -140,15 +175,15 @@ const ProductDatabasePage = () => {
 
             {/* Grid Layout for Datails*/}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-              {product.details.map((detail, idx) => (
-                <div key={idx} className="flex items-start gap-3">
-                  <div className="mt-1 text-zinc-400">{detail.icon}</div>
+              {config.sheet.map((col) => (
+                <div key={col.label} className="flex items-start gap-3">
+                  <div className="mt-1 text-zinc-400">{col.icon}</div>
                   <div>
                     <span className="block text-xs text-zinc-500 uppercase font-medium">
-                      {detail.label}
+                      {col.label}
                     </span>
                     <span className="block text-zinc-900 font-medium">
-                      {detail.value}
+                      {col.dataKey}
                     </span>
                   </div>
                 </div>
@@ -173,9 +208,11 @@ const ProductDatabasePage = () => {
               <h3 className="text-sm font-bold uppercase text-zinc-400">
                 Marketplace Data
               </h3>
-              {/* <span className="text-xs text-zinc-400">
-                Last updated: 2h ago
-              </span> */}
+              <span>
+                <Button variant="outline" size="sm">
+                  <Link href="/">Add Merchant Info</Link>
+                </Button>
+              </span>
             </div>
 
             <div className="overflow-hidden rounded-lg">
@@ -189,16 +226,16 @@ const ProductDatabasePage = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                  {product.merchants.map((merchant, i) => (
+                  {merchantList.map((merchant, index) => (
                     <tr
-                      key={i}
+                      key={index}
                       className="hover:bg-zinc-50 transition-colors border-b border-zinc-200"
                     >
                       <td className="px-4 py-4 font-medium text-zinc-900">
                         {merchant.name}
                       </td>
                       <td className="px-4 py-4">
-                        {merchant.stock ? (
+                        {merchant.logo ? (
                           <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-1 rounded text-xs font-medium border border-emerald-100">
                             <Check size={12} /> In Stock
                           </span>
@@ -208,11 +245,11 @@ const ProductDatabasePage = () => {
                           </span>
                         )}
                         <div className="text-xs text-zinc-400 mt-1">
-                          {merchant.shipping}
+                          {merchant.name}
                         </div>
                       </td>
                       <td className="px-4 py-4 text-right font-bold text-zinc-900">
-                        CA ${merchant.price.toFixed(2)}
+                        CA ${merchant.name}
                       </td>
                       <td className="px-4 py-4 text-right">
                         <button className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 text-xs font-bold uppercase">
@@ -232,8 +269,8 @@ const ProductDatabasePage = () => {
           <h3 className="text-xl font-bold text-zinc-900">
             Often Paired In Routines
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {/* Mock Suggestion Cards */}
+          {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            Mock Suggestion Cards
             {product.compatible.map((item, i) => (
               <div key={i} className="group cursor-pointer">
                 <div className="aspect-square bg-zinc-100 mb-3 relative overflow-hidden">
@@ -245,12 +282,12 @@ const ProductDatabasePage = () => {
                 <div className="text-sm text-zinc-800 group-hover:underline">
                   {item.name}
                 </div>
-                {/* <div className="mt-2 text-xs text-[#0E4B84] flex items-center gap-1">
+                 <div className="mt-2 text-xs text-[#0E4B84] flex items-center gap-1">
                   <Plus size={12} /> Add to Routine
-                </div> */}
+                </div> 
               </div>
             ))}
-          </div>
+           </div> */}
         </div>
 
         {/* Comment Section */}
@@ -345,6 +382,4 @@ const ProductDatabasePage = () => {
       </main>
     </div>
   );
-};
-
-export default ProductDatabasePage;
+}

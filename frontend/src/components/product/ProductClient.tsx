@@ -16,63 +16,22 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Carousel from "@/components/ui/Carousel";
 import ProceduralWave from "@/components/themes/ProceduralWave";
+import getProductData from "@/components/product/details";
 import { DETAIL_CONFIG, CategoryKey } from "@/components/product/details";
+import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
 
 import { Product } from "@/types/product";
-import { Merchant } from "@/types/merchant";
+import { ProductMerchantWithDetails } from "@/types/merchant";
 
 interface ProductClientProps {
   product: Product;
-  merchantList: Merchant[];
+  merchantList: ProductMerchantWithDetails[];
 }
 
 export default function ProductClient({
   product,
   merchantList,
 }: ProductClientProps) {
-  //   const product = {
-  //     brand: "SKIN1004",
-  //     name: "Madagascar Centella Asiatica 100 Ampoule",
-  //     rating: 4.8,
-  //     reviews: 1240,
-  //     description:
-  //       "A soothing ampoule that helps calm and restore imbalance in the skin caused by harsh environments. Made with 100% Centella Asiatica Extract.",
-  //     details: [
-  //       {
-  //         label: "Capacity",
-  //         value: "100ml",
-  //         icon: <FlaskConical size={16} />,
-  //       },
-  //       {
-  //         label: "Country",
-  //         value: "South Korea",
-  //         icon: <MapPin size={16} />,
-  //       },
-  //       {
-  //         label: "Texture",
-  //         value: "Watery, Non-sticky",
-  //         icon: <Droplets size={16} />,
-  //       },
-  //       {
-  //         label: "Key Active",
-  //         value: "Centella Asiatica Extract",
-  //         icon: <Info size={16} />,
-  //       },
-  //     ],
-  //     instructions: [
-  //       "After cleansing and toning, apply 2-3 drops on face.",
-  //       "Pat gently for better absorption.",
-  //     ],
-  //     merchants: [
-  //       { name: "Amazon", price: 9.99, stock: true, shipping: "Free with Prime" },
-  //       { name: "Stylevana", price: 10.99, stock: true, shipping: "$3.99" },
-  //       { name: "YesStyle", price: 12.5, stock: false, shipping: "Free > $50" },
-  //     ],
-  //     compatible: [
-  //       { name: "Gardening Gel Moisturizer", brand: "SKIN 1004" },
-  //       { name: "Tapestry Balm Cleanser", brand: "SKIN 1004" },
-  //     ],
-  //   };
   const config =
     DETAIL_CONFIG[product.category as CategoryKey] || DETAIL_CONFIG.default;
 
@@ -157,12 +116,11 @@ export default function ProductClient({
                 Indexed & Tracked
               </div>
             </div>
-            <Button variant="secondary" size="default" asChild>
-              <Link href="/">
-                <Plus size={18} />
-                Add to Routine
-              </Link>
-            </Button>
+            <AddToRoutineButton
+              product={product}
+              category={product.category}
+              variant="secondary"
+            />
           </div>
 
           {/* 3. Detail Sheet */}
@@ -175,19 +133,23 @@ export default function ProductClient({
 
             {/* Grid Layout for Datails*/}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-              {config.sheet.map((col) => (
-                <div key={col.label} className="flex items-start gap-3">
-                  <div className="mt-1 text-zinc-400">{col.icon}</div>
-                  <div>
-                    <span className="block text-xs text-zinc-500 uppercase font-medium">
-                      {col.label}
-                    </span>
-                    <span className="block text-zinc-900 font-medium">
-                      {col.dataKey}
-                    </span>
+              {config.sheet.map((col, index) => {
+                const displayValue = getProductData(product, col.dataKey);
+
+                return (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="mt-1 text-zinc-400">{col.icon}</div>
+                    <div>
+                      <span className="block text-xs text-zinc-500 uppercase font-medium">
+                        {col.label}
+                      </span>
+                      <span className="block text-zinc-900 font-medium">
+                        {displayValue}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="pt-4">
@@ -232,10 +194,22 @@ export default function ProductClient({
                       className="hover:bg-zinc-50 transition-colors border-b border-zinc-200"
                     >
                       <td className="px-4 py-4 font-medium text-zinc-900">
-                        {merchant.name}
+                        <div className="flex flex-col items-center">
+                          <Image
+                            src={merchant.merchant?.logo || ""}
+                            alt={merchant.merchant?.name || "Unknown Merchant"}
+                            width={20}
+                            height={20}
+                            className="object-cover"
+                            unoptimized={true}
+                          />
+                          <span className="text-xs text-zinc-500">
+                            {merchant.merchant?.name || "Unknown Merchant"}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-4 py-4">
-                        {merchant.logo ? (
+                        {merchant.stock ? (
                           <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-1 rounded text-xs font-medium border border-emerald-100">
                             <Check size={12} /> In Stock
                           </span>
@@ -245,16 +219,21 @@ export default function ProductClient({
                           </span>
                         )}
                         <div className="text-xs text-zinc-400 mt-1">
-                          {merchant.name}
+                          {merchant.shipping}
                         </div>
                       </td>
                       <td className="px-4 py-4 text-right font-bold text-zinc-900">
-                        CA ${merchant.name}
+                        CA ${merchant.price.toFixed(2)}
                       </td>
                       <td className="px-4 py-4 text-right">
-                        <button className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 text-xs font-bold uppercase">
+                        <a
+                          href={merchant.website}
+                          className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 text-xs font-bold uppercase"
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
                           Visit Store <ExternalLink size={12} />
-                        </button>
+                        </a>
                       </td>
                     </tr>
                   ))}
@@ -265,11 +244,11 @@ export default function ProductClient({
         </div>
 
         {/* Compatibility Products --Implement algo for similar products later. */}
-        <div className="col-span-1 lg:col-span-12 mt-4 pt-10 border-t border-zinc-200">
+        {/* <div className="col-span-1 lg:col-span-12 mt-4 pt-10 border-t border-zinc-200">
           <h3 className="text-xl font-bold text-zinc-900">
             Often Paired In Routines
           </h3>
-          {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             Mock Suggestion Cards
             {product.compatible.map((item, i) => (
               <div key={i} className="group cursor-pointer">
@@ -287,8 +266,8 @@ export default function ProductClient({
                 </div> 
               </div>
             ))}
-           </div> */}
-        </div>
+           </div>
+        </div> */}
 
         {/* Comment Section */}
         <div className="col-span-1 lg:col-span-12 mt-4 pt-10 border-t border-zinc-200">

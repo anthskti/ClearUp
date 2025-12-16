@@ -6,6 +6,7 @@ import { CATEGORY_CONFIG, CategoryKey } from "@/constants/filters"; // The confi
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import { Product } from "@/types/product";
 import { ProductCategory } from "@/types/product";
+import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -19,62 +20,6 @@ interface ColumnConfig {
 interface ProductListClientProps {
   category: string;
   initialProducts: Product[];
-}
-
-function AddToRoutineButton({
-  product,
-  category,
-}: {
-  product: Product;
-  category: string;
-}) {
-  const router = useRouter();
-  const [isAdding, setIsAdding] = useState(false);
-
-  const handleAddToRoutine = () => {
-    setIsAdding(true);
-    
-    // Store product in localStorage for builder page to pick up
-    const addToRoutineData = {
-      product,
-      category: category as ProductCategory,
-      timestamp: Date.now(),
-    };
-    
-    // Store in localStorage
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(
-          "pending-routine-add",
-          JSON.stringify(addToRoutineData)
-        );
-        
-        // Dispatch a custom event in case builder page is already open
-        window.dispatchEvent(
-          new CustomEvent("addToRoutine", {
-            detail: addToRoutineData,
-          })
-        );
-        
-        // Redirect to builder page
-        router.push("/builder");
-      } catch (error) {
-        console.error("Failed to add product to routine:", error);
-        alert("Failed to add product to routine. Please try again.");
-        setIsAdding(false);
-      }
-    }
-  };
-
-  return (
-    <button
-      onClick={handleAddToRoutine}
-      disabled={isAdding}
-      className="bg-zinc-900 text-white text-xs font-bold px-2 py-1.5 rounded hover:bg-blue-700 transition-colors w-full disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      {isAdding ? "Adding..." : "Add"}
-    </button>
-  );
 }
 
 export default function ProductListClient({
@@ -160,7 +105,12 @@ export default function ProductListClient({
         );
       case "add":
         return (
-          <AddToRoutineButton product={product} category={category} />
+          <AddToRoutineButton
+            product={product}
+            category={category}
+            compact={true}
+            size="sm"
+          />
         );
       case "rating":
         return (
@@ -325,7 +275,7 @@ export default function ProductListClient({
               {products.map((product) => (
                 <div
                   key={product.id}
-                  className="grid grid-cols-12 items-center p-4 hover:bg-blue-50/30 transition-colors group"
+                  className="grid grid-cols-12 items-center p-5 hover:bg-blue-50/30 transition-colors group"
                 >
                   {/* COLUMN LOOP: This handles EVERY cell, including Name, Price, and Buttons */}
                   {config.tableColumns.map((col) => (

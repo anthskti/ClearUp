@@ -15,6 +15,10 @@ export interface ProductMerchant {
   lastUpdated: Date;
 }
 
+export type ProductMerchantWithDetails = ProductMerchant & {
+  merchant?: Pick<Merchant, "id" | "name" | "logo">;
+};
+
 export interface ProductWithMerchants extends Product {
-  products?: ProductMerchant[];
+  products?: ProductMerchantWithDetails[];
 }

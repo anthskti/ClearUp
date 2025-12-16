@@ -1,13 +1,21 @@
 import ProductMerchantModel from "../models/ProductMerchant";
-import { ProductMerchant } from "../types/merchant";
+import MerchantModel from "../models/Merchant";
+import { ProductMerchant, ProductMerchantWithDetails } from "../types/merchant";
 
 export class ProductMerchantRepository {
   // GET all merchants for a product
-  async findByProductId(productId: number): Promise<ProductMerchant[]> {
+  async findByProductId(productId: number): Promise<ProductMerchantWithDetails[]> {
     const productMerchants = await ProductMerchantModel.findAll({
       where: { productId },
+      include: [
+        {
+          model: MerchantModel,
+          as: "merchant", // Must match the alias in associations.ts
+          attributes: ["id", "name", "logo"],
+        },
+      ],
     });
-    return productMerchants.map((pm: any) => this.mapToProductMerchantType(pm));
+    return productMerchants.map((pm: any) => this.mapToProductMerchantWithDetailsType(pm));
   }
 
   // POST new merchant on product list
@@ -70,6 +78,26 @@ export class ProductMerchantRepository {
       stock: dbProductMerchant.stock,
       shipping: dbProductMerchant.shipping,
       lastUpdated: dbProductMerchant.lastUpdated,
+    };
+  }
+
+  private mapToProductMerchantWithDetailsType(dbProductMerchant: any): ProductMerchantWithDetails {
+    return {
+      id: dbProductMerchant.id,
+      productId: dbProductMerchant.productId,
+      merchantId: dbProductMerchant.merchantId,
+      website: dbProductMerchant.website,
+      price: dbProductMerchant.price,
+      stock: dbProductMerchant.stock,
+      shipping: dbProductMerchant.shipping,
+      lastUpdated: dbProductMerchant.lastUpdated,
+      merchant: dbProductMerchant.merchant
+        ? {
+            id: dbProductMerchant.merchant.id,
+            name: dbProductMerchant.merchant.name,
+            logo: dbProductMerchant.merchant.logo,
+          }
+        : undefined,
     };
   }
 }

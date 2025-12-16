@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../db";
+import Merchant from "./Merchant";
 
 interface ProductMerchantAttributes {
   id: number;
@@ -26,6 +27,7 @@ class ProductMerchant
   public stock!: boolean;
   public shipping?: string;
   public lastUpdated!: Date;
+  public merchant?: Merchant;
 }
 
 ProductMerchant.init(

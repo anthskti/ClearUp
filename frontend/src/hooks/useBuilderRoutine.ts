@@ -1,10 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { Product, ProductCategory } from "@/types/product";
+import { getMerchantsByProductId } from "@/lib/products";
 
 export interface RoutineSlot {
   id: ProductCategory;
   label: string;
-  product: (Product & { merchant?: string; merchantLogo?: string }) | null;
+  product:
+    | (Product & {
+        merchant?: string;
+        merchantLogo?: string;
+        merchantLink?: string;
+      })
+    | null;
 }
 
 const ROUTINE_SLOTS: RoutineSlot[] = [
@@ -46,7 +53,7 @@ export const useBuilderRoutine = () => {
   }, [routine, isLoaded]);
 
   const addProductToSlot = useCallback(
-    (category: ProductCategory, product: Product) => {
+    async (category: ProductCategory, product: Product) => {
       setRoutine((prev) =>
         prev.map((slot) =>
           slot.id === category
@@ -61,6 +68,46 @@ export const useBuilderRoutine = () => {
             : slot
         )
       );
+      try {
+        const merchants = await getMerchantsByProductId(String(product.id));
+        if (merchants && merchants.length > 0) {
+          const bestOffer = merchants.sort((a, b) => a.price - b.price)[0];
+
+          setRoutine((prev) =>
+            prev.map((slot) =>
+              slot.id === category && slot.product?.id === product.id
+                ? {
+                    ...slot,
+                    product: {
+                      ...slot.product!, // Keep existing product info
+                      // price: bestOffer.price, // Overwrite with lowest price
+                      merchant: bestOffer.merchant?.name || "Unknown",
+                      merchantLogo: bestOffer.merchant?.logo || "-",
+                      merchantLink: bestOffer.website,
+                    },
+                  }
+                : slot
+            )
+          );
+        } else {
+          setRoutine((prev) =>
+            prev.map((slot) =>
+              slot.id === category && slot.product?.id === product.id
+                ? {
+                    ...slot,
+                    product: {
+                      ...slot.product!,
+                      merchant: "Direct", // Or "No Sellers"
+                      merchantLogo: "/placeholder-logo.png",
+                    },
+                  }
+                : slot
+            )
+          );
+        }
+      } catch (e: any) {
+        console.error("Failed to fetch merchants details for product", e);
+      }
     },
     []
   );

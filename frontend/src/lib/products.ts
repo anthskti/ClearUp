@@ -1,5 +1,5 @@
 import { Product } from "@/types/product";
-import { Merchant } from "@/types/merchant";
+import { ProductMerchantWithDetails } from "@/types/merchant";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -39,7 +39,7 @@ export const getProductById = async (id: string): Promise<Product> => {
 
 export const getMerchantsByProductId = async (
   productId: string
-): Promise<Merchant[]> => {
+): Promise<ProductMerchantWithDetails[]> => {
   const res = await fetch(`${API_URL}/products/id/${productId}/merchants`, {
     cache: "no-store",
   });

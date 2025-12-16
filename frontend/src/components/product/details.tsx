@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Info, Droplets, MapPin, FlaskConical } from "lucide-react";
+import { Product } from "@/types/product";
 
 export interface CategoryConfigEntry {
   sheet: DetailSheet[];
@@ -10,6 +11,32 @@ export interface DetailSheet {
   dataKey: string;
   icon: ReactNode;
 }
+
+const getProductData = (product: Product, dataKey: string) => {
+  // 1. Handle Array Access (e.g., "labels[0]")
+  if (dataKey.includes("[")) {
+    const [key, indexPart] = dataKey.split("["); // ["labels", "0]"]
+    const index = parseInt(indexPart.replace("]", ""), 10); // 0
+
+    // Safely check if the array exists
+    const array = product[key as keyof Product];
+
+    if (Array.isArray(array) && array[index]) {
+      return array[index];
+    }
+    return "-"; // Fallback if data is missing
+  }
+
+  // 2. Handle Direct Access (e.g., "capacity", "country")
+  const value = product[dataKey as keyof Product];
+
+  // 3. Handle specific arrays like activeIngredient
+  if (Array.isArray(value)) {
+    return value.length > 0 ? value.join(", ") : "-";
+  }
+  return value || "-";
+};
+export default getProductData;
 
 export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
   cleanser: {
@@ -49,7 +76,7 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <MapPin size={16} />,
       },
       {
-        label: "Texture",
+        label: "Benefits",
         dataKey: "labels[0]",
         icon: <Droplets size={16} />,
       },
@@ -73,7 +100,7 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <MapPin size={16} />,
       },
       {
-        label: "Texture",
+        label: "Effect",
         dataKey: "labels[0]",
         icon: <Droplets size={16} />,
       },
@@ -97,7 +124,7 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <MapPin size={16} />,
       },
       {
-        label: "Texture",
+        label: "Active Ingredient",
         dataKey: "labels[0]",
         icon: <Droplets size={16} />,
       },
@@ -151,17 +178,17 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
       },
       {
         label: "Finish",
-        dataKey: "label[1]",
+        dataKey: "labels[1]",
         icon: <Info size={16} />,
       },
       {
         label: "Filter",
-        dataKey: "label[2]",
+        dataKey: "labels[2]",
         icon: <Info size={16} />,
       },
       {
         label: "Key Active",
-        dataKey: "label[2]",
+        dataKey: "labels[2]",
         icon: <Info size={16} />,
       },
     ],

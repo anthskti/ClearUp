@@ -232,9 +232,20 @@ export default function Builder() {
               <div className="hidden md:flex col-span-2 items-center">
                 {step.product && (
                   <div className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm">
-                    <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">
-                      {step.product.merchantLogo || "---"}
-                    </div>
+                    {step.product.merchantLogo != "/placeholder-logo.png" ? (
+                      <Image
+                        src={step.product.merchantLogo || ""}
+                        alt={step.product.merchant || "Unknown Merchant"}
+                        width={20}
+                        height={20}
+                        className="object-cover"
+                        unoptimized={true}
+                      />
+                    ) : (
+                      <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">
+                        -
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -4,6 +4,7 @@ import { ProductMerchantRepository } from "../repositories/ProductMerchantReposi
 import {
   Merchant,
   ProductMerchant,
+  ProductMerchantWithDetails,
   ProductWithMerchants,
 } from "../types/merchant";
 
@@ -80,7 +81,7 @@ export class ProductService {
   }
 
   // GET all merchants for a product
-  async getMerchantsByProductId(productId: number): Promise<ProductMerchant[]> {
+  async getMerchantsByProductId(productId: number): Promise<ProductMerchantWithDetails[]> {
     // Check if product exists first?
     const product = await this.productRepository.findById(productId.toString());
     if (!product) {

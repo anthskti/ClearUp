@@ -53,7 +53,10 @@ const defineAssociations = () => {
     as: "productMerchants",
   });
   ProductMerchant.belongsTo(Product, { foreignKey: "productId" });
-  ProductMerchant.belongsTo(Merchant, { foreignKey: "merchantId" });
+  ProductMerchant.belongsTo(Merchant, { 
+    foreignKey: "merchantId",
+    as: "merchant"
+  });
 
   // For testing
   console.log("Database associations defined.");

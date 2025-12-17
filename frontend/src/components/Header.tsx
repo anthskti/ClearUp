@@ -103,7 +103,7 @@ function Header() {
 
         <div className="flex item-center justify-end space-x-4">
           <button
-            className={`text-black text-xs px-2 py-2 transition-all duration-300 rounded-md border${
+            className={`text-black text-xs px-2 py-2 transition-colors duration-300 rounded-md border${
               isScrolled
                 ? " border-gray-400 hover:bg-gray-200" // Scrolled
                 : " border-white hover:bg-gray-100/50" // Unscrolled

@@ -1,5 +1,12 @@
 import { ReactNode } from "react";
-import { Info, Droplets, MapPin, FlaskConical } from "lucide-react";
+import {
+  Info,
+  Droplets,
+  MapPin,
+  FlaskConical,
+  TestTubeDiagonal,
+  Bubbles,
+} from "lucide-react";
 import { Product } from "@/types/product";
 
 export interface CategoryConfigEntry {
@@ -12,8 +19,10 @@ export interface DetailSheet {
   icon: ReactNode;
 }
 
+const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
 const getProductData = (product: Product, dataKey: string) => {
-  // 1. Handle Array Access (e.g., "labels[0]")
+  // Handle Array Access (mainly for "labels" and active ingredients)
   if (dataKey.includes("[")) {
     const [key, indexPart] = dataKey.split("["); // ["labels", "0]"]
     const index = parseInt(indexPart.replace("]", ""), 10); // 0
@@ -22,7 +31,7 @@ const getProductData = (product: Product, dataKey: string) => {
     const array = product[key as keyof Product];
 
     if (Array.isArray(array) && array[index]) {
-      return array[index];
+      return capitalize(array[index]);
     }
     return "-"; // Fallback if data is missing
   }
@@ -57,7 +66,7 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Droplets size={16} />,
       },
       {
-        label: "Key Active",
+        label: "Active Ingredients",
         dataKey: "activeIngredient",
         icon: <Info size={16} />,
       },
@@ -81,7 +90,7 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Droplets size={16} />,
       },
       {
-        label: "Key Active",
+        label: "Active Ingredients",
         dataKey: "activeIngredient",
         icon: <Info size={16} />,
       },
@@ -105,7 +114,7 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Droplets size={16} />,
       },
       {
-        label: "Key Active",
+        label: "Active Ingredients",
         dataKey: "activeIngredient",
         icon: <Info size={16} />,
       },
@@ -124,14 +133,19 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <MapPin size={16} />,
       },
       {
-        label: "Active Ingredient",
+        label: "Key Active",
         dataKey: "labels[0]",
         icon: <Droplets size={16} />,
       },
       {
-        label: "Key Active",
+        label: "Active Ingredients",
         dataKey: "activeIngredient",
         icon: <Info size={16} />,
+      },
+      {
+        label: "Concentration",
+        dataKey: "labels[1]",
+        icon: <TestTubeDiagonal size={16} />,
       },
     ],
   },
@@ -153,9 +167,14 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Droplets size={16} />,
       },
       {
-        label: "Key Active",
+        label: "Active Ingredients",
         dataKey: "activeIngredient",
         icon: <Info size={16} />,
+      },
+      {
+        label: "Finish",
+        dataKey: "label[1]",
+        icon: <Bubbles size={16} />,
       },
     ],
   },
@@ -187,8 +206,8 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Info size={16} />,
       },
       {
-        label: "Key Active",
-        dataKey: "labels[2]",
+        label: "Active Ingredients",
+        dataKey: "activeIngredient",
         icon: <Info size={16} />,
       },
     ],

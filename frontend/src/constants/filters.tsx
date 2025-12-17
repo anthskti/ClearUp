@@ -33,7 +33,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       { id: "country", labels: "Country", width: "col-span-1" },
       { id: "rating", labels: "Rating", width: "col-span-1 text-center" },
       { id: "price", labels: "Price", width: "col-span-1 text-right" },
-      { id: "add", labels: "", width: "col-span-1" },
+      { id: "add", labels: "", width: "col-span-1 text-right" },
     ],
   },
   toner: {
@@ -42,7 +42,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       {
         id: "benefits",
         labels: "Benefits",
-        options: ["Hydrating", "Exfoliating", "Calming"],
+        options: ["Hydrating", "Exfoliating", "Calming", "Balancing"],
       },
     ],
     tableColumns: [
@@ -52,7 +52,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       { id: "country", labels: "Country", width: "col-span-1" },
       { id: "rating", labels: "Rating", width: "col-span-1 text-center" },
       { id: "price", labels: "Price", width: "col-span-1 text-right" },
-      { id: "add", labels: "", width: "col-span-1" },
+      { id: "add", labels: "", width: "col-span-1 text-right" },
     ],
   },
   essence: {
@@ -61,7 +61,13 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       {
         id: "effect",
         labels: "Effect",
-        options: ["Hydrating", " Calming", "Brightening", "Nourishing"],
+        options: [
+          "Hydrating",
+          " Calming",
+          "Brightening",
+          "Nourishing",
+          "Repairing",
+        ],
       },
     ],
     tableColumns: [
@@ -71,7 +77,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       { id: "country", labels: "Country", width: "col-span-1" },
       { id: "rating", labels: "Rating", width: "col-span-1 text-center" },
       { id: "price", labels: "Price", width: "col-span-1 text-right" },
-      { id: "add", labels: "", width: "col-span-1" },
+      { id: "add", labels: "", width: "col-span-1 text-right" },
     ],
   },
   serum: {
@@ -79,18 +85,36 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
     specificFilters: [
       {
         id: "activeIngredient",
-        labels: "Active Ingredient",
-        options: ["Vitamin C", "Hyaluronic Acid", "Niacinamide", "Ampoule"],
+        labels: "Key Active",
+        options: [
+          "Vitamin C",
+          "Hyaluronic Acid",
+          "Niacinamide",
+          "Retinol",
+          "Retinal",
+          "AHA",
+          "BHA",
+          "Peptides",
+          "Azelaic Acid",
+          "Tranexamic Acid",
+          "Ceramides",
+        ],
+      },
+      {
+        id: "concentration",
+        labels: "Concentration",
+        options: ["Serum", "Ampoule", "Booster"],
       },
     ],
     tableColumns: [
       { id: "name", labels: "Product", width: "col-span-5" },
-      { id: "ac", labels: "Active Ingredient", width: "col-span-2" },
+      { id: "ac", labels: "Key Active", width: "col-span-1" },
+      { id: "concentration", labels: "Conc.", width: "col-span-1" },
       { id: "skinType", labels: "SkinType", width: "col-span-1" },
       { id: "country", labels: "Country", width: "col-span-1" },
       { id: "rating", labels: "Rating", width: "col-span-1 text-center" },
       { id: "price", labels: "Price", width: "col-span-1 text-right" },
-      { id: "add", labels: "", width: "col-span-1" },
+      { id: "add", labels: "", width: "col-span-1 text-right" },
     ],
   },
   moisturizer: {
@@ -99,17 +123,23 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       {
         id: "texture",
         labels: "Texture",
-        options: ["Gels", "Cream", "Ointment", "Lotion"],
+        options: ["Gels", "Cream", "Ointment", "Lotion", "Emulsion"],
+      },
+      {
+        id: "finish",
+        labels: "Finish",
+        options: ["Matte", "Natural", "Dewy", "Glassy"],
       },
     ],
     tableColumns: [
-      { id: "name", labels: "Product", width: "col-span-6 text-left" },
+      { id: "name", labels: "Product", width: "col-span-5 text-left" },
       { id: "texture", labels: "Texture", width: "col-span-1" },
+      { id: "finish", labels: "Finish", width: "col-span-1" },
       { id: "skinType", labels: "SkinType", width: "col-span-1" },
       { id: "country", labels: "Country", width: "col-span-1" },
       { id: "rating", labels: "Rating", width: "col-span-1 text-center" },
       { id: "price", labels: "Price", width: "col-span-1 text-right" },
-      { id: "add", labels: "", width: "col-span-1" },
+      { id: "add", labels: "", width: "col-span-1 text-right" },
     ],
   },
   sunscreen: {
@@ -132,7 +162,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       { id: "country", labels: "Country", width: "col-span-1" },
       { id: "rating", labels: "Rating", width: "col-span-1 text-center" },
       { id: "price", labels: "Price", width: "col-span-1 text-right" },
-      { id: "add", labels: "", width: "col-span-1" },
+      { id: "add", labels: "", width: "col-span-1 text-right" },
     ],
   },
 
@@ -145,7 +175,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       { id: "country", labels: "Country", width: "col-span-1" },
       { id: "rating", labels: "Rating", width: "col-span-1 text-center" },
       { id: "price", labels: "Price", width: "col-span-1 text-right" },
-      { id: "add", labels: "", width: "col-span-1" },
+      { id: "add", labels: "", width: "col-span-1 text-right" },
     ],
   },
 };

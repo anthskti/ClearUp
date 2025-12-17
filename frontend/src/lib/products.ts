@@ -51,14 +51,24 @@ export const getMerchantsByProductId = async (
 };
 
 export const addMerchantByProductId = async (
-  id: string
-  // data: merchantData?
+  id: number,
+  merchantData: {
+    merchantId: number;
+    website: string;
+    price: number;
+    stock: boolean;
+    shipping: string;
+  }
 ): Promise<Product> => {
   const res = await fetch(`${API_URL}/products/id/${id}/merchants`, {
-    cache: "no-store",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(merchantData),
   });
   if (!res.ok) {
-    throw new Error(`Failed to fetch product ${id}`);
+    throw new Error(`Failed to add merchant to id: ${id}`);
   }
   return res.json();
 };

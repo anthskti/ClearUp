@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { Button } from "../ui/button";
+
 const HeroSection = () => {
   return (
     <div className="relative w-full h-[70vh] overflow-hidden">
@@ -22,16 +24,16 @@ const HeroSection = () => {
 
         <div className="flex gap-2 flex-col">
           <Link href="/builder" passHref>
-            {/* input icon */}
-            <button className="bg-[#F8F8F8] hover:bg-[#F8F8F8]/90 text-black hover:text-stone-800 px-6 py-2 rounded-md text-md items-center gap-2 transition colors duration-200">
+            {/* Input icon */}
+            <Button variant="default" size="lg">
               Start Your Build
-            </button>
+            </Button>
           </Link>
-          <Link href="/" passHref>
-            {/* input icon */}
-            <button className="bg-[#0E4B84] hover:bg-[#0A345C]/90 text-[#F8F8F8] hover:text-gray-400 px-6 py-2 rounded-md text-md items-center gap-2 transition colors duration-200">
+          <Link href="/guides" passHref>
+            {/* Input icon */}
+            <Button variant="secondary" size="lg">
               View Guides
-            </button>
+            </Button>
           </Link>
         </div>
       </div>

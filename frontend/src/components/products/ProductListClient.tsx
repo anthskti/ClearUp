@@ -43,22 +43,14 @@ export default function ProductListClient({
 
   const renderCellContent = (col: ColumnConfig, product: Product) => {
     const labelIndexMap: Record<string, number> = {
-      // Cleansers & Moisturizers (labels[0] is usually texture)
-      texture: 0,
-
-      // Essences
-      effect: 0,
-
-      // Toners
-      benefits: 0,
-
-      // Serums (You called the ID 'ac' or 'activeIngredient')
-      ac: 0,
-
-      // Sunscreens (You have 3 dynamic columns here!)
-      spf: 0, // First item in labels[] is SPF
-      finish: 1, // Third item is Finish; need to change moisturizer
-      filter: 2, // Second item is Filter
+      texture: 0, // Cleansers & Moisturizers
+      benefits: 0, // Toners
+      effect: 0, // Essences
+      ac: 0, // Serums
+      spf: 0, // Sunscreens
+      concentration: 1, // Serums
+      finish: 1, // Sunscreens & Moisturizer
+      filter: 2, // Sunscreens
     };
 
     if (col.id in labelIndexMap) {
@@ -115,18 +107,7 @@ export default function ProductListClient({
       case "rating":
         return (
           <div>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span
-                key={i}
-                className={
-                  i < product.averageRating
-                    ? "text-yellow-500"
-                    : "text-gray-300"
-                }
-              >
-                ★
-              </span>
-            ))}
+            <span className="flex text-yellow-600">★★★★★</span>{" "}
           </div>
         );
       // Default: Just render the default

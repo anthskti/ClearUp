@@ -33,7 +33,7 @@ export class ProductRepository {
     capacity: string;
     price: number;
     instructions: string[];
-    activeIngredient: string[];
+    activeIngredient: string;
     ingredients: string;
     imageUrls: string[];
     tags: string[];
@@ -63,7 +63,7 @@ export class ProductRepository {
       capacity: string;
       price: number;
       instructions: string[];
-      activeIngredient: string[];
+      activeIngredient: string;
       ingredients?: string;
       averageRating: number;
       reviewCount: number;
@@ -98,7 +98,7 @@ export class ProductRepository {
       price: dbProduct.price,
 
       instructions: dbProduct.instructions || [],
-      activeIngredient: dbProduct.activeIngredient || [],
+      activeIngredient: dbProduct.activeIngredient,
       ingredients: dbProduct.ingredients,
       imageUrls: dbProduct.imageUrls || [],
       averageRating: dbProduct.averageRating || 0,

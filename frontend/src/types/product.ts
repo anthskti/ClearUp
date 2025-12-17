@@ -13,7 +13,7 @@ export interface Product {
   price: number;
 
   instructions: string[];
-  activeIngredient?: string[];
+  activeIngredient?: string;
   ingredients?: string;
   imageUrls: string[];
   averageRating: number;

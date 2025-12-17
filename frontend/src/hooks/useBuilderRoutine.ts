@@ -5,22 +5,23 @@ import { getMerchantsByProductId } from "@/lib/products";
 export interface RoutineSlot {
   id: ProductCategory;
   label: string;
-  product:
-    | (Product & {
-        merchant?: string;
-        merchantLogo?: string;
-        merchantLink?: string;
-      })
-    | null;
+  // Allow multiple products per slot now
+  products: Array<
+    Product & {
+      merchant?: string;
+      merchantLogo?: string;
+      merchantLink?: string;
+    }
+  >;
 }
 
 const ROUTINE_SLOTS: RoutineSlot[] = [
-  { id: "cleanser", label: "Cleanser", product: null },
-  { id: "toner", label: "Toner", product: null },
-  { id: "essence", label: "Essence", product: null },
-  { id: "serum", label: "Serum", product: null },
-  { id: "moisturizer", label: "Moisturizer", product: null },
-  { id: "sunscreen", label: "Sunscreen", product: null },
+  { id: "cleanser", label: "Cleanser", products: [] },
+  { id: "toner", label: "Toner", products: [] },
+  { id: "essence", label: "Essence", products: [] },
+  { id: "serum", label: "Serum", products: [] },
+  { id: "moisturizer", label: "Moisturizer", products: [] },
+  { id: "sunscreen", label: "Sunscreen", products: [] },
 ];
 
 const STORAGE_KEY = "builder-routine";
@@ -36,7 +37,15 @@ export const useBuilderRoutine = () => {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          setRoutine(parsed);
+          // Backwards compat: if older data has `product` (single), convert to `products` array
+          const normalized: RoutineSlot[] = parsed.map((slot: any) => {
+            if (slot.products) return slot;
+            if (slot.product && slot.product !== null) {
+              return { ...slot, products: [slot.product] };
+            }
+            return { ...slot, products: [] };
+          });
+          setRoutine(normalized);
         } catch (e) {
           console.error("Failed to parse saved routine", e);
         }
@@ -54,20 +63,28 @@ export const useBuilderRoutine = () => {
 
   const addProductToSlot = useCallback(
     async (category: ProductCategory, product: Product) => {
+      // Add product to the array for the slot if not already present
       setRoutine((prev) =>
         prev.map((slot) =>
           slot.id === category
             ? {
                 ...slot,
-                product: {
-                  ...product,
-                  merchant: "-", // Default merchant, can be enhanced later
-                  merchantLogo: "-",
-                },
+                products: slot.products.some((p) => p.id === product.id)
+                  ? slot.products
+                  : [
+                      ...slot.products,
+                      {
+                        ...product,
+                        merchant: "-",
+                        merchantLogo: "-",
+                      },
+                    ],
               }
             : slot
         )
       );
+
+      // Fetch merchant info for this product and update only that product entry
       try {
         const merchants = await getMerchantsByProductId(String(product.id));
         if (merchants && merchants.length > 0) {
@@ -75,16 +92,21 @@ export const useBuilderRoutine = () => {
 
           setRoutine((prev) =>
             prev.map((slot) =>
-              slot.id === category && slot.product?.id === product.id
+              slot.id === category
                 ? {
                     ...slot,
-                    product: {
-                      ...slot.product!, // Keep existing product info
-                      // price: bestOffer.price, // Overwrite with lowest price
-                      merchant: bestOffer.merchant?.name || "Unknown",
-                      merchantLogo: bestOffer.merchant?.logo || "-",
-                      merchantLink: bestOffer.website,
-                    },
+                    products: slot.products.map((p) =>
+                      p.id === product.id
+                        ? {
+                            ...p,
+                            // price: bestOffer.price, // Uncomment to override price with best offer
+                            merchant: bestOffer.merchant?.name || "Unknown",
+                            merchantLogo: bestOffer.merchant?.logo || "-",
+                            merchantLink: bestOffer.website,
+                            // keep the original price unless you want to override
+                          }
+                        : p
+                    ),
                   }
                 : slot
             )
@@ -92,14 +114,18 @@ export const useBuilderRoutine = () => {
         } else {
           setRoutine((prev) =>
             prev.map((slot) =>
-              slot.id === category && slot.product?.id === product.id
+              slot.id === category
                 ? {
                     ...slot,
-                    product: {
-                      ...slot.product!,
-                      merchant: "Direct", // Or "No Sellers"
-                      merchantLogo: "/placeholder-logo.png",
-                    },
+                    products: slot.products.map((p) =>
+                      p.id === product.id
+                        ? {
+                            ...p,
+                            merchant: "Direct",
+                            merchantLogo: "/placeholder-logo.png",
+                          }
+                        : p
+                    ),
                   }
                 : slot
             )
@@ -112,13 +138,25 @@ export const useBuilderRoutine = () => {
     []
   );
 
-  const removeProductFromSlot = useCallback((category: ProductCategory) => {
-    setRoutine((prev) =>
-      prev.map((slot) =>
-        slot.id === category ? { ...slot, product: null } : slot
-      )
-    );
-  }, []);
+  // If productId is provided, remove that single product from the slot;
+  // otherwise clear all products from the slot.
+  const removeProductFromSlot = useCallback(
+    (category: ProductCategory, productId?: number | string) => {
+      setRoutine((prev) =>
+        prev.map((slot) => {
+          if (slot.id !== category) return slot;
+          if (!productId) return { ...slot, products: [] };
+          return {
+            ...slot,
+            products: slot.products.filter(
+              (p) => String(p.id) !== String(productId)
+            ),
+          };
+        })
+      );
+    },
+    []
+  );
 
   const clearRoutine = useCallback(() => {
     setRoutine(ROUTINE_SLOTS);

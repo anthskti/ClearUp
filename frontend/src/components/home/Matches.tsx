@@ -1,6 +1,7 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Carousel from "../ui/Carousel";
+import ProceduralWave from "../themes/ProceduralWave";
 
 interface Match {
   id: string;
@@ -32,16 +33,30 @@ const Matches = () => {
     </button>
   );
   return (
-    <section className="py-10 px-4 md:px-8 w-full mx-auto">
-      <div className="text-center mb-10">
-        <h2 className="text-xl font-bold text-zinc-900">
-          Find Your Perfect Match
-        </h2>
-      </div>
+    <section>
+      <div className="py-10 px-4 md:px-8 w-full mx-auto">
+        <div className="text-center mb-10">
+          <h2 className="text-xl font-bold text-zinc-900">
+            Find Your Perfect Match
+          </h2>
+        </div>
 
-      {/* Mobile */}
-      <div className="lg:hidden w-full max-w-sm mx-auto px-4">
-        <Carousel>
+        {/* Mobile */}
+        <div className="lg:hidden w-full max-w-sm mx-auto px-4">
+          <Carousel>
+            {MATCHES.map((item) => (
+              <MatchCard
+                key={item.id}
+                id={item.id}
+                label={item.label}
+                color={""}
+              />
+            ))}
+          </Carousel>
+        </div>
+
+        {/* Desktop */}
+        <div className="hidden lg:grid grid-cols-6 gap-4 w-full max-w-7xl mx-auto">
           {MATCHES.map((item) => (
             <MatchCard
               key={item.id}
@@ -50,14 +65,7 @@ const Matches = () => {
               color={""}
             />
           ))}
-        </Carousel>
-      </div>
-
-      {/* Desktop */}
-      <div className="hidden lg:grid grid-cols-6 gap-4 w-full max-w-7xl mx-auto">
-        {MATCHES.map((item) => (
-          <MatchCard key={item.id} id={item.id} label={item.label} color={""} />
-        ))}
+        </div>
       </div>
     </section>
   );

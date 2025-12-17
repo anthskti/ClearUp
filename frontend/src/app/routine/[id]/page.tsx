@@ -60,7 +60,8 @@ export default async function ViewRoutine({ params }: RoutineProps) {
       <div className="relative z-1 max-w-6xl mx-auto px-6 pt-20 pb-20">
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#2E2E2E] uppercase">
-            Viewing Routine {routineData.name}
+            Viewing Routine
+            <div className="text-lg text-zinc-500">{routineData.name}</div>
           </h1>
 
           {/* External Link */}

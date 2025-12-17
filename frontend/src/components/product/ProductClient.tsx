@@ -23,6 +23,8 @@ import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
 import { Product } from "@/types/product";
 import { ProductMerchantWithDetails } from "@/types/merchant";
 
+import AddMerchantModal from "./AddMerchantModal";
+
 interface ProductClientProps {
   product: Product;
   merchantList: ProductMerchantWithDetails[];
@@ -35,14 +37,24 @@ export default function ProductClient({
   const config =
     DETAIL_CONFIG[product.category as CategoryKey] || DETAIL_CONFIG.default;
 
+  const [isMerchantModalOpen, setIsMerchantModalOpen] = useState(false);
+
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8] pt-20">
       <ProceduralWave seed={20} height={140} offset={1} />
+      <AddMerchantModal
+        isOpen={isMerchantModalOpen}
+        onClose={() => setIsMerchantModalOpen(false)}
+        productId={product.id}
+      />
       <main className="relative z-1 max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left Column: Visuals */}
         <div className="lg:col-span-5 space-y-4">
           <div className="text-sm text-zinc-500">
-            Products / <span>{product.category}</span> / Skin 1004
+            Products /{" "}
+            <span className="capitalize">
+              {product.category} / {product.name}
+            </span>
           </div>
 
           {/* Main Image Placeholder */}
@@ -164,15 +176,19 @@ export default function ProductClient({
             </div>
           </div>
 
-          {/* 4. Merchant Tracker, Implement Later Through Datascrape */}
+          {/* Merchant Tracker, Implement through admin. Might Add Datascrapper in future.  */}
           <div className="mt-auto">
             <div className="border-b border-zinc-200 pb-2 mb-4 flex justify-between items-end">
               <h3 className="text-sm font-bold uppercase text-zinc-400">
                 Marketplace Data
               </h3>
               <span>
-                <Button variant="outline" size="sm">
-                  <Link href="/">Add Merchant Info</Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsMerchantModalOpen(true)}
+                >
+                  Add Merchant Info
                 </Button>
               </span>
             </div>
@@ -270,7 +286,7 @@ export default function ProductClient({
         </div> */}
 
         {/* Comment Section */}
-        <div className="col-span-1 lg:col-span-12 mt-4 pt-10 border-t border-zinc-200">
+        <div className="col-span-1 lg:col-span-12 mt-4 py-10 border-t border-zinc-200">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xl font-bold text-zinc-900">

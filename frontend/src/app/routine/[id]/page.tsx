@@ -38,21 +38,24 @@ export default async function ViewRoutine({ params }: RoutineProps) {
   }
 
   const finalRoutine = ROUTINE_SLOTS.map((slot) => {
-    const matchedItem = routineData.products?.find(
-      (p) => p.category === slot.id
-    );
-    const productDetails = matchedItem?.product;
+    const matchedItem =
+      routineData.products?.filter((p) => p.category === slot.id) || [];
+    const products = matchedItem.map((item) => item.product).filter((p) => !!p);
     return {
       ...slot,
-      product: productDetails || null,
+      products,
     };
-  }).filter((step) => step.product !== null);
+  }).filter((step) => step.products.length > 0);
 
   const totalPrice = finalRoutine.reduce(
-    (acc, step) => acc + (step.product?.price || 0),
+    (acc, step) =>
+      acc + step.products.reduce((sum, p) => sum + (p.price || 0), 0),
     0
   );
-  const totalItems = finalRoutine.filter((step) => step.product).length;
+  const totalItems = finalRoutine.reduce(
+    (acc, step) => acc + step.products.length,
+    0
+  );
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8]">
@@ -104,49 +107,56 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                   {step.label}
                 </span>
                 {/* Mobile Price Display */}
-                {step.product && (
+                {step.products.length > 0 && (
                   <span className="md:hidden font-bold text-zinc-900">
-                    ${step.product.price.toFixed(2)}
+                    $
+                    {step.products
+                      .reduce((s, p) => s + p.price || 0, 0)
+                      .toFixed(2)}
                   </span>
                 )}
               </div>
 
               {/* Selection Area */}
               <div className="col-span-1 md:col-span-7">
-                {step.product ? (
+                {step.products.length > 0 ? (
                   // FILLED STATE
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 md:w-16 md:h-16 bg-zinc-100 rounded-md border border-zinc-200 shrink-0 overflow-hidden">
-                      {step.product.imageUrls && step.product.imageUrls[0] ? (
-                        <Image
-                          src={step.product.imageUrls[0]}
-                          alt={step.product.name}
-                          width={64}
-                          height={64}
-                          className="w-full h-full object-cover"
-                          unoptimized={true}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-zinc-200" />
-                      )}
-                    </div>
+                  <div className="flex flex-col gap-4">
+                    {step.products.map((prod) => (
+                      <div key={prod.id} className="flex items-center gap-4">
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-zinc-100 rounded-md border border-zinc-200 shrink-0 overflow-hidden">
+                          {prod.imageUrls && prod.imageUrls[0] ? (
+                            <Image
+                              src={prod.imageUrls[0]}
+                              alt={prod.name}
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-cover"
+                              unoptimized={true}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-zinc-200" />
+                          )}
+                        </div>
 
-                    <div className="grow min-w-0">
-                      <div className="text-xs font-bold text-zinc-400 uppercase mb-0.5">
-                        {step.product.brand}
+                        <div className="grow min-w-0">
+                          <div className="text-xs font-bold text-zinc-400 uppercase mb-0.5">
+                            {prod.brand}
+                          </div>
+                          <Link
+                            href={`/product/id/${prod.id}`}
+                            className="font-medium text-black leading-tight hover:underline hover:text-blue-800 block transition-all duration-100"
+                          >
+                            {prod.name}
+                          </Link>
+                          {/* Mobile Merchant Display */}
+                          <div className="md:hidden text-xs text-zinc-500 mt-1 flex items-center gap-1">
+                            {/* via {step.product.merchant || "Unknown"}{" "} */}
+                            via {"Unknown"} <ExternalLink size={10} />
+                          </div>
+                        </div>
                       </div>
-                      <Link
-                        href={`/product/id/${step.product.id}`}
-                        className="font-medium text-black leading-tight hover:underline hover:text-blue-800 block transition-all duration-100"
-                      >
-                        {step.product.name}
-                      </Link>
-                      {/* Mobile Merchant Display */}
-                      <div className="md:hidden text-xs text-zinc-500 mt-1 flex items-center gap-1">
-                        {/* via {step.product.merchant || "Unknown"}{" "} */}
-                        via {"Unknown"} <ExternalLink size={10} />
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 ) : (
                   <></> // Empty state shows nothing
@@ -155,21 +165,45 @@ export default async function ViewRoutine({ params }: RoutineProps) {
 
               {/* Merchant Column (Desktop Only) */}
               <div className="hidden md:flex col-span-2 items-center">
-                {step.product && (
-                  <div className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm">
-                    <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">
-                      {/* {step.product.merchantLogo || "---"} */}
-                      {"---"}
-                    </div>
+                {step.products.length > 0 && (
+                  <div className="flex flex-col gap-8">
+                    {step.products.map((prod) => (
+                      <div
+                        key={prod.id}
+                        className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm"
+                      >
+                        {/* {prod.merchantLogo && prod.merchantLogo !== "/placeholder-logo.png" ? (
+                           <Image 
+                             src={prod.merchantLogo || ""}
+                             alt="Merchant"
+                             width={20}
+                             height={20}
+                             className="object-cover"
+                             unoptimized={true}
+                           />
+                        ) : ( */}
+                        <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">
+                          -
+                        </div>
+                        {/* )} */}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
 
               {/* Price Column (Desktop Only) */}
               <div className="hidden md:block col-span-1 text-right">
-                {step.product ? (
-                  <div className="text-lg font-bold text-zinc-900">
-                    ${step.product.price.toFixed(2)}
+                {step.products.length > 0 ? (
+                  <div className="flex flex-col items-end gap-13">
+                    {step.products.map((p) => (
+                      <div
+                        key={p.id}
+                        className="text-lg font-bold text-zinc-900"
+                      >
+                        ${(p.price || 0).toFixed(2)}
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <span className="text-zinc-200 font-medium">---</span>

@@ -101,7 +101,9 @@ function Header() {
           })}
         </div>
 
-        <div className="flex item-center justify-end space-x-4">
+        {/* Uncomment when login is ready */}
+
+        {/* <div className="flex item-center justify-end space-x-4">
           <button
             className={`text-black text-xs px-2 py-2 transition-colors duration-300 rounded-md border${
               isScrolled
@@ -111,10 +113,10 @@ function Header() {
           >
             <Link href="/profile" className="flex items-center">
               <UserIcon className="ml-2 w-4 h-4" />
-              Log In
+              Log In 
             </Link>
           </button>
-        </div>
+        </div> */}
       </nav>
     </div>
   );

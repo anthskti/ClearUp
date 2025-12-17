@@ -14,7 +14,7 @@ import {
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import Carousel from "@/components/ui/Carousel";
+import ProductImageGallery from "@/components/ui/ProductGallery";
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import getProductData from "@/components/product/details";
 import { DETAIL_CONFIG, CategoryKey } from "@/components/product/details";
@@ -50,48 +50,7 @@ export default function ProductClient({
       <main className="relative z-1 max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left Column: Visuals */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="text-sm text-zinc-500">
-            Products /{" "}
-            <span className="capitalize">
-              {product.category} / {product.name}
-            </span>
-          </div>
-
-          {/* Main Image Placeholder */}
-          <Carousel>
-            {product.imageUrls.map((url, index) => (
-              <Image
-                key={index}
-                src={url}
-                alt={`Thumbnail ${index}`}
-                width={50}
-                height={50}
-                className={`
-                    group flex flex-col items-center justify-center
-                    w-full
-                    bg-[#e8f6ff] hover:bg-[#87a1b1]
-                    rounded-sm shadow-sm transition-all duration-300
-                    text-zinc-900 hover:text-white font-medium
-                `}
-                unoptimized={true}
-              />
-            ))}
-          </Carousel>
-
-          {/* Carousel Thumbnails */}
-          <div className="grid grid-cols-4 gap-2">
-            {product.imageUrls.map((url, index) => (
-              <Image
-                key={index}
-                src={url}
-                alt={`Thumbnail ${index}`}
-                width={100}
-                height={100}
-                className="object-cover"
-                unoptimized={true}
-              />
-            ))}
-          </div>
+          <ProductImageGallery imageUrls={product.imageUrls} />
         </div>
 
         {/* Right Column: Data & Actions */}

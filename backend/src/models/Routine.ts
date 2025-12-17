@@ -32,7 +32,7 @@ Routine.init(
       allowNull: false,
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT, // Changed to TEXT to support longer JSON strings
     },
     userId: {
       type: DataTypes.INTEGER,

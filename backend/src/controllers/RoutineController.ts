@@ -102,7 +102,7 @@ export class RoutineController {
     }
   }
 
-  // POST /api/routines/:id/products
+  // POST /api/routines/:id
   async addProductToRoutine(req: Request, res: Response): Promise<void> {
     try {
       const routineId = parseInt(req.params.id);
@@ -120,16 +120,16 @@ export class RoutineController {
     }
   }
 
-  // DELETE /api/routine-products/:id
+  // DELETE /api/routines/:id/product
   async removeProductFromRoutine(req: Request, res: Response): Promise<void> {
     try {
       const routineProductId = parseInt(req.params.id);
 
-      const userId = parseInt(req.params.userId);
+      // const userId = parseInt(req.params.userId);
 
       const success = await this.routineService.removeProductFromRoutine(
-        routineProductId,
-        userId
+        routineProductId
+        // userId
       );
 
       if (!success) {
@@ -142,7 +142,7 @@ export class RoutineController {
     }
   }
 
-  // PUT /api/routine-products/:id
+  // PUT /api/routines/:id/product
   async updateProductInRoutine(req: Request, res: Response): Promise<void> {
     try {
       const routineProductId = parseInt(req.params.id);
@@ -158,6 +158,18 @@ export class RoutineController {
       }
 
       res.json(routineProduct);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  // POST /api/routines/bulk - Create routine with products in bulk
+  async createRoutineBulk(req: Request, res: Response): Promise<void> {
+    try {
+      const routine = await this.routineService.createRoutineWithProducts(
+        req.body
+      );
+      res.status(201).json(routine);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

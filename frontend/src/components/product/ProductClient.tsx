@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   ExternalLink,
   Plus,
@@ -13,79 +14,43 @@ import {
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import ProductImageGallery from "@/components/ui/ProductGallery";
 import ProceduralWave from "@/components/themes/ProceduralWave";
+import getProductData from "@/components/product/details";
+import { DETAIL_CONFIG, CategoryKey } from "@/components/product/details";
+import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
 
-const ProductDatabasePage = () => {
-  // Mock Data based on your screenshot
-  const product = {
-    brand: "SKIN1004",
-    name: "Madagascar Centella Asiatica 100 Ampoule",
-    rating: 4.8,
-    reviews: 1240,
-    description:
-      "A soothing ampoule that helps calm and restore imbalance in the skin caused by harsh environments. Made with 100% Centella Asiatica Extract.",
-    details: [
-      {
-        label: "Capacity",
-        value: "100ml",
-        icon: <FlaskConical size={16} />,
-      },
-      {
-        label: "Country",
-        value: "South Korea",
-        icon: <MapPin size={16} />,
-      },
-      {
-        label: "Texture",
-        value: "Watery, Non-sticky",
-        icon: <Droplets size={16} />,
-      },
-      {
-        label: "Key Active",
-        value: "Centella Asiatica Extract",
-        icon: <Info size={16} />,
-      },
-    ],
-    instructions: [
-      "After cleansing and toning, apply 2-3 drops on face.",
-      "Pat gently for better absorption.",
-    ],
-    merchants: [
-      { name: "Amazon", price: 9.99, stock: true, shipping: "Free with Prime" },
-      { name: "Stylevana", price: 10.99, stock: true, shipping: "$3.99" },
-      { name: "YesStyle", price: 12.5, stock: false, shipping: "Free > $50" },
-    ],
-    compatible: [
-      { name: "Gardening Gel Moisturizer", brand: "SKIN 1004" },
-      { name: "Tapestry Balm Cleanser", brand: "SKIN 1004" },
-    ],
-  };
+import { Product } from "@/types/product";
+import { ProductMerchantWithDetails } from "@/types/merchant";
+
+import AddMerchantModal from "./AddMerchantModal";
+
+interface ProductClientProps {
+  product: Product;
+  merchantList: ProductMerchantWithDetails[];
+}
+
+export default function ProductClient({
+  product,
+  merchantList,
+}: ProductClientProps) {
+  const config =
+    DETAIL_CONFIG[product.category as CategoryKey] || DETAIL_CONFIG.default;
+
+  const [isMerchantModalOpen, setIsMerchantModalOpen] = useState(false);
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8] pt-20">
-      <ProceduralWave seed={10} height={140} offset={1} />
+      <ProceduralWave seed={20} height={140} offset={1} />
+      <AddMerchantModal
+        isOpen={isMerchantModalOpen}
+        onClose={() => setIsMerchantModalOpen(false)}
+        productId={product.id}
+      />
       <main className="relative z-1 max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left Column: Visuals */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="text-sm text-zinc-500">
-            Products / Serums / Skin 1004
-          </div>
-          {/* Main Image Placeholder */}
-          <div className="aspect-4/5 bg-zinc-100 rounded-sm flex items-center justify-center relative overflow-hidden group">
-            <span className="text-zinc-400">Product Image</span>
-            {/* Hover visual cue */}
-            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </div>
-
-          {/* Carousel Thumbnails */}
-          <div className="grid grid-cols-4 gap-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="aspect-square bg-zinc-50 hover:bg-zinc-100 cursor-pointer border border-transparent hover:border-zinc-300 transition-all"
-              />
-            ))}
-          </div>
+          <ProductImageGallery imageUrls={product.imageUrls} />
         </div>
 
         {/* Right Column: Data & Actions */}
@@ -103,7 +68,7 @@ const ProductDatabasePage = () => {
               <span className="flex text-yellow-600">★★★★★</span>{" "}
               {/* Input Function for stars later */}
               <span className="text-zinc-400">
-                ({product.reviews} verified logs)
+                ({product.reviewCount} review logs)
               </span>
             </div>
           </div>
@@ -122,12 +87,11 @@ const ProductDatabasePage = () => {
                 Indexed & Tracked
               </div>
             </div>
-            <Button variant="secondary" size="default" asChild>
-              <Link href="/">
-                <Plus size={18} />
-                Add to Routine
-              </Link>
-            </Button>
+            <AddToRoutineButton
+              product={product}
+              category={product.category}
+              variant="secondary"
+            />
           </div>
 
           {/* 3. Detail Sheet */}
@@ -140,19 +104,23 @@ const ProductDatabasePage = () => {
 
             {/* Grid Layout for Datails*/}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-              {product.details.map((detail, idx) => (
-                <div key={idx} className="flex items-start gap-3">
-                  <div className="mt-1 text-zinc-400">{detail.icon}</div>
-                  <div>
-                    <span className="block text-xs text-zinc-500 uppercase font-medium">
-                      {detail.label}
-                    </span>
-                    <span className="block text-zinc-900 font-medium">
-                      {detail.value}
-                    </span>
+              {config.sheet.map((col, index) => {
+                const displayValue = getProductData(product, col.dataKey);
+
+                return (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="mt-1 text-zinc-400">{col.icon}</div>
+                    <div>
+                      <span className="block text-xs text-zinc-500 uppercase font-medium">
+                        {col.label}
+                      </span>
+                      <span className="block text-zinc-900 font-medium">
+                        {displayValue}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="pt-4">
@@ -167,15 +135,22 @@ const ProductDatabasePage = () => {
             </div>
           </div>
 
-          {/* 4. Merchant Tracker, Implement Later Through Datascrape */}
+          {/* Merchant Tracker, Implement through admin. Might Add Datascrapper in future.  */}
           <div className="mt-auto">
             <div className="border-b border-zinc-200 pb-2 mb-4 flex justify-between items-end">
               <h3 className="text-sm font-bold uppercase text-zinc-400">
                 Marketplace Data
               </h3>
-              {/* <span className="text-xs text-zinc-400">
-                Last updated: 2h ago
-              </span> */}
+              <span>
+                {/* Unhide when Users are available */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsMerchantModalOpen(true)}
+                >
+                  Add Merchant Info
+                </Button>
+              </span>
             </div>
 
             <div className="overflow-hidden rounded-lg">
@@ -189,13 +164,25 @@ const ProductDatabasePage = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                  {product.merchants.map((merchant, i) => (
+                  {merchantList.map((merchant, index) => (
                     <tr
-                      key={i}
+                      key={index}
                       className="hover:bg-zinc-50 transition-colors border-b border-zinc-200"
                     >
                       <td className="px-4 py-4 font-medium text-zinc-900">
-                        {merchant.name}
+                        <div className="flex flex-col items-center">
+                          <Image
+                            src={merchant.merchant?.logo || ""}
+                            alt={merchant.merchant?.name || "Unknown Merchant"}
+                            width={20}
+                            height={20}
+                            className="object-cover"
+                            unoptimized={true}
+                          />
+                          <span className="text-xs text-zinc-500">
+                            {merchant.merchant?.name || "Unknown Merchant"}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-4 py-4">
                         {merchant.stock ? (
@@ -215,9 +202,14 @@ const ProductDatabasePage = () => {
                         CA ${merchant.price.toFixed(2)}
                       </td>
                       <td className="px-4 py-4 text-right">
-                        <button className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 text-xs font-bold uppercase">
+                        <a
+                          href={merchant.website}
+                          className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 text-xs font-bold uppercase"
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
                           Visit Store <ExternalLink size={12} />
-                        </button>
+                        </a>
                       </td>
                     </tr>
                   ))}
@@ -228,12 +220,12 @@ const ProductDatabasePage = () => {
         </div>
 
         {/* Compatibility Products --Implement algo for similar products later. */}
-        <div className="col-span-1 lg:col-span-12 mt-4 pt-10 border-t border-zinc-200">
+        {/* <div className="col-span-1 lg:col-span-12 mt-4 pt-10 border-t border-zinc-200">
           <h3 className="text-xl font-bold text-zinc-900">
             Often Paired In Routines
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {/* Mock Suggestion Cards */}
+            Mock Suggestion Cards
             {product.compatible.map((item, i) => (
               <div key={i} className="group cursor-pointer">
                 <div className="aspect-square bg-zinc-100 mb-3 relative overflow-hidden">
@@ -245,16 +237,16 @@ const ProductDatabasePage = () => {
                 <div className="text-sm text-zinc-800 group-hover:underline">
                   {item.name}
                 </div>
-                {/* <div className="mt-2 text-xs text-[#0E4B84] flex items-center gap-1">
+                 <div className="mt-2 text-xs text-[#0E4B84] flex items-center gap-1">
                   <Plus size={12} /> Add to Routine
-                </div> */}
+                </div> 
               </div>
             ))}
-          </div>
-        </div>
+           </div>
+        </div> */}
 
         {/* Comment Section */}
-        <div className="col-span-1 lg:col-span-12 mt-4 pt-10 border-t border-zinc-200">
+        <div className="col-span-1 lg:col-span-12 mt-4 py-10 border-t border-zinc-200">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xl font-bold text-zinc-900">
@@ -345,6 +337,4 @@ const ProductDatabasePage = () => {
       </main>
     </div>
   );
-};
-
-export default ProductDatabasePage;
+}

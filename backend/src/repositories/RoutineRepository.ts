@@ -1,8 +1,13 @@
 // Translates storage format to application format
 
 import RoutineModel from "../models/Routine";
+import ProductModel from "../models/Product";
 import RoutineProductModel from "../models/RoutineProduct";
-import { Routine, RoutineWithProducts } from "../types/routine";
+import {
+  Routine,
+  RoutineWithProducts,
+  RoutineProductWithDetails,
+} from "../types/routine";
 
 export class RoutineRepository {
   // Get all routines
@@ -30,6 +35,20 @@ export class RoutineRepository {
         {
           model: RoutineProductModel,
           as: "routineProducts",
+          include: [
+            {
+              model: ProductModel, // Import your ProductModel
+              as: "product", // Must match the alias in associations.ts
+              attributes: [
+                "id",
+                "name",
+                "brand",
+                "price",
+                "averageRating",
+                "imageUrls",
+              ],
+            },
+          ],
         },
       ],
     });
@@ -83,14 +102,24 @@ export class RoutineRepository {
       description: dbRoutine.description,
       userId: dbRoutine.userId,
       products: dbRoutine.routineProducts
-        ? dbRoutine.routineProducts.map((rp: any) => ({
-            id: rp.id,
-            routineId: rp.routineId,
-            productId: rp.productId,
-            category: rp.category,
-            timeOfDay: rp.timeOfDay,
-            notes: rp.notes,
-          }))
+        ? dbRoutine.routineProducts.map(
+            (rp: any): RoutineProductWithDetails => ({
+              id: rp.id,
+              routineId: rp.routineId,
+              productId: rp.productId,
+              category: rp.category,
+              product: rp.product
+                ? {
+                    id: rp.product.id,
+                    name: rp.product.name,
+                    brand: rp.product.brand,
+                    price: rp.product.price,
+                    averageRating: rp.product.averageRating,
+                    imageUrls: rp.product.imageUrls,
+                  }
+                : undefined,
+            })
+          )
         : undefined,
     };
   }

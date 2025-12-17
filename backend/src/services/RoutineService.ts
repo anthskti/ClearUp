@@ -67,8 +67,6 @@ export class RoutineService {
     productData: {
       productId: number;
       category: ProductCategory;
-      timeOfDay?: "morning" | "evening" | "both";
-      notes?: string;
     }
   ): Promise<RoutineProduct> {
     return this.routineProductRepository.create({
@@ -79,8 +77,8 @@ export class RoutineService {
 
   // DELETE a product from a routine
   async removeProductFromRoutine(
-    routineProductId: number,
-    userId: number
+    routineProductId: number
+    // userId: number
   ): Promise<boolean> {
     // TODO: security check when Auth is implemented
     /*
@@ -96,15 +94,47 @@ export class RoutineService {
     routineProductId: number,
     updates: Partial<{
       category: ProductCategory;
-      timeOfDay?: "morning" | "evening" | "both";
-      notes?: string;
     }>
   ): Promise<RoutineProduct | null> {
     return this.routineProductRepository.update(routineProductId, updates);
   }
 
-  //GET all products in a routine
+  // GET all products in a routine
   async getRoutineProducts(routineId: number): Promise<RoutineProduct[]> {
     return this.routineProductRepository.findByRoutineId(routineId);
+  }
+
+  // POST Create routine with products in bulk
+  async createRoutineWithProducts(data: {
+    name: string;
+    description?: string;
+    userId: number;
+    items: {
+      productId: number;
+      category: ProductCategory;
+    }[];
+  }): Promise<RoutineWithProducts> {
+    // Create the routine first
+    const routine = await this.routineRepository.create({
+      name: data.name,
+      description: data.description,
+      userId: data.userId,
+    });
+
+    // Then create all the routine products
+    const routineProducts = await Promise.all(
+      data.items.map((item) =>
+        this.routineProductRepository.create({
+          routineId: routine.id,
+          productId: item.productId,
+          category: item.category,
+        })
+      )
+    );
+
+    return {
+      ...routine,
+      products: routineProducts,
+    };
   }
 }

@@ -13,12 +13,12 @@ const navItems = [
 ];
 
 const productCategories = [
-  { name: "Cleansers", href: "/products?category=cleanser" },
-  { name: "Toners", href: "/products?category=toner" },
-  { name: "Essences", href: "/products?category=essence" },
-  { name: "Serums", href: "/products?category=serum" },
-  { name: "Moisturizers", href: "/products?category=moisturizer" },
-  { name: "Sunscreens", href: "/products?category=sunscreen" },
+  { name: "Cleansers", href: "/products/category/cleanser" },
+  { name: "Toners", href: "/products/category/toner" },
+  { name: "Essences", href: "/products/category/essence" },
+  { name: "Serums", href: "/products/category/serum" },
+  { name: "Moisturizers", href: "/products/category/moisturizer" },
+  { name: "Sunscreens", href: "/products/category/sunscreen" },
 ];
 
 function Header() {
@@ -101,9 +101,11 @@ function Header() {
           })}
         </div>
 
-        <div className="flex item-center justify-end space-x-4">
+        {/* Uncomment when login is ready */}
+
+        {/* <div className="flex item-center justify-end space-x-4">
           <button
-            className={`text-black text-xs px-2 py-2 transition-all duration-300 rounded-md border${
+            className={`text-black text-xs px-2 py-2 transition-colors duration-300 rounded-md border${
               isScrolled
                 ? " border-gray-400 hover:bg-gray-200" // Scrolled
                 : " border-white hover:bg-gray-100/50" // Unscrolled
@@ -111,10 +113,10 @@ function Header() {
           >
             <Link href="/profile" className="flex items-center">
               <UserIcon className="ml-2 w-4 h-4" />
-              Log In
+              Log In 
             </Link>
           </button>
-        </div>
+        </div> */}
       </nav>
     </div>
   );

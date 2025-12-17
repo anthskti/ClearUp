@@ -15,7 +15,7 @@ export interface Product {
   instructions: string[];
   activeIngredient?: string;
   ingredients?: string;
-  imageUrls?: string[];
+  imageUrls: string[];
   averageRating: number;
   reviewCount: number;
   tags?: string[];

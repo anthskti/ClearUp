@@ -1,4 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
+import Product from "./Product";
 import sequelize from "../db";
 
 interface RoutineProductAttributes {
@@ -6,8 +7,6 @@ interface RoutineProductAttributes {
   routineId: number;
   productId: number;
   category: string;
-  timeOfDay?: "morning" | "evening" | "both";
-  notes?: string;
 }
 interface RoutineProductCreationAttributes
   extends Optional<RoutineProductAttributes, "id"> {}
@@ -20,8 +19,7 @@ class RoutineProduct
   public routineId!: number;
   public productId!: number;
   public category!: string;
-  public timeOfDay?: "morning" | "evening" | "both";
-  public notes?: string; // Instruction notes
+  public product?: Product;
 }
 
 RoutineProduct.init(
@@ -51,12 +49,6 @@ RoutineProduct.init(
         "other"
       ),
       allowNull: false,
-    },
-    timeOfDay: {
-      type: DataTypes.ENUM("morning", "evening", "both"),
-    },
-    notes: {
-      type: DataTypes.TEXT,
     },
   },
   {

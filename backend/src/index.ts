@@ -4,19 +4,58 @@ import routineRoutes from "./routes/routineRoutes";
 import merchantRoutes from "./routes/merchantRoutes";
 import defineAssociations from "./associations";
 import sequelize from "./db";
+import rateLimit from "express-rate-limit";
+import { create } from "domain";
 
 const app = express();
 const port = process.env.PORT;
 const cors = require("cors");
 
+// For Deployment: Trust Proxy, Rate Limiter, Save Limiter
+app.set("trust proxy", 1);
+
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many requests from this IP, please try again later.",
+});
+
+const createStrictLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10,
+  message: "You are creating too many routines. Please wait a while.",
+});
+
 // For Middleware
 app.use(express.json()); // parsing JSON bodies
 app.use(cors());
 
+app.use(globalLimiter);
+
 // Routes
 app.use("/api/products", productRoutes);
-app.use("/api/routines", routineRoutes);
-app.use("/api/merchant", merchantRoutes);
+app.use(
+  "/api/routines",
+  (req, res, next) => {
+    if (req.method === "POST") {
+      return createStrictLimiter(req, res, next);
+    }
+    next();
+  },
+  routineRoutes
+);
+app.use(
+  "/api/merchant",
+  (req, res, next) => {
+    if (req.method === "POST") {
+      return createStrictLimiter(req, res, next);
+    }
+    next();
+  },
+  merchantRoutes
+);
 
 // Health
 app.get("/health", (req, res) => {

@@ -16,21 +16,14 @@ const DEFAULT_NOTES: ClientNotes = {
   morning: [
     {
       title: "Cleanse",
-      description: "Wash face with warm water. Use cleanser if you have oily skin.",
-    },
-    {
-      title: "Sunscreen (Crucial)",
-      description: "Apply generously as the final step.",
+      description:
+        "Wash face with warm water. Use cleanser if you have oily skin.",
     },
   ],
   evening: [
     {
-      title: "Cleanse",
-      description: "Wash face with warm water. Use cleanser if you have oily skin.",
-    },
-    {
-      title: "Moisturize",
-      description: "Apply generously as the final step.",
+      title: "Add Note...",
+      description: "Add Description...",
     },
   ],
 };
@@ -79,10 +72,7 @@ export const useBuilderNotes = () => {
   const addNote = (timeOfDay: "morning" | "evening") => {
     setNotes((prev) => ({
       ...prev,
-      [timeOfDay]: [
-        ...prev[timeOfDay],
-        { title: "New Note", description: "" },
-      ],
+      [timeOfDay]: [...prev[timeOfDay], { title: "New Note", description: "" }],
     }));
   };
 
@@ -122,4 +112,3 @@ export const useBuilderNotes = () => {
     loadNotesFromJson,
   };
 };
-

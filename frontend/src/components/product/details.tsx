@@ -138,14 +138,14 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Droplets size={16} />,
       },
       {
-        label: "Active Ingredients",
-        dataKey: "activeIngredient",
-        icon: <Info size={16} />,
-      },
-      {
         label: "Concentration",
         dataKey: "labels[1]",
         icon: <TestTubeDiagonal size={16} />,
+      },
+      {
+        label: "Active Ingredients",
+        dataKey: "activeIngredient",
+        icon: <Info size={16} />,
       },
     ],
   },
@@ -167,14 +167,14 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Droplets size={16} />,
       },
       {
+        label: "Finish",
+        dataKey: "labels[1]",
+        icon: <Bubbles size={16} />,
+      },
+      {
         label: "Active Ingredients",
         dataKey: "activeIngredient",
         icon: <Info size={16} />,
-      },
-      {
-        label: "Finish",
-        dataKey: "label[1]",
-        icon: <Bubbles size={16} />,
       },
     ],
   },

@@ -123,7 +123,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       {
         id: "texture",
         labels: "Texture",
-        options: ["Gels", "Cream", "Ointment", "Lotion", "Emulsion"],
+        options: ["Gel", "Cream", "Ointment", "Lotion", "Emulsion"],
       },
       {
         id: "finish",
@@ -146,18 +146,18 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
     category: "Sunscreens",
     specificFilters: [
       { id: "spf", labels: "SPF Level", options: ["15+", "30+", "50+"] },
+      { id: "finish", labels: "Finish", options: ["Matte", "Dewy", "Natural"] },
       {
         id: "filter",
         labels: "Filter",
         options: ["Mineral", "Chemical", "Hybrid"],
       },
-      { id: "finish", labels: "Finish", options: ["Matte", "Dewy", "Natural"] },
     ],
     tableColumns: [
       { id: "name", labels: "Product", width: "col-span-4 text-left" },
       { id: "spf", labels: "Spf", width: "col-span-1" },
-      { id: "filter", labels: "Filter", width: "col-span-1" },
       { id: "finish", labels: "Finish", width: "col-span-1" },
+      { id: "filter", labels: "Filter", width: "col-span-1" },
       { id: "skinType", labels: "skinType", width: "col-span-1" },
       { id: "country", labels: "Country", width: "col-span-1" },
       { id: "rating", labels: "Rating", width: "col-span-1 text-center" },

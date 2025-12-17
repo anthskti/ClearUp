@@ -57,7 +57,7 @@ async function seedDatabase() {
         capacity: row.capacity,
         price: parseFloat(row.price),
         instructions: split(row.instructions),
-        activeIngredient: split(row.activeIngredients),
+        activeIngredient: row.activeIngredient,
         ingredients: row.ingredients,
         imageUrls: split(row.imageUrls),
         averageRating: row.averageRating ? parseFloat(row.averageRating) : 0,

@@ -11,8 +11,10 @@ interface ProductProps {
 export default async function ProductListPage({ params }: ProductProps) {
   const { slug } = await params;
 
-  const product = await getProductById(slug);
-  const merchantList = await getMerchantsByProductId(slug);
+  const [product, merchantList] = await Promise.all([
+    getProductById(slug),
+    getMerchantsByProductId(slug),
+  ]);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>

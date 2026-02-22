@@ -42,6 +42,43 @@ export const getProductsByCategory = async (
   return res.json();
 };
 
+export const searchProducts = async (
+  query: string,
+  limit: number = 25,
+  offset: number = 0,
+): Promise<Product[]> => {
+  const res = await fetch(
+    `${API_URL}/products?search=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
+    {
+      cache: "no-store",
+    },
+  );
+  if (!res.ok) {
+    throw new Error(`Failed to search products for "${query}"`);
+  }
+  return res.json();
+};
+
+export const searchProductsByCategory = async (
+  category: string,
+  query: string,
+  limit: number = 25,
+  offset: number = 0,
+): Promise<Product[]> => {
+  const res = await fetch(
+    `${API_URL}/products/category/${category}?search=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
+    {
+      cache: "no-store",
+    },
+  );
+  if (!res.ok) {
+    throw new Error(
+      `Failed to search products in category "${category}" for "${query}"`,
+    );
+  }
+  return res.json();
+};
+
 export const getProductById = async (id: string): Promise<Product> => {
   const res = await fetch(`${API_URL}/products/id/${id}`, {
     next: { revalidate: 21600 },

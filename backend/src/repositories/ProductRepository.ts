@@ -101,6 +101,33 @@ export class ProductRepository {
     return deleted > 0;
   }
 
+  // SEARCH products by query (searches name, brand, tags, activeIngredient)
+  async search(
+    query: string,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<Product[]> {
+    const { Op } = require("sequelize");
+    const searchTerm = `%${query}%`; // For ILIKE (case-insensitive)
+
+    const products = await ProductModel.findAll({
+      where: {
+        [Op.or]: [
+          { name: { [Op.iLike]: searchTerm } },
+          { brand: { [Op.iLike]: searchTerm } },
+          { activeIngredient: { [Op.iLike]: searchTerm } },
+          { ingredients: { [Op.iLike]: searchTerm } },
+          { tags: { [Op.overlap]: [query] } }, // For array field matching
+        ],
+      },
+      limit: limit,
+      offset: offset,
+      order: [["name", "ASC"]],
+    });
+
+    return products.map((product: any) => this.mapToProductType(product));
+  }
+
   private mapToProductType(dbProduct: any): Product {
     return {
       id: dbProduct.id,

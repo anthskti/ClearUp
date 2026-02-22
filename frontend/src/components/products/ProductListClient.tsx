@@ -21,7 +21,10 @@ interface ProductListClientProps {
   initialProducts: Product[];
 }
 
-import { getProductsByCategory } from "@/lib/products";
+import {
+  getProductsByCategory,
+  searchProductsByCategory,
+} from "@/lib/products";
 
 export default function ProductListClient({
   category,
@@ -31,18 +34,60 @@ export default function ProductListClient({
   const [offset, setOffset] = useState(initialProducts.length);
   const [hasMore, setHasMore] = useState(initialProducts.length === 20);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const { ref, inView } = useInView({
     threshold: 0,
     rootMargin: "400px", // Starts loading when 400px from the bottom.
   });
 
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    setOffset(0);
+    setProducts([]);
+    setIsSearching(query.length > 0);
+
+    if (query.trim().length === 0) {
+      // Reset to initial products if search is cleared
+      setProducts(initialProducts);
+      setOffset(initialProducts.length);
+      setHasMore(initialProducts.length === 20);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const results = await searchProductsByCategory(category, query, 20, 0);
+      setProducts(results);
+      setOffset(results.length);
+      setHasMore(results.length === 20);
+    } catch (error) {
+      console.error("Search failed:", error);
+      setProducts([]);
+      setHasMore(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch(inputValue);
+    }
+  };
+
   const loadMore = async () => {
     if (isLoading || !hasMore) return;
     setIsLoading(true);
 
     try {
-      const newProducts = await getProductsByCategory(category, 20, offset);
+      const newProducts = isSearching
+        ? await searchProductsByCategory(category, searchQuery, 20, offset)
+        : await getProductsByCategory(category, 20, offset);
+
       if (newProducts.length === 0) {
         setHasMore(false);
       } else {
@@ -171,6 +216,9 @@ export default function ProductListClient({
               <input
                 type="text"
                 placeholder="Search products..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
                 className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-200 rounded-md text-sm outline-none focus:border-[#0e4a84]"
               />
             </div>

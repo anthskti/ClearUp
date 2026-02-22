@@ -17,11 +17,12 @@ export class ProductController {
       const searchQuery = req.query.search as string | undefined;
 
       if (searchQuery) {
-        // TODO: You need to implement this method in ProductService later
-        // const products = await this.productService.searchProducts(searchQuery);
-        // res.json(products);
-        console.log(`Searching all products for: ${searchQuery}`);
-        res.json([]); // Placeholder
+        const products = await this.productService.searchProducts(
+          searchQuery,
+          limit,
+          offset,
+        );
+        res.json(products);
       } else {
         const products = await this.productService.getAllProducts(
           limit,
@@ -42,15 +43,21 @@ export class ProductController {
       const { category } = req.params;
 
       const searchQuery = req.query.search as string | undefined;
+      let products;
       if (searchQuery) {
-        // TODO Future implementation
-        // await this.productService.searchProductsInCategory(category, searchQuery);
+        products = await this.productService.searchProductsInCategory(
+          category as any,
+          searchQuery,
+          limit,
+          offset,
+        );
+      } else {
+        products = await this.productService.getProductsByCategory(
+          category as any,
+          limit,
+          offset,
+        );
       }
-      const products = await this.productService.getProductsByCategory(
-        category as any,
-        limit,
-        offset,
-      );
       res.json(products);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

@@ -134,4 +134,31 @@ export class ProductService {
   async removeMerchantFromProduct(productMerchantId: number): Promise<boolean> {
     return this.productMerchantRepository.delete(productMerchantId);
   }
+
+  // SEARCH products by query
+  async searchProducts(
+    query: string,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<Product[]> {
+    if (!query || query.trim().length === 0) {
+      return [];
+    }
+    return this.productRepository.search(query.trim(), limit, offset);
+  }
+
+  // SEARCH products by query within a category
+  async searchProductsInCategory(
+    category: ProductCategory,
+    query: string,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<Product[]> {
+    if (!query || query.trim().length === 0) {
+      return this.getProductsByCategory(category, limit, offset);
+    }
+    const allResults = await this.searchProducts(query, limit * 10, 0); // Get more results to filter
+    const filtered = allResults.filter((p) => p.category === category);
+    return filtered.slice(offset, offset + limit);
+  }
 }

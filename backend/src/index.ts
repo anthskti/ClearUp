@@ -5,7 +5,6 @@ import merchantRoutes from "./routes/merchantRoutes";
 import defineAssociations from "./associations";
 import sequelize from "./db";
 import rateLimit from "express-rate-limit";
-import { create } from "domain";
 
 const app = express();
 const port = process.env.PORT;
@@ -44,7 +43,7 @@ app.use(
     }
     next();
   },
-  routineRoutes
+  routineRoutes,
 );
 app.use(
   "/api/merchant",
@@ -54,7 +53,7 @@ app.use(
     }
     next();
   },
-  merchantRoutes
+  merchantRoutes,
 );
 
 // Health

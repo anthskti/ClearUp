@@ -1,11 +1,13 @@
 import { Product } from "@/types/product";
 import { ProductMerchantWithDetails } from "@/types/merchant";
 
+// 21600 seconds = 6 hours
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export const getAllProducts = async (): Promise<Product[]> => {
   const res = await fetch(`${API_URL}/products`, {
-    cache: "no-store",
+    next: { revalidate: 21600 },
   });
   if (!res.ok) {
     throw new Error("Failed to fetch products");
@@ -14,10 +16,10 @@ export const getAllProducts = async (): Promise<Product[]> => {
 };
 
 export const getProductsByCategory = async (
-  category: string
+  category: string,
 ): Promise<Product[]> => {
   const res = await fetch(`${API_URL}/products/category/${category}`, {
-    cache: "no-store",
+    next: { revalidate: 21600 },
   });
 
   if (!res.ok) {
@@ -29,7 +31,7 @@ export const getProductsByCategory = async (
 
 export const getProductById = async (id: string): Promise<Product> => {
   const res = await fetch(`${API_URL}/products/id/${id}`, {
-    cache: "no-store",
+    next: { revalidate: 21600 },
   });
   if (!res.ok) {
     throw new Error(`Failed to fetch product ${id}`);
@@ -38,7 +40,7 @@ export const getProductById = async (id: string): Promise<Product> => {
 };
 
 export const getMerchantsByProductId = async (
-  productId: string
+  productId: string,
 ): Promise<ProductMerchantWithDetails[]> => {
   const res = await fetch(`${API_URL}/products/id/${productId}/merchants`, {
     cache: "no-store",
@@ -58,7 +60,7 @@ export const addMerchantByProductId = async (
     price: number;
     stock: boolean;
     shipping: string;
-  }
+  },
 ): Promise<Product> => {
   const res = await fetch(`${API_URL}/products/id/${id}/merchants`, {
     method: "POST",

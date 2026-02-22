@@ -11,8 +11,12 @@ import {
 
 export class RoutineRepository {
   // Get all routines
-  async findAll(): Promise<Routine[]> {
-    const routines = await RoutineModel.findAll();
+  async findAll(limit: number = 25, offset: number = 0): Promise<Routine[]> {
+    const routines = await RoutineModel.findAll({
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
+    });
     return routines.map((routine: any) => this.mapToRoutineType(routine));
   }
 
@@ -71,7 +75,7 @@ export class RoutineRepository {
     updates: Partial<{
       name: string;
       description?: string;
-    }>
+    }>,
   ): Promise<Routine | null> {
     const [rows, [updatedRoutine]] = await RoutineModel.update(updates, {
       where: { id },
@@ -118,7 +122,7 @@ export class RoutineRepository {
                     imageUrls: rp.product.imageUrls,
                   }
                 : undefined,
-            })
+            }),
           )
         : undefined,
     };

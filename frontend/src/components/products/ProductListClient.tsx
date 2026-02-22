@@ -70,8 +70,8 @@ export default function ProductListClient({
             <Image
               src={product.imageUrls[0]}
               alt={product.name}
-              width={10}
-              height={10}
+              width={44} // Forcing size to fit the sizing of the website. Not ideal but its ok
+              height={44}
               className="h-11 w-11 bg-gray-200 rounded-md shrink-0"
               unoptimized={true}
             />

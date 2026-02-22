@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ProductService } from "../services/ProductService";
-import PAGINATION from "../config/pagnination";
+import PAGINATION from "../config/pagination";
 
 export class ProductController {
   private productService: ProductService;

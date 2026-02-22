@@ -2,7 +2,7 @@ import { RoutineRepository } from "../repositories/RoutineRepository";
 import { RoutineProductRepository } from "../repositories/RoutineProductRepository";
 import { Routine, RoutineWithProducts, RoutineProduct } from "../types/routine";
 import { ProductCategory } from "../types/product";
-import PAGINATION from "../config/pagnination";
+import PAGINATION from "../config/pagination";
 
 export class RoutineService {
   private routineRepository: RoutineRepository;

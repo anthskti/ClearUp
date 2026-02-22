@@ -349,7 +349,7 @@ export default function ProductListClient({
                   ))}
                 </div>
               ))}
-              {/* Fetching more, pagnination  */}
+              {/* Fetching more, pagination  */}
               <div ref={ref} className="p-8 flex justify-center w-full">
                 {isLoading && (
                   <div className="flex gap-2 items-center text-zinc-400 text-sm">

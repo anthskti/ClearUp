@@ -2,7 +2,7 @@
 
 import ProductModel from "../models/Product";
 import { Product, ProductCategory, SkinType } from "../types/product";
-import PAGINATION from "../config/pagnination";
+import PAGINATION from "../config/pagination";
 
 export class ProductRepository {
   // Get all products with pagination, infinite scroll

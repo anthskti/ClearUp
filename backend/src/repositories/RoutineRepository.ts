@@ -8,7 +8,7 @@ import {
   RoutineWithProducts,
   RoutineProductWithDetails,
 } from "../types/routine";
-import PAGINATION from "../config/pagnination";
+import PAGINATION from "../config/pagination";
 
 export class RoutineRepository {
   // Get all routines

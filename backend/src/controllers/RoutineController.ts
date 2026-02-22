@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { RoutineService } from "../services/RoutineService";
-import PAGINATION from "../config/pagnination";
+import PAGINATION from "../config/pagination";
 
 export class RoutineController {
   private routineService: RoutineService;

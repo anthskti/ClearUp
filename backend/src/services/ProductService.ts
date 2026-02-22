@@ -7,7 +7,7 @@ import {
   ProductMerchantWithDetails,
   ProductWithMerchants,
 } from "../types/merchant";
-import PAGINATION from "../config/pagnination";
+import PAGINATION from "../config/pagination";
 
 export class ProductService {
   private productRepository: ProductRepository;

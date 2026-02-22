@@ -17,7 +17,7 @@ export default async function ProductListPage({ params }: ProductProps) {
   ]);
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen">Loading...</div>}>
       <ProductClient product={product} merchantList={merchantList} />
     </Suspense>
   );

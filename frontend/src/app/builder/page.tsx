@@ -81,7 +81,7 @@ export default function Builder() {
     if (typeof window !== "undefined") {
       const url = savedRoutineId
         ? `${window.location.origin}/routine/${savedRoutineId}`
-        : window.location.href;
+        : "Save first, and your URL will be here!";
       navigator.clipboard.writeText(url);
       // You could add a toast notification here
     }
@@ -249,17 +249,17 @@ export default function Builder() {
                         className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm"
                       >
                         {prod.merchantLogo &&
-                        prod.merchantLogo !== "/placeholder-logo.png" ? (
+                        prod.merchantLogo.startsWith("http") ? (
                           <Image
-                            src={prod.merchantLogo || ""}
-                            alt={prod.merchant || "Unknown Merchant"}
+                            src={prod.merchantLogo}
+                            alt={prod.merchant || "Merchant"}
                             width={20}
                             height={20}
-                            className="object-cover"
+                            className="object-cover rounded-sm"
                           />
                         ) : (
                           <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">
-                            -
+                            ?
                           </div>
                         )}
                       </div>

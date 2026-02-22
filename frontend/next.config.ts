@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 const IMAGE_DOMAIN =
   process.env.NEXT_PUBLIC_IMAGE_DOMAIN || "d1flfk77wl2xk4.cloudfront.net";
 
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true", // Only runs if ANALYZE=true
+});
+
 const nextConfig = {
   images: {
     unoptimized: false, // Enable Next.js optimization
@@ -84,4 +88,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

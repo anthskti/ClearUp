@@ -1,33 +1,66 @@
 "use client";
-import React, { useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Minus, Plus, SlidersHorizontal, Search } from "lucide-react";
-import { CATEGORY_CONFIG, CategoryKey } from "@/constants/filters"; // The config from above
-import ProceduralWave from "@/components/themes/ProceduralWave";
-import { Product } from "@/types/product";
-import { ProductCategory } from "@/types/product";
-import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+// import { useSearchParams, useRouter } from "next/navigation";
+import { Minus, Plus, SlidersHorizontal, Search } from "lucide-react";
+import { useInView } from "react-intersection-observer";
 
-// Move to types later
-interface ColumnConfig {
-  id: string;
-  labels: string;
-  width: string;
-}
+import {
+  ColumnConfig,
+  CATEGORY_CONFIG,
+  CategoryKey,
+} from "@/constants/filters"; // The config from above
+import ProceduralWave from "@/components/themes/ProceduralWave";
+import { Product } from "@/types/product";
+// import { ProductCategory } from "@/types/product";
+import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
 
 interface ProductListClientProps {
   category: string;
   initialProducts: Product[];
 }
 
+import { getProductsByCategory } from "@/lib/products";
+
 export default function ProductListClient({
   category,
   initialProducts,
 }: ProductListClientProps) {
-  const products = initialProducts;
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [offset, setOffset] = useState(initialProducts.length);
+  const [hasMore, setHasMore] = useState(initialProducts.length === 20);
+  const [isLoading, setIsLoading] = useState(false);
 
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "400px", // Starts loading when 400px from the bottom.
+  });
+
+  const loadMore = async () => {
+    if (isLoading || !hasMore) return;
+    setIsLoading(true);
+
+    try {
+      const newProducts = await getProductsByCategory(category, 20, offset);
+      if (newProducts.length === 0) {
+        setHasMore(false);
+      } else {
+        setProducts((prev) => [...prev, ...newProducts]);
+        setOffset((prev) => prev + newProducts.length);
+      }
+    } catch (error) {
+      console.error("Failed to load more products:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (inView && hasMore) {
+      loadMore();
+    }
+  }, [inView, hasMore]);
   // Client-side Hooks are safe here
   const categorySlug = category;
   const config =
@@ -269,6 +302,20 @@ export default function ProductListClient({
                   ))}
                 </div>
               ))}
+              {/* Fetching more, pagnination  */}
+              <div ref={ref} className="p-8 flex justify-center w-full">
+                {isLoading && (
+                  <div className="flex gap-2 items-center text-zinc-400 text-sm">
+                    <div className="h-4 w-4 border-2 border-zinc-300 border-t-blue-600 rounded-full animate-spin" />
+                    Loading more products...
+                  </div>
+                )}
+                {!hasMore && products.length > 0 && (
+                  <p className="text-zinc-400 text-sm italic">
+                    You've reached the end of the shelf.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </main>

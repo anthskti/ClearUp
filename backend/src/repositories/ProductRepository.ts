@@ -2,14 +2,18 @@
 
 import ProductModel from "../models/Product";
 import { Product, ProductCategory, SkinType } from "../types/product";
+import PAGINATION from "../config/pagnination";
 
 export class ProductRepository {
   // Get all products with pagination, infinite scroll
-  async findAll(limit: number = 20, offset: number = 0): Promise<Product[]> {
+  async findAll(
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<Product[]> {
     const products = await ProductModel.findAll({
       limit: limit,
       offset: offset,
-      order: [["createdAt", "ASC"]], // Older products to newer
+      order: [["id", "DESC"]], // Older products to newer
     });
     return products.map((product: any) => this.mapToProductType(product));
   }
@@ -17,8 +21,8 @@ export class ProductRepository {
   // GET products by category (ex. cleanser, toner) with pagination, infinite scroll
   async findByCategory(
     category: ProductCategory,
-    limit: number = 20,
-    offset: number = 0,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
   ): Promise<Product[]> {
     const products = await ProductModel.findAll({
       where: { category },

@@ -8,10 +8,14 @@ import {
   RoutineWithProducts,
   RoutineProductWithDetails,
 } from "../types/routine";
+import PAGINATION from "../config/pagnination";
 
 export class RoutineRepository {
   // Get all routines
-  async findAll(limit: number = 25, offset: number = 0): Promise<Routine[]> {
+  async findAll(
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<Routine[]> {
     const routines = await RoutineModel.findAll({
       limit: limit,
       offset: offset,

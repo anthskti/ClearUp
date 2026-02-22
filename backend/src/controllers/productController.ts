@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ProductService } from "../services/ProductService";
+import PAGINATION from "../config/pagnination";
 
 export class ProductController {
   private productService: ProductService;
@@ -11,6 +12,8 @@ export class ProductController {
   // GET /api/products OR /api/prodcuts?category=cleanser
   async getAllProducts(req: Request, res: Response): Promise<void> {
     try {
+      const limit = parseInt(req.query.limit as string) || PAGINATION.LIMIT;
+      const offset = parseInt(req.query.offset as string) || PAGINATION.OFFSET;
       const searchQuery = req.query.search as string | undefined;
 
       if (searchQuery) {
@@ -20,7 +23,10 @@ export class ProductController {
         console.log(`Searching all products for: ${searchQuery}`);
         res.json([]); // Placeholder
       } else {
-        const products = await this.productService.getAllProducts();
+        const products = await this.productService.getAllProducts(
+          limit,
+          offset,
+        );
         res.json(products);
       }
     } catch (error: any) {
@@ -31,6 +37,8 @@ export class ProductController {
   // GET /api/products/:category
   async getProductsByCategory(req: Request, res: Response): Promise<void> {
     try {
+      const limit = parseInt(req.query.limit as string) || PAGINATION.LIMIT;
+      const offset = parseInt(req.query.offset as string) || PAGINATION.OFFSET;
       const { category } = req.params;
 
       const searchQuery = req.query.search as string | undefined;
@@ -39,7 +47,9 @@ export class ProductController {
         // await this.productService.searchProductsInCategory(category, searchQuery);
       }
       const products = await this.productService.getProductsByCategory(
-        category as any
+        category as any,
+        limit,
+        offset,
       );
       res.json(products);
     } catch (error: any) {
@@ -118,7 +128,7 @@ export class ProductController {
       const productId = parseInt(req.params.id);
       const pm = await this.productService.addMerchantByProductId(
         productId,
-        req.body
+        req.body,
       );
 
       res.status(201).json(pm);
@@ -133,7 +143,7 @@ export class ProductController {
       const productMerchantId = parseInt(req.params.id);
       const pm = await this.productService.updateProductMerchant(
         productMerchantId,
-        req.body
+        req.body,
       );
       if (!pm) {
         res.status(404).json({ error: "Product not found" });
@@ -149,9 +159,8 @@ export class ProductController {
   async removeMerchantFromProduct(req: Request, res: Response): Promise<void> {
     try {
       const productMerchantId = parseInt(req.params.id);
-      const success = await this.productService.removeMerchantFromProduct(
-        productMerchantId
-      );
+      const success =
+        await this.productService.removeMerchantFromProduct(productMerchantId);
 
       if (!success) {
         res.status(404).json({ error: "Product not found" });

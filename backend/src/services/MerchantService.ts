@@ -26,7 +26,7 @@ export class MerchantService {
   // PUT update a merchant
   async updateMerchant(
     id: number,
-    updates: Partial<{ name: string; logo: string }>
+    updates: Partial<{ name: string; logo: string }>,
   ): Promise<Merchant | null> {
     return this.merchantRepository.update(id, updates);
   }

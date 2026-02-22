@@ -16,6 +16,7 @@ A monolithic skincare organizer application built with Node.js, Express, TypeScr
 ## Overview
 
 ClearUp is a skincare organizer application that allows users to:
+
 - Manage their skincare product collection
 - Organize products by category (Cleanser, Toner, Essence, Serum, Eye Cream, Moisturizer, Sunscreen, Other)
 - Filter products by skin type (oily, dry, combination, sensitive, normal, acne-prone)
@@ -34,7 +35,9 @@ This application follows a **monolithic architecture** with a layered structure:
 - **Types**: TypeScript type definitions and DTOs
 
 ## Tech Stack
+
 ### Backend
+
 - **Runtime**: Node.js
 - **Framework**: Express.js 5.1.0
 - **Language**: TypeScript 5.9.2
@@ -43,6 +46,7 @@ This application follows a **monolithic architecture** with a layered structure:
 - **Environment**: dotenv 17.2.1
 
 ### Development Tools
+
 - **TypeScript Compiler**: tsc
 - **Development Server**: ts-node 10.9.2
 - **Linting**: ESLint with TypeScript support
@@ -51,6 +55,7 @@ This application follows a **monolithic architecture** with a layered structure:
 ## 🔧 Configuration
 
 ### TypeScript Configuration
+
 - Target: ES2020
 - Module: CommonJS
 - Strict mode enabled
@@ -58,6 +63,7 @@ This application follows a **monolithic architecture** with a layered structure:
 - Output directory: `dist/`
 
 ### Database Configuration
+
 - Dialect: PostgreSQL
 - Connection pooling handled by Sequelize
 - Logging disabled in production
@@ -65,6 +71,7 @@ This application follows a **monolithic architecture** with a layered structure:
 ## Dependencies
 
 ### Production Dependencies
+
 - `express`: ^5.1.0 - Web framework
 - `sequelize`: ^6.37.7 - ORM
 - `pg`: ^8.16.3 - PostgreSQL client
@@ -72,6 +79,7 @@ This application follows a **monolithic architecture** with a layered structure:
 - `dotenv`: ^17.2.1 - Environment variable management
 
 ### Development Dependencies
+
 - `typescript`: ^5.9.2
 - `ts-node`: ^10.9.2
 - `@types/express`: ^5.0.3
@@ -89,10 +97,7 @@ This application follows a **monolithic architecture** with a layered structure:
 - [ ] Product reviews and ratings
 - [ ] Routine scheduling and reminders
 - [ ] Frontend application
-- [ ] API documentation with Swagger/OpenAPI
-
 
 ## Author
 
-Anthony Pham - phamanthony47@gmail.com
----
+## Anthony Pham - phamanthony47@gmail.com

@@ -5,10 +5,16 @@ import { ProductMerchantWithDetails } from "@/types/merchant";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-export const getAllProducts = async (): Promise<Product[]> => {
-  const res = await fetch(`${API_URL}/products`, {
-    next: { revalidate: 21600 },
-  });
+export const getAllProducts = async (
+  limit: number = 25,
+  offset: number = 0,
+): Promise<Product[]> => {
+  const res = await fetch(
+    `${API_URL}/products?limit=${limit}&offset=${offset}`,
+    {
+      next: { revalidate: 21600 },
+    },
+  );
   if (!res.ok) {
     throw new Error("Failed to fetch products");
   }
@@ -17,13 +23,20 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
 export const getProductsByCategory = async (
   category: string,
+  limit: number = 25,
+  offset: number = 0,
 ): Promise<Product[]> => {
-  const res = await fetch(`${API_URL}/products/category/${category}`, {
-    next: { revalidate: 21600 },
-  });
+  const res = await fetch(
+    `${API_URL}/products/category/${category}?limit=${limit}&offset=${offset}`,
+    {
+      next: { revalidate: 21600 },
+    },
+  );
 
   if (!res.ok) {
-    console.error(`Failed to fetch category: ${category}`);
+    throw new Error(
+      `Failed to fetch products category ${category}, with limit ${limit} and offset ${offset}`,
+    );
     return [];
   }
   return res.json();

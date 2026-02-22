@@ -7,6 +7,7 @@ import {
   ProductMerchantWithDetails,
   ProductWithMerchants,
 } from "../types/merchant";
+import PAGINATION from "../config/pagnination";
 
 export class ProductService {
   private productRepository: ProductRepository;
@@ -18,13 +19,20 @@ export class ProductService {
   }
 
   // GET all products
-  async getAllProducts(): Promise<Product[]> {
-    return this.productRepository.findAll();
+  async getAllProducts(
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<Product[]> {
+    return this.productRepository.findAll(limit, offset);
   }
 
   // GET products by category (ex. cleanser, toner)
-  async getProductsByCategory(category: ProductCategory): Promise<Product[]> {
-    return this.productRepository.findByCategory(category);
+  async getProductsByCategory(
+    category: ProductCategory,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<Product[]> {
+    return this.productRepository.findByCategory(category, limit, offset);
   }
 
   // GET product (singlular) by Id
@@ -70,7 +78,7 @@ export class ProductService {
       ingredients?: string;
       imageUrls?: string[];
       tags?: string[];
-    }>
+    }>,
   ): Promise<Product | null> {
     return this.productRepository.update(id, updates);
   }
@@ -82,7 +90,7 @@ export class ProductService {
 
   // GET all merchants for a product
   async getMerchantsByProductId(
-    productId: number
+    productId: number,
   ): Promise<ProductMerchantWithDetails[]> {
     // Check if product exists first?
     const product = await this.productRepository.findById(productId.toString());
@@ -102,7 +110,7 @@ export class ProductService {
       price: number;
       stock: boolean;
       shipping: string;
-    }
+    },
   ): Promise<ProductMerchant> {
     const product = await this.productRepository.findById(productId.toString());
     if (!product) {
@@ -117,7 +125,7 @@ export class ProductService {
   // PUT update a product-merchant info
   async updateProductMerchant(
     productMerchantId: number,
-    updates: Partial<{ website: string; price: number; stock: boolean }>
+    updates: Partial<{ website: string; price: number; stock: boolean }>,
   ): Promise<ProductMerchant | null> {
     return this.productMerchantRepository.update(productMerchantId, updates);
   }

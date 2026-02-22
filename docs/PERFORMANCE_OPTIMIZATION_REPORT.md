@@ -175,7 +175,7 @@ app.use(compression());
 
 ---
 
-### 6. **No Code Splitting / Dynamic Imports**
+### NOT DONE 6. **No Code Splitting / Dynamic Imports**
 
 **Severity:** HIGH | **Impact:** 30% smaller initial bundle
 
@@ -203,7 +203,7 @@ const ProceduralWave = dynamic(() => import('../themes/ProceduralWave'), {
 
 ---
 
-### 7. **Missing Image Width/Height Props**
+### DONE 7. **Missing Image Width/Height Props**
 
 **Severity:** HIGH | **Impact:** Layout Shift = Poor CLS score
 
@@ -228,7 +228,7 @@ Reserve space properly or use explicit dimensions that match CSS
 
 ---
 
-### 8. **No Database Query Optimization**
+### NOT DONE 8. **No Database Query Optimization**
 
 **Severity:** MEDIUM-HIGH | **Impact:** + 10-30% latency on all queries
 
@@ -277,7 +277,7 @@ category: { type: DataTypes.STRING, index: true },
 
 ## 🟡 MEDIUM PRIORITY ISSUES
 
-### 9. **No Lazy Loading for Below-the-Fold Content**
+### DONE 9. **No Lazy Loading for Below-the-Fold Content**
 
 **Severity:** MEDIUM | **Impact:** +500ms-1s initial paint
 

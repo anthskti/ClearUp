@@ -3,12 +3,8 @@ import { Merchant } from "../types/merchant";
 
 export class MerchantRepository {
   // GET all merchants
-  async findAll(limit: number = 25, offset: number = 0): Promise<Merchant[]> {
-    const merchants = await MerchantModel.findAll({
-      limit: limit,
-      offset: offset,
-      order: [["createdAt", "ASC"]],
-    });
+  async findAll(): Promise<Merchant[]> {
+    const merchants = await MerchantModel.findAll({});
     return merchants.map((merchant: any) => this.mapToMerchantType(merchant));
   }
 

@@ -37,7 +37,7 @@ export default function Builder() {
         (slot.products || []).map((p) => ({
           productId: p.id,
           category: slot.id,
-        }))
+        })),
       );
 
       if (items.length === 0) {
@@ -89,11 +89,11 @@ export default function Builder() {
 
   const totalPrice = routine.reduce(
     (acc, step) => acc + step.products.reduce((s, p) => s + (p.price || 0), 0),
-    0
+    0,
   );
   const totalItems = routine.reduce(
     (acc, step) => acc + step.products.length,
-    0
+    0,
   );
 
   // Don't render until hooks are loaded
@@ -352,7 +352,7 @@ export default function Builder() {
                           "morning",
                           index,
                           "description",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       className="text-sm text-zinc-500 mt-1 w-full bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 rounded px-1 resize-none"
@@ -403,7 +403,7 @@ export default function Builder() {
                           "evening",
                           index,
                           "description",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       className="text-sm text-zinc-500 mt-1 w-full bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 rounded px-1 resize-none"

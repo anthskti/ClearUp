@@ -19,6 +19,12 @@ const nextConfig = {
         hostname: "cdn.shopify.com",
         pathname: "/**",
       },
+      // Generic Favicon
+      {
+        protocol: "https",
+        hostname: "www.google.com",
+        pathname: "/s2/favicons**",
+      },
       // Specific
       // Yesstyle Cloudfront Domain
       {

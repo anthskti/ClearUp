@@ -132,7 +132,6 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                               width={64}
                               height={64}
                               className="w-full h-full object-cover"
-                              unoptimized={true}
                             />
                           ) : (
                             <div className="w-full h-full bg-zinc-200" />
@@ -179,7 +178,6 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                              width={20}
                              height={20}
                              className="object-cover"
-                             unoptimized={true}
                            />
                         ) : ( */}
                         <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">

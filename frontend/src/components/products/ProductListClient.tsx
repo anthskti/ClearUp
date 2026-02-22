@@ -151,7 +151,6 @@ export default function ProductListClient({
               width={44} // Forcing size to fit the sizing of the website. Not ideal but its ok
               height={44}
               className="h-11 w-11 bg-gray-200 rounded-md shrink-0"
-              unoptimized={true}
             />
             <div>
               <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">

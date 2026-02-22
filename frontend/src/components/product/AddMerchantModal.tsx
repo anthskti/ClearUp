@@ -27,7 +27,7 @@ export default function AddMerchantModal({
 
   // Form State
   const [selectedMerchantId, setSelectedMerchantId] = useState<number | null>(
-    null
+    null,
   );
   const [website, setWebsite] = useState("");
   const [price, setPrice] = useState("");
@@ -127,7 +127,6 @@ export default function AddMerchantModal({
                             alt={merchant.name}
                             width={32}
                             height={32}
-                            unoptimized={true}
                           />
                         ) : (
                           <span className="text-xs font-bold text-zinc-400">

@@ -31,7 +31,7 @@ const ProductImageGallery = ({ imageUrls }: ProductImageGalleryProps) => {
 
   const prevSlide = () => {
     setSelectedIndex(
-      (prev) => (prev - 1 + validImages.length) % validImages.length
+      (prev) => (prev - 1 + validImages.length) % validImages.length,
     );
   };
 
@@ -55,7 +55,6 @@ const ProductImageGallery = ({ imageUrls }: ProductImageGalleryProps) => {
                 fill
                 className="object-contain p-2"
                 priority={index === 0}
-                unoptimized={true}
               />
             </div>
           ))}
@@ -100,7 +99,6 @@ const ProductImageGallery = ({ imageUrls }: ProductImageGalleryProps) => {
               alt={`Thumbnail ${index + 1}`}
               fill
               className="object-cover"
-              unoptimized={true}
             />
           </button>
         ))}

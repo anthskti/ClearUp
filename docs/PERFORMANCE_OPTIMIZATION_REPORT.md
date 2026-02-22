@@ -76,7 +76,7 @@ Add `LIMIT 50` / `OFFSET` to all product queries
 
 ---
 
-### NOT DONE 3. **Unoptimized Images - Google Drive + No Optimization**
+### DONE 3. **Unoptimized Images - Google Drive + No Optimization**
 
 **Severity:** CRITICAL | **Impact:** 60-70% of page load time
 
@@ -228,7 +228,7 @@ Reserve space properly or use explicit dimensions that match CSS
 
 ---
 
-### NOT DONE 8. **No Database Query Optimization**
+### NOT DONE 8. **No Database Query Optimization** need all the imports for future use
 
 **Severity:** MEDIUM-HIGH | **Impact:** + 10-30% latency on all queries
 
@@ -302,7 +302,7 @@ const TrendingBuilds = dynamic(() => import('@/components/home/TrendingBuilds'),
 
 ---
 
-### 10. **No Pagination on Frontend**
+### DONE 10. **No Pagination on Frontend**
 
 **Severity:** MEDIUM | **Impact:** Janky UI with 1000+ products
 
@@ -322,7 +322,7 @@ ProductListClient renders all products at once:
 
 ---
 
-### 11. **Missing Search Index on Backend**
+### DONE 11. **Missing Search Index on Backend**
 
 **Severity:** MEDIUM | **Impact:** Search is slow/broken
 
@@ -344,7 +344,7 @@ Add full-text search with database indexes or ElasticSearch
 
 ---
 
-### 12. **No Environment-Based Image CDN Toggle**
+### DONE 12. **No Environment-Based Image CDN Toggle**
 
 **Severity:** MEDIUM | **Impact:** Blocks migration to better CDN
 

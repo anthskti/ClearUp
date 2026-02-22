@@ -177,7 +177,6 @@ export default function ProductClient({
                             width={20}
                             height={20}
                             className="object-cover"
-                            unoptimized={true}
                           />
                           <span className="text-xs text-zinc-500">
                             {merchant.merchant?.name || "Unknown Merchant"}

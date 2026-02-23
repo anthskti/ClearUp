@@ -1,5 +1,4 @@
-import React, { Suspense } from "react";
-import { Product } from "@/types/product";
+import { Suspense } from "react";
 import { getProductsByCategory } from "@/lib/products";
 // UI
 import ProductListClient from "@/components/products/ProductListClient";
@@ -11,10 +10,10 @@ interface PageProps {
 export default async function ProductListPage({ params }: PageProps) {
   const { slug } = await params;
 
-  const products = await getProductsByCategory(slug);
+  const products = await getProductsByCategory(slug, 20, 0);
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className=" min-h-screen">Loading...</div>}>
       <ProductListClient category={slug} initialProducts={products} />
     </Suspense>
   );

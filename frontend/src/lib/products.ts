@@ -1,12 +1,20 @@
 import { Product } from "@/types/product";
 import { ProductMerchantWithDetails } from "@/types/merchant";
 
+// 21600 seconds = 6 hours
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-export const getAllProducts = async (): Promise<Product[]> => {
-  const res = await fetch(`${API_URL}/products`, {
-    cache: "no-store",
-  });
+export const getAllProducts = async (
+  limit: number = 25,
+  offset: number = 0,
+): Promise<Product[]> => {
+  const res = await fetch(
+    `${API_URL}/products?limit=${limit}&offset=${offset}`,
+    {
+      next: { revalidate: 21600 },
+    },
+  );
   if (!res.ok) {
     throw new Error("Failed to fetch products");
   }
@@ -14,22 +22,66 @@ export const getAllProducts = async (): Promise<Product[]> => {
 };
 
 export const getProductsByCategory = async (
-  category: string
+  category: string,
+  limit: number = 25,
+  offset: number = 0,
 ): Promise<Product[]> => {
-  const res = await fetch(`${API_URL}/products/category/${category}`, {
-    cache: "no-store",
-  });
+  const res = await fetch(
+    `${API_URL}/products/category/${category}?limit=${limit}&offset=${offset}`,
+    {
+      next: { revalidate: 21600 },
+    },
+  );
 
   if (!res.ok) {
-    console.error(`Failed to fetch category: ${category}`);
+    throw new Error(
+      `Failed to fetch products category ${category}, with limit ${limit} and offset ${offset}`,
+    );
     return [];
+  }
+  return res.json();
+};
+
+export const searchProducts = async (
+  query: string,
+  limit: number = 25,
+  offset: number = 0,
+): Promise<Product[]> => {
+  const res = await fetch(
+    `${API_URL}/products?search=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
+    {
+      cache: "no-store",
+    },
+  );
+  if (!res.ok) {
+    throw new Error(`Failed to search products for "${query}"`);
+  }
+  return res.json();
+};
+
+export const searchProductsByCategory = async (
+  category: string,
+  query: string,
+  limit: number = 25,
+  offset: number = 0,
+): Promise<Product[]> => {
+  const res = await fetch(
+    `${API_URL}/products/category/${category}?search=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
+    {
+      cache: "no-store",
+    },
+  );
+  if (!res.ok) {
+    throw new Error(
+      `Failed to search products in category "${category}" for "${query}"`,
+    );
   }
   return res.json();
 };
 
 export const getProductById = async (id: string): Promise<Product> => {
   const res = await fetch(`${API_URL}/products/id/${id}`, {
-    cache: "no-store",
+    next: { revalidate: 21600 },
   });
   if (!res.ok) {
     throw new Error(`Failed to fetch product ${id}`);
@@ -38,7 +90,7 @@ export const getProductById = async (id: string): Promise<Product> => {
 };
 
 export const getMerchantsByProductId = async (
-  productId: string
+  productId: string,
 ): Promise<ProductMerchantWithDetails[]> => {
   const res = await fetch(`${API_URL}/products/id/${productId}/merchants`, {
     cache: "no-store",
@@ -58,7 +110,7 @@ export const addMerchantByProductId = async (
     price: number;
     stock: boolean;
     shipping: string;
-  }
+  },
 ): Promise<Product> => {
   const res = await fetch(`${API_URL}/products/id/${id}/merchants`, {
     method: "POST",

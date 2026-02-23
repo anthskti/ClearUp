@@ -4,7 +4,7 @@ import { Merchant } from "../types/merchant";
 export class MerchantRepository {
   // GET all merchants
   async findAll(): Promise<Merchant[]> {
-    const merchants = await MerchantModel.findAll();
+    const merchants = await MerchantModel.findAll({});
     return merchants.map((merchant: any) => this.mapToMerchantType(merchant));
   }
 
@@ -29,7 +29,7 @@ export class MerchantRepository {
     updates: Partial<{
       name: string;
       logo: string;
-    }>
+    }>,
   ): Promise<Merchant | null> {
     const [rows, [updatedMerchant]] = await MerchantModel.update(updates, {
       where: { id },

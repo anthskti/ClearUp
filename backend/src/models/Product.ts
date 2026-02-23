@@ -104,6 +104,29 @@ Product.init(
   {
     sequelize,
     tableName: "products",
+    indexes: [
+      {
+        fields: ["name"],
+        name: "idx_product_name",
+      },
+      {
+        fields: ["brand"],
+        name: "idx_product_brand",
+      },
+      {
+        fields: ["category"],
+        name: "idx_product_category",
+      },
+      {
+        fields: ["activeIngredient"],
+        name: "idx_product_active_ingredient",
+      },
+      {
+        fields: ["tags"],
+        name: "idx_product_tags",
+        using: "GIN",
+      },
+    ],
   }
 );
 

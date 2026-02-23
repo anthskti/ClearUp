@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { RoutineService } from "../services/RoutineService";
+import PAGINATION from "../config/pagination";
 
 export class RoutineController {
   private routineService: RoutineService;
@@ -11,7 +12,10 @@ export class RoutineController {
   // GET /api/routines/
   async getAllRoutines(req: Request, res: Response): Promise<void> {
     try {
-      const routines = await this.routineService.getAllRoutines();
+      const limit = parseInt(req.query.limit as string) || PAGINATION.LIMIT;
+      const offset = parseInt(req.query.offset as string) || PAGINATION.OFFSET;
+
+      const routines = await this.routineService.getAllRoutines(limit, offset);
       res.json(routines);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -47,7 +51,7 @@ export class RoutineController {
   async getRoutineWithProducts(req: Request, res: Response): Promise<void> {
     try {
       const routine = await this.routineService.getRoutineWithProducts(
-        req.params.id
+        req.params.id,
       );
       if (!routine) {
         res.status(404).json({ error: "Routine not found." });
@@ -108,7 +112,7 @@ export class RoutineController {
       const routineId = parseInt(req.params.id);
       const routineProduct = await this.routineService.addProductToRoutine(
         routineId,
-        req.body
+        req.body,
       );
       res.status(201).json(routineProduct);
     } catch (error: any) {
@@ -128,7 +132,7 @@ export class RoutineController {
       // const userId = parseInt(req.params.userId);
 
       const success = await this.routineService.removeProductFromRoutine(
-        routineProductId
+        routineProductId,
         // userId
       );
 
@@ -149,7 +153,7 @@ export class RoutineController {
 
       const routineProduct = await this.routineService.updateProductInRoutine(
         routineProductId,
-        req.body
+        req.body,
       );
 
       if (!routineProduct) {
@@ -167,7 +171,7 @@ export class RoutineController {
   async createRoutineBulk(req: Request, res: Response): Promise<void> {
     try {
       const routine = await this.routineService.createRoutineWithProducts(
-        req.body
+        req.body,
       );
       res.status(201).json(routine);
     } catch (error: any) {

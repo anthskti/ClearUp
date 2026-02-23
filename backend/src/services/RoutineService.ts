@@ -2,6 +2,7 @@ import { RoutineRepository } from "../repositories/RoutineRepository";
 import { RoutineProductRepository } from "../repositories/RoutineProductRepository";
 import { Routine, RoutineWithProducts, RoutineProduct } from "../types/routine";
 import { ProductCategory } from "../types/product";
+import PAGINATION from "../config/pagination";
 
 export class RoutineService {
   private routineRepository: RoutineRepository;
@@ -14,8 +15,11 @@ export class RoutineService {
   // Standard CRUD Methods
 
   // GET all routines
-  async getAllRoutines(): Promise<Routine[]> {
-    return this.routineRepository.findAll();
+  async getAllRoutines(
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<Routine[]> {
+    return this.routineRepository.findAll(limit, offset);
   }
 
   // GET routines by userId
@@ -30,7 +34,7 @@ export class RoutineService {
 
   // GET routine with its products
   async getRoutineWithProducts(
-    id: string
+    id: string,
   ): Promise<RoutineWithProducts | null> {
     return this.routineRepository.findByIdWithProducts(id);
   }
@@ -51,7 +55,7 @@ export class RoutineService {
       name: string;
       description?: string;
       userId: number;
-    }>
+    }>,
   ): Promise<Routine | null> {
     return this.routineRepository.update(id, updates);
   }
@@ -67,7 +71,7 @@ export class RoutineService {
     productData: {
       productId: number;
       category: ProductCategory;
-    }
+    },
   ): Promise<RoutineProduct> {
     return this.routineProductRepository.create({
       routineId,
@@ -77,7 +81,7 @@ export class RoutineService {
 
   // DELETE a product from a routine
   async removeProductFromRoutine(
-    routineProductId: number
+    routineProductId: number,
     // userId: number
   ): Promise<boolean> {
     // TODO: security check when Auth is implemented
@@ -94,7 +98,7 @@ export class RoutineService {
     routineProductId: number,
     updates: Partial<{
       category: ProductCategory;
-    }>
+    }>,
   ): Promise<RoutineProduct | null> {
     return this.routineProductRepository.update(routineProductId, updates);
   }
@@ -128,8 +132,8 @@ export class RoutineService {
           routineId: routine.id,
           productId: item.productId,
           category: item.category,
-        })
-      )
+        }),
+      ),
     );
 
     return {

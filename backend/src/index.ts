@@ -5,13 +5,14 @@ import merchantRoutes from "./routes/merchantRoutes";
 import defineAssociations from "./associations";
 import sequelize from "./db";
 import rateLimit from "express-rate-limit";
-import { create } from "domain";
+import compression from "compression";
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 const cors = require("cors");
 
-// For Deployment: Trust Proxy, Rate Limiter, Save Limiter
+// Security and Handshakes First
+app.use(cors());
 app.set("trust proxy", 1);
 
 const globalLimiter = rateLimit({
@@ -21,6 +22,9 @@ const globalLimiter = rateLimit({
   legacyHeaders: false,
   message: "Too many requests from this IP, please try again later.",
 });
+app.use(globalLimiter);
+
+// Optimization (Compress before parsing saving overhead)
 
 const createStrictLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
@@ -28,11 +32,18 @@ const createStrictLimiter = rateLimit({
   message: "You are creating too many routines. Please wait a while.",
 });
 
-// For Middleware
-app.use(express.json()); // parsing JSON bodies
-app.use(cors());
+app.use(
+  compression({
+    level: 6, // Balance between speed and compression (1-9)
+    threshold: 1024, // Only compress responses larger than 1kb
+    filter: (req, res) => {
+      if (req.headers["x-no-compression"]) return false;
+      return compression.filter(req, res);
+    },
+  }),
+);
 
-app.use(globalLimiter);
+app.use(express.json()); // parsing JSON bodies
 
 // Routes
 app.use("/api/products", productRoutes);
@@ -44,7 +55,7 @@ app.use(
     }
     next();
   },
-  routineRoutes
+  routineRoutes,
 );
 app.use(
   "/api/merchant",
@@ -54,7 +65,7 @@ app.use(
     }
     next();
   },
-  merchantRoutes
+  merchantRoutes,
 );
 
 // Health

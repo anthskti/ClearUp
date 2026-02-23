@@ -37,7 +37,7 @@ export default function Builder() {
         (slot.products || []).map((p) => ({
           productId: p.id,
           category: slot.id,
-        }))
+        })),
       );
 
       if (items.length === 0) {
@@ -81,7 +81,7 @@ export default function Builder() {
     if (typeof window !== "undefined") {
       const url = savedRoutineId
         ? `${window.location.origin}/routine/${savedRoutineId}`
-        : window.location.href;
+        : "Save first, and your URL will be here!";
       navigator.clipboard.writeText(url);
       // You could add a toast notification here
     }
@@ -89,11 +89,11 @@ export default function Builder() {
 
   const totalPrice = routine.reduce(
     (acc, step) => acc + step.products.reduce((s, p) => s + (p.price || 0), 0),
-    0
+    0,
   );
   const totalItems = routine.reduce(
     (acc, step) => acc + step.products.length,
-    0
+    0,
   );
 
   // Don't render until hooks are loaded
@@ -190,7 +190,6 @@ export default function Builder() {
                               width={64}
                               height={64}
                               className="w-full h-full object-cover"
-                              unoptimized={true}
                             />
                           ) : (
                             <div className="w-full h-full bg-zinc-200" />
@@ -250,18 +249,17 @@ export default function Builder() {
                         className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm"
                       >
                         {prod.merchantLogo &&
-                        prod.merchantLogo !== "/placeholder-logo.png" ? (
+                        prod.merchantLogo.startsWith("http") ? (
                           <Image
-                            src={prod.merchantLogo || ""}
-                            alt={prod.merchant || "Unknown Merchant"}
+                            src={prod.merchantLogo}
+                            alt={prod.merchant || "Merchant"}
                             width={20}
                             height={20}
-                            className="object-cover"
-                            unoptimized={true}
+                            className="object-cover rounded-sm"
                           />
                         ) : (
                           <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">
-                            -
+                            ?
                           </div>
                         )}
                       </div>
@@ -354,7 +352,7 @@ export default function Builder() {
                           "morning",
                           index,
                           "description",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       className="text-sm text-zinc-500 mt-1 w-full bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 rounded px-1 resize-none"
@@ -405,7 +403,7 @@ export default function Builder() {
                           "evening",
                           index,
                           "description",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       className="text-sm text-zinc-500 mt-1 w-full bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 rounded px-1 resize-none"

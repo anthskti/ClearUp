@@ -2,17 +2,34 @@
 
 import ProductModel from "../models/Product";
 import { Product, ProductCategory, SkinType } from "../types/product";
+import PAGINATION from "../config/pagination";
 
 export class ProductRepository {
-  // Get all products
-  async findAll(): Promise<Product[]> {
-    const products = await ProductModel.findAll();
+  // Get all products with pagination, infinite scroll
+  async findAll(
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<Product[]> {
+    const products = await ProductModel.findAll({
+      limit: limit,
+      offset: offset,
+      order: [["id", "DESC"]], // Older products to newer
+    });
     return products.map((product: any) => this.mapToProductType(product));
   }
 
-  // GET products by category (ex. cleanser, toner)
-  async findByCategory(category: ProductCategory): Promise<Product[]> {
-    const products = await ProductModel.findAll({ where: { category } });
+  // GET products by category (ex. cleanser, toner) with pagination, infinite scroll
+  async findByCategory(
+    category: ProductCategory,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<Product[]> {
+    const products = await ProductModel.findAll({
+      where: { category },
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "ASC"]],
+    });
     return products.map((product: any) => this.mapToProductType(product));
   }
 
@@ -69,7 +86,7 @@ export class ProductRepository {
       reviewCount: number;
       imageUrls: string[];
       tags: string[];
-    }>
+    }>,
   ): Promise<Product | null> {
     const [rows, [updatedProduct]] = await ProductModel.update(updates, {
       where: { id },
@@ -82,6 +99,33 @@ export class ProductRepository {
   async delete(id: number): Promise<boolean> {
     const deleted = await ProductModel.destroy({ where: { id } });
     return deleted > 0;
+  }
+
+  // SEARCH products by query (searches name, brand, tags, activeIngredient)
+  async search(
+    query: string,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<Product[]> {
+    const { Op } = require("sequelize");
+    const searchTerm = `%${query}%`; // For ILIKE (case-insensitive)
+
+    const products = await ProductModel.findAll({
+      where: {
+        [Op.or]: [
+          { name: { [Op.iLike]: searchTerm } },
+          { brand: { [Op.iLike]: searchTerm } },
+          { activeIngredient: { [Op.iLike]: searchTerm } },
+          { ingredients: { [Op.iLike]: searchTerm } },
+          { tags: { [Op.overlap]: [query] } }, // For array field matching
+        ],
+      },
+      limit: limit,
+      offset: offset,
+      order: [["name", "ASC"]],
+    });
+
+    return products.map((product: any) => this.mapToProductType(product));
   }
 
   private mapToProductType(dbProduct: any): Product {

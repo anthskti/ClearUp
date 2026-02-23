@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   ExternalLink,
   Plus,
@@ -23,7 +24,11 @@ import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
 import { Product } from "@/types/product";
 import { ProductMerchantWithDetails } from "@/types/merchant";
 
-import AddMerchantModal from "./AddMerchantModal";
+// import AddMerchantModal from "./AddMerchantModal";
+
+const AddMerchantModal = dynamic(() => import("./AddMerchantModal"), {
+  ssr: false, // It's a modal, it doesn't need to be on the server
+});
 
 interface ProductClientProps {
   product: Product;
@@ -177,7 +182,6 @@ export default function ProductClient({
                             width={20}
                             height={20}
                             className="object-cover"
-                            unoptimized={true}
                           />
                           <span className="text-xs text-zinc-500">
                             {merchant.merchant?.name || "Unknown Merchant"}

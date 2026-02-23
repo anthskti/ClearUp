@@ -24,11 +24,11 @@ import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
 import { Product } from "@/types/product";
 import { ProductMerchantWithDetails } from "@/types/merchant";
 
-import AddMerchantModal from "./AddMerchantModal";
+// import AddMerchantModal from "./AddMerchantModal";
 
-// const AddMerchantModal = dynamic(() => import("./AddMerchantModal"), {
-//   ssr: false, // It's a modal, it doesn't need to be on the server
-// });
+const AddMerchantModal = dynamic(() => import("./AddMerchantModal"), {
+  ssr: false, // It's a modal, it doesn't need to be on the server
+});
 
 interface ProductClientProps {
   product: Product;

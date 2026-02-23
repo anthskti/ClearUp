@@ -13,7 +13,7 @@ export default async function ProductListPage({ params }: PageProps) {
   const products = await getProductsByCategory(slug, 20, 0);
 
   return (
-    <Suspense fallback={<div className="h-screen">Loading...</div>}>
+    <Suspense fallback={<div className=" min-h-screen">Loading...</div>}>
       <ProductListClient category={slug} initialProducts={products} />
     </Suspense>
   );

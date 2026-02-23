@@ -30,12 +30,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} antialiased`}>
-        <main className="bg-[#F8F8F8]">
-          <div className="text-black">
+    <html lang="en" className="h-full">
+      <body className={`${inter.className} antialiased min-full`}>
+        <main className="flex flex-col min-h-screen bg-[#F8F8F8]">
+          <div className="flex flex-col flex-1 text-black">
             <Header />
-            {children}
+            <div className="flex-1">{children}</div>
             <Footer />
           </div>
         </main>

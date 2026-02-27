@@ -4,9 +4,6 @@ import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -33,11 +30,7 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body className={`${inter.className} antialiased min-full`}>
         <main className="flex flex-col min-h-screen bg-[#F8F8F8]">
-          <div className="flex flex-col flex-1 text-black">
-            <Header />
-            <div className="flex-1">{children}</div>
-            <Footer />
-          </div>
+          <div className="flex flex-col flex-1 text-black">{children}</div>
         </main>
         <Analytics />
       </body>

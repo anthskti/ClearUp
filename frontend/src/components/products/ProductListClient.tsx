@@ -308,15 +308,19 @@ export default function ProductListClient({
         {/* --- RIGHT CONTENT (LIST) --- */}
         <main className="lg:col-span-10">
           {/* List Header */}
-          <div className="flex justify-between items-center mb-6">
-            <span className="text-sm text-zinc-500 font-medium">
-              Showing {products.length} Results
-            </span>
+          <div className="flex flex-cols justify-between items-center mb-6">
+            <span></span>
             <div className="flex gap-2">
               {/* Sort button, NOT IMPLMENTED FOR DEMO */}
               <button className="text-sm font-bold text-zinc-700 flex items-center gap-2 bg-white px-4 py-2 border border-zinc-200 rounded hover:bg-zinc-50">
                 <SlidersHorizontal size={14} /> Sort: Popular
               </button>
+            </div>
+          </div>
+          <div className="flex flex-cols justify-between items-center mb-6">
+            <span></span>
+            <div className="flex gap-2 text-sm text-zinc-500 font-medium">
+              Showing {products.length} Results
             </div>
           </div>
 

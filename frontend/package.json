@@ -12,6 +12,7 @@
   "dependencies": {
     "@next/bundle-analyzer": "^16.1.6",
     "@vercel/analytics": "^1.6.1",
+    "better-auth": "^1.4.19",
     "class-variance-authority": "^0.7.1",
     "framer-motion": "^12.34.3",
     "lucide-react": "^0.556.0",

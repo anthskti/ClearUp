@@ -3,7 +3,7 @@ import { ProductMerchantWithDetails } from "@/types/merchant";
 
 // 21600 seconds = 6 hours
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
 
 export const getAllProducts = async (
   limit: number = 25,

@@ -1,5 +1,6 @@
 import express, { Router } from "express";
 import { ProductController } from "../controllers/productController";
+import { requireAdmin } from "../middleware/requireAuth";
 
 const router = express.Router();
 const productController = new ProductController();
@@ -32,7 +33,7 @@ router.delete("/id/:id", (req, res) =>
 router.get("/id/:id/merchants", (req, res) =>
   productController.getMerchantsById(req, res)
 );
-router.post("/id/:id/merchants", (req, res) =>
+router.post("/id/:id/merchants", requireAdmin, (req, res) =>
   productController.addMerchantByProductId(req, res)
 );
 

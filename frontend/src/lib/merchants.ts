@@ -1,6 +1,6 @@
 import { Merchant } from "@/types/merchant";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
 
 export const getAllMerchants = async (): Promise<Merchant[]> => {
   const res = await fetch(`${API_URL}/merchant`, { cache: "no-store" });

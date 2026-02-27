@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "better-auth": "^1.4.19",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
     "csv-parser": "^3.2.0",

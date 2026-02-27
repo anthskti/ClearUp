@@ -7,6 +7,9 @@ import sequelize from "./db";
 import rateLimit from "express-rate-limit";
 import compression from "compression";
 
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./config/auth";
+
 const app = express();
 const port = process.env.PORT || 5000;
 const cors = require("cors");
@@ -42,6 +45,8 @@ app.use(
     },
   }),
 );
+
+app.all("/api/auth/*path", toNodeHandler(auth));
 
 app.use(express.json()); // parsing JSON bodies
 

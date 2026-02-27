@@ -1,7 +1,7 @@
 import { Routine, RoutineWithProducts, RoutineProduct } from "@/types/routine";
 import { ProductCategory } from "@/types/product";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
 
 export const getRoutineById = async (id: string): Promise<Routine> => {
   const res = await fetch(`${API_URL}/routines/id/${id}`, {

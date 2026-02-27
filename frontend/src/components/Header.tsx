@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { UserIcon, ChevronDown } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -24,7 +25,10 @@ const productCategories = [
 function Header() {
   const path = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
-
+  const { data: session, isPending } = authClient.useSession();
+  if (session) {
+        return <button onClick={() => authClient.signOut()}>Log Out ({session.user.name})</button>;
+    }
   useEffect(() => {
     const scrolling = () => {
       setIsScrolled(window.scrollY > 25);
@@ -103,7 +107,7 @@ function Header() {
 
         {/* Uncomment when login is ready */}
 
-        {/* <div className="flex item-center justify-end space-x-4">
+        <div className="flex item-center justify-end space-x-4">
           <button
             className={`text-black text-xs px-2 py-2 transition-colors duration-300 rounded-md border${
               isScrolled
@@ -116,7 +120,7 @@ function Header() {
               Log In 
             </Link>
           </button>
-        </div> */}
+        </div>
       </nav>
     </div>
   );

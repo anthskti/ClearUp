@@ -92,7 +92,7 @@ export const getProductById = async (id: string): Promise<Product> => {
 export const getMerchantsByProductId = async (
   productId: string,
 ): Promise<ProductMerchantWithDetails[]> => {
-  const res = await fetch(`${API_URL}/products/id/${productId}/merchants`, {
+  const res = await fetch(`${API_URL}/api/products/id/${productId}/merchants`, {
     cache: "no-store",
   });
   if (!res.ok) {

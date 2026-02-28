@@ -3,14 +3,14 @@ import { ProductMerchantWithDetails } from "@/types/merchant";
 
 // 21600 seconds = 6 hours
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
 export const getAllProducts = async (
   limit: number = 25,
   offset: number = 0,
 ): Promise<Product[]> => {
   const res = await fetch(
-    `${API_URL}/products?limit=${limit}&offset=${offset}`,
+    `${API_URL}/api/products?limit=${limit}&offset=${offset}`,
     {
       next: { revalidate: 21600 },
     },
@@ -27,7 +27,7 @@ export const getProductsByCategory = async (
   offset: number = 0,
 ): Promise<Product[]> => {
   const res = await fetch(
-    `${API_URL}/products/category/${category}?limit=${limit}&offset=${offset}`,
+    `${API_URL}/api/products/category/${category}?limit=${limit}&offset=${offset}`,
     {
       next: { revalidate: 21600 },
     },
@@ -48,7 +48,7 @@ export const searchProducts = async (
   offset: number = 0,
 ): Promise<Product[]> => {
   const res = await fetch(
-    `${API_URL}/products?search=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
+    `${API_URL}/api/products?search=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
     {
       cache: "no-store",
     },
@@ -66,7 +66,7 @@ export const searchProductsByCategory = async (
   offset: number = 0,
 ): Promise<Product[]> => {
   const res = await fetch(
-    `${API_URL}/products/category/${category}?search=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
+    `${API_URL}/api/products/category/${category}?search=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
     {
       cache: "no-store",
     },
@@ -80,7 +80,7 @@ export const searchProductsByCategory = async (
 };
 
 export const getProductById = async (id: string): Promise<Product> => {
-  const res = await fetch(`${API_URL}/products/id/${id}`, {
+  const res = await fetch(`${API_URL}/api/products/id/${id}`, {
     next: { revalidate: 21600 },
   });
   if (!res.ok) {
@@ -112,7 +112,7 @@ export const addMerchantByProductId = async (
     shipping: string;
   },
 ): Promise<Product> => {
-  const res = await fetch(`${API_URL}/products/id/${id}/merchants`, {
+  const res = await fetch(`${API_URL}/api/products/id/${id}/merchants`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

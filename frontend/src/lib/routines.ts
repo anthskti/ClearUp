@@ -1,10 +1,10 @@
 import { Routine, RoutineWithProducts, RoutineProduct } from "@/types/routine";
 import { ProductCategory } from "@/types/product";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
 export const getRoutineById = async (id: string): Promise<Routine> => {
-  const res = await fetch(`${API_URL}/routines/id/${id}`, {
+  const res = await fetch(`${API_URL}/api/routines/id/${id}`, {
     cache: "no-store",
   });
   if (!res.ok) {
@@ -22,7 +22,7 @@ export const createRoutine = async (data: {
     category: string;
   }[];
 }): Promise<RoutineWithProducts> => {
-  const url = `${API_URL}/routines/bulk`;
+  const url = `${API_URL}/api/routines/bulk`;
   console.log("Creating routine at:", url);
   console.log("Request data:", data);
 
@@ -58,11 +58,24 @@ export const createRoutine = async (data: {
 export const getRoutineWithProducts = async (
   id: string,
 ): Promise<RoutineWithProducts> => {
-  const res = await fetch(`${API_URL}/routines/id/${id}/products`, {
+  const res = await fetch(`${API_URL}/api/routines/id/${id}/products`, {
     cache: "no-store",
   });
   if (!res.ok) {
     throw new Error(`Failed to fetch routine ${id}`);
+  }
+  return res.json();
+};
+
+export const getRoutinesByUserId = async (
+  userId: string,
+): Promise<RoutineWithProducts[]> => {
+  const res = await fetch(`${API_URL}/api/routines/user/${userId}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to get user routine`);
   }
   return res.json();
 };

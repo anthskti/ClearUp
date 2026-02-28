@@ -26,13 +26,7 @@ function Header() {
   const path = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const { data: session, isPending } = authClient.useSession();
-  if (session) {
-    return (
-      <button onClick={() => authClient.signOut()}>
-        Log Out ({session.user.name})
-      </button>
-    );
-  }
+
   useEffect(() => {
     const scrolling = () => {
       setIsScrolled(window.scrollY > 25);
@@ -119,10 +113,17 @@ function Header() {
                 : " border-white hover:bg-gray-100/50" // Unscrolled
             }`}
           >
-            <Link href="/profile" className="flex items-center">
-              <UserIcon className="pr-1 w-4 h-4" />
-              Log In
-            </Link>
+            {session ? (
+              <Link href="/profile" className="flex items-center">
+                <UserIcon className="pr-1 w-4 h-4" />
+                hi {session.user.name}
+              </Link>
+            ) : (
+              <Link href="/login" className="flex items-center">
+                <UserIcon className="pr-1 w-4 h-4" />
+                Log In
+              </Link>
+            )}
           </button>
         </div>
       </nav>

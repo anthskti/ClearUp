@@ -16,7 +16,7 @@ export const getRoutineById = async (id: string): Promise<Routine> => {
 export const createRoutine = async (data: {
   name: string;
   description?: string;
-  userId: number; // TODO for when auth is added
+  userId: string; // TODO for when auth is added
   items: {
     productId: number;
     category: string;
@@ -38,7 +38,7 @@ export const createRoutine = async (data: {
     const text = await res.text();
     console.error("Non-JSON response:", text.substring(0, 200));
     throw new Error(
-      `Server returned ${res.status} ${res.statusText}. Expected JSON but got ${contentType}. Check if the backend server is running.`
+      `Server returned ${res.status} ${res.statusText}. Expected JSON but got ${contentType}. Check if the backend server is running.`,
     );
   }
 
@@ -48,7 +48,7 @@ export const createRoutine = async (data: {
       .catch(() => ({ error: "Unknown error" }));
     throw new Error(
       errorData.error ||
-        `Failed to create routine: ${res.status} ${res.statusText}`
+        `Failed to create routine: ${res.status} ${res.statusText}`,
     );
   }
 
@@ -56,7 +56,7 @@ export const createRoutine = async (data: {
 };
 
 export const getRoutineWithProducts = async (
-  id: string
+  id: string,
 ): Promise<RoutineWithProducts> => {
   const res = await fetch(`${API_URL}/routines/id/${id}/products`, {
     cache: "no-store",

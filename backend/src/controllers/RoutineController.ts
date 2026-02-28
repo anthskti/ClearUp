@@ -25,7 +25,7 @@ export class RoutineController {
   // GET /api/routines/user/:userId
   async getRoutinesByUserId(req: Request, res: Response): Promise<void> {
     try {
-      const userId = parseInt(req.params.userId);
+      const userId = req.params.userId;
       const routines = await this.routineService.getRoutinesByUserId(userId);
       res.json(routines);
     } catch (error: any) {

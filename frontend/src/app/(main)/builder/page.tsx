@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import { createRoutine } from "@/lib/routines";
 import Image from "next/image";
+import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useBuilderRoutine } from "@/hooks/useBuilderRoutine";
 import { useBuilderNotes } from "@/hooks/useBuilderNotes";
@@ -28,8 +29,15 @@ export default function Builder() {
 
   const [savedRoutineId, setSavedRoutineId] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const { data: session } = authClient.useSession(); // ✅ Get the session data
+  const router = useRouter();
 
   const handleSave = async () => {
+    if (!session) {
+      alert("Please log in to save your routine."); // Update with Toaster
+      router.push("/login");
+      return;
+    }
     setIsSaving(true);
     try {
       // Save every selected product from each slot as its own item
@@ -45,10 +53,8 @@ export default function Builder() {
         return;
       }
 
-      // TODO: Get userId from session/auth
-      const userId = 1; // Placeholder
+      const userId = session.user.id;
 
-      // Store notes as JSON string in description field
       const notesJson = JSON.stringify(notes);
 
       const routineData = await createRoutine({

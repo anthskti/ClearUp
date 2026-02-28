@@ -5,7 +5,7 @@ interface RoutineAttributes {
   id: number;
   name: string;
   description?: string;
-  userId: number;
+  userId: string;
 }
 
 interface RoutineCreationAttributes extends Optional<RoutineAttributes, "id"> {}
@@ -17,7 +17,7 @@ class Routine
   public id!: number;
   public name!: string;
   public description?: string; // Routine Description "Anti-ance proofing"
-  public userId!: number;
+  public userId!: string;
 }
 
 Routine.init(
@@ -35,14 +35,14 @@ Routine.init(
       type: DataTypes.TEXT, // Changed to TEXT to support longer JSON strings
     },
     userId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
     },
   },
   {
     sequelize,
     tableName: "routines",
-  }
+  },
 );
 
 export default Routine;

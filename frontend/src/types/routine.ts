@@ -6,7 +6,7 @@ export interface Routine {
   id: number;
   name: string;
   description?: string;
-  userId: number;
+  userId: string;
 }
 
 export interface RoutineProduct {

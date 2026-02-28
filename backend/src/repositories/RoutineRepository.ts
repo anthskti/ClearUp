@@ -25,7 +25,7 @@ export class RoutineRepository {
   }
 
   // GET routines by userId
-  async findByUserId(userId: number): Promise<Routine[]> {
+  async findByUserId(userId: string): Promise<Routine[]> {
     const routines = await RoutineModel.findAll({ where: { userId } });
     return routines.map((routine: any) => this.mapToRoutineType(routine));
   }
@@ -67,7 +67,7 @@ export class RoutineRepository {
   async create(routineData: {
     name: string;
     description?: string;
-    userId: number;
+    userId: string;
   }): Promise<Routine> {
     const routine = await RoutineModel.create(routineData);
     return this.mapToRoutineType(routine);

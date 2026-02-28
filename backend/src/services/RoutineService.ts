@@ -23,7 +23,7 @@ export class RoutineService {
   }
 
   // GET routines by userId
-  async getRoutinesByUserId(userId: number): Promise<Routine[]> {
+  async getRoutinesByUserId(userId: string): Promise<Routine[]> {
     return this.routineRepository.findByUserId(userId);
   }
 
@@ -43,7 +43,7 @@ export class RoutineService {
   async createRoutine(routineData: {
     name: string;
     description?: string;
-    userId: number;
+    userId: string;
   }): Promise<Routine> {
     return this.routineRepository.create(routineData);
   }
@@ -54,7 +54,7 @@ export class RoutineService {
     updates: Partial<{
       name: string;
       description?: string;
-      userId: number;
+      userId: string;
     }>,
   ): Promise<Routine | null> {
     return this.routineRepository.update(id, updates);
@@ -112,7 +112,7 @@ export class RoutineService {
   async createRoutineWithProducts(data: {
     name: string;
     description?: string;
-    userId: number;
+    userId: string;
     items: {
       productId: number;
       category: ProductCategory;

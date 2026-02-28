@@ -234,7 +234,7 @@ body -> raw
 {
     "name": "My Second Routine",
     "description": "making my second routine",
-    "userId": 1
+    # "userId": 1
 }
 ```
 

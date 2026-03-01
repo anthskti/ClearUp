@@ -1,3 +1,3 @@
 export default function PasswordResetPage() {
-  return <div></div>;
+  return <div>hi</div>;
 }

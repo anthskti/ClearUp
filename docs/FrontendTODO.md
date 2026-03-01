@@ -1,3 +1,5 @@
+In no order
+
 1. Profile button dropdown.
    a. preferences
    b. system theme
@@ -10,3 +12,5 @@
    b. update auth to check if they're signed in, cannot access register or login page.
 
 3. System Appearance: apply light and dark modes.
+
+4. Verification via Oauth and Email verification

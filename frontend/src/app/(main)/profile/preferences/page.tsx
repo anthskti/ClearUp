@@ -17,9 +17,6 @@ export default function ProfilePage() {
   const router = useRouter();
 
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [routines, setRoutines] = useState([]);
-  const [isLoadingRoutines, setIsLoadingRoutines] = useState(true);
 
   useEffect(() => {
     if (session?.user) {
@@ -28,7 +25,7 @@ export default function ProfilePage() {
     }
   }, [session]);
 
-  if (!session) {
+  if (!isPending && !session) {
     redirect("/login");
   }
 
@@ -48,7 +45,9 @@ export default function ProfilePage() {
   };
 
   if (isPending)
-    return <div className="p-10 text-center">Loading session...</div>; // TODO: PROCEDURAL WAVE LOAD
+    return (
+      <div className="min-h-screen p-40 text-center">Loading session...</div>
+    ); // TODO: PROCEDURAL WAVE LOAD
   if (!session) return <div className="p-10 text-center">Please log in.</div>; // TODO: REDIRECT
 
   return (
@@ -72,7 +71,7 @@ export default function ProfilePage() {
             </div>
             <div className="relative w-2/3">
               <select className="w-full appearance-none border border-zinc-400 rounded-lg px-4 py-2 text-sm text-zinc-900 focus:outline-none">
-                <option>your@email.com</option>
+                <option>{session.user.email}</option>
               </select>
               <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-zinc-500 pointer-events-none" />
             </div>

@@ -134,7 +134,9 @@ function Header() {
         {/* Uncomment when login is ready */}
 
         <div className="flex item-center justify-end space-x-4">
-          {session ? (
+          {isPending ? (
+            <div className="w-[84px] h-[34px] bg-gray-200 animate-pulse rounded-md border border-transparent"></div>
+          ) : session ? (
             <div className="relative group" ref={profileDropdownRef}>
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -174,14 +176,14 @@ function Header() {
                     Preferences
                   </Link>
                   <Link
-                    href="/profile/created"
+                    href="/profile/created-routines"
                     className="flex items-center px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 hover:text-black transition-colors"
                   >
                     <ListPlus className="w-4 h-4 mr-2 text-gray-400" />
                     Created Routines
                   </Link>
                   <Link
-                    href="/profile/saved"
+                    href="/profile/saved-routines"
                     className="flex items-center px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 hover:text-black transition-colors"
                   >
                     <Bookmark className="w-4 h-4 mr-2 text-gray-400" />

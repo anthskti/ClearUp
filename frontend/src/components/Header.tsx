@@ -65,7 +65,7 @@ function Header() {
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 w-full z-20 transition-all duration-300 ${
         isScrolled ? "bg-[#F8F8F8] shadow-md" : "bg-transparent"
       }`}
     >
@@ -153,7 +153,7 @@ function Header() {
                 className={`absolute right-0 top-full mt-2 w-56 
                   bg-white rounded-md shadow-lg border border-gray-200 
                   transition-all duration-200 transform 
-                  origin-top-right z-50 overflow-hidden ${
+                  origin-top-right z-10 overflow-hidden ${
                     isProfileOpen
                       ? "opacity-100 visible scale-100"
                       : "opacity-0 invisible scale-95"

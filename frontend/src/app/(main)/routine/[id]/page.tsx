@@ -50,11 +50,11 @@ export default async function ViewRoutine({ params }: RoutineProps) {
   const totalPrice = finalRoutine.reduce(
     (acc, step) =>
       acc + step.products.reduce((sum, p) => sum + (p.price || 0), 0),
-    0
+    0,
   );
   const totalItems = finalRoutine.reduce(
     (acc, step) => acc + step.products.length,
-    0
+    0,
   );
 
   return (
@@ -213,13 +213,13 @@ export default async function ViewRoutine({ params }: RoutineProps) {
 
         <div
           className={`
-          bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-4 z-40 px-6 py-4
+          bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-4 z-20 px-6 py-4
           lg:top-20 lg:bottom-auto lg:shadow-sm 
           `}
         >
           <div
             className={`
-          bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-4 z-40 px-6 py-4
+          bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-4 z-20 px-6 py-4
           lg:top-20 lg:bottom-auto lg:shadow-sm 
           `}
           >

@@ -27,6 +27,7 @@ const ROUTINE_SLOTS: RoutineSlot[] = [
 const STORAGE_KEY = "builder-routine";
 
 export const useBuilderRoutine = () => {
+  const [routineName, setRoutineName] = useState<string>("My Skincare Routine");
   const [routine, setRoutine] = useState<RoutineSlot[]>(ROUTINE_SLOTS);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -80,8 +81,8 @@ export const useBuilderRoutine = () => {
                       },
                     ],
               }
-            : slot
-        )
+            : slot,
+        ),
       );
 
       // Fetch merchant info for this product and update only that product entry
@@ -105,11 +106,11 @@ export const useBuilderRoutine = () => {
                             merchantLink: bestOffer.website,
                             // keep the original price unless you want to override
                           }
-                        : p
+                        : p,
                     ),
                   }
-                : slot
-            )
+                : slot,
+            ),
           );
         } else {
           setRoutine((prev) =>
@@ -124,18 +125,18 @@ export const useBuilderRoutine = () => {
                             merchant: "Direct",
                             merchantLogo: "/placeholder-logo.png",
                           }
-                        : p
+                        : p,
                     ),
                   }
-                : slot
-            )
+                : slot,
+            ),
           );
         }
       } catch (e: any) {
         console.error("Failed to fetch merchants details for product", e);
       }
     },
-    []
+    [],
   );
 
   // If productId is provided, remove that single product from the slot;
@@ -149,13 +150,13 @@ export const useBuilderRoutine = () => {
           return {
             ...slot,
             products: slot.products.filter(
-              (p) => String(p.id) !== String(productId)
+              (p) => String(p.id) !== String(productId),
             ),
           };
-        })
+        }),
       );
     },
-    []
+    [],
   );
 
   const clearRoutine = useCallback(() => {
@@ -177,7 +178,7 @@ export const useBuilderRoutine = () => {
 
     window.addEventListener(
       "addToRoutine",
-      handleAddToRoutine as EventListener
+      handleAddToRoutine as EventListener,
     );
 
     // Check for pending add in localStorage (from page navigation)
@@ -207,7 +208,7 @@ export const useBuilderRoutine = () => {
     return () => {
       window.removeEventListener(
         "addToRoutine",
-        handleAddToRoutine as EventListener
+        handleAddToRoutine as EventListener,
       );
       clearTimeout(timeoutId1);
       clearTimeout(timeoutId2);

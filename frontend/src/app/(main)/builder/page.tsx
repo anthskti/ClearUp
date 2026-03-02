@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import { useBuilderRoutine } from "@/hooks/useBuilderRoutine";
 import { useBuilderNotes } from "@/hooks/useBuilderNotes";
 
+import SaveRoutineModal from "@/components/routine/SaveRoutineModal";
+
 export default function Builder() {
   const {
     routine,
@@ -29,58 +31,17 @@ export default function Builder() {
 
   const [savedRoutineId, setSavedRoutineId] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const { data: session } = authClient.useSession(); // ✅ Get the session data
+  const { data: session } = authClient.useSession(); // session data
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSave = async () => {
+  const handleInitialSave = async () => {
     if (!session) {
       alert("Please log in to save your routine."); // Update with Toaster
       router.push("/login");
       return;
     }
-    setIsSaving(true);
-    try {
-      // Save every selected product from each slot as its own item
-      const items = routine.flatMap((slot) =>
-        (slot.products || []).map((p) => ({
-          productId: p.id,
-          category: slot.id,
-        })),
-      );
-
-      if (items.length === 0) {
-        setIsSaving(false);
-        return;
-      }
-
-      const userId = session.user.id;
-
-      const notesJson = JSON.stringify(notes);
-
-      const routineData = await createRoutine({
-        name: `My Routine ${new Date().toLocaleDateString()}`,
-        description: notesJson,
-        userId,
-        items,
-      });
-
-      setSavedRoutineId(routineData.id);
-
-      // Clear local storage after saving
-      clearRoutine();
-      clearNotes();
-
-      // Show success and update the link
-      alert(`Routine saved successfully! ID: ${routineData.id}`);
-
-      // Optionally redirect to a routine view page if it exists
-      // router.push(`/routine/${routineData.id}`);
-    } catch (error: any) {
-      console.error("Failed to save routine:", error);
-      alert(`Failed to save routine: ${error.message}`);
-    } finally {
-      setIsSaving(false);
-    }
+    setIsModalOpen(true);
   };
 
   const copyLink = () => {
@@ -92,6 +53,9 @@ export default function Builder() {
       // You could add a toast notification here
     }
   };
+  const formattedProducts = routine.flatMap((slot) =>
+    slot.products.map((p) => ({ productId: p.id, category: slot.id })),
+  );
 
   const totalPrice = routine.reduce(
     (acc, step) => acc + step.products.reduce((s, p) => s + (p.price || 0), 0),
@@ -298,7 +262,7 @@ export default function Builder() {
 
         <div
           className={`
-          bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-4 z-40 px-6 py-4
+          bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-4 z-20 px-6 py-4
           lg:top-20 lg:bottom-auto lg:shadow-sm 
           `}
         >
@@ -317,11 +281,23 @@ export default function Builder() {
               </span>
               <Button
                 variant="secondary"
-                onClick={handleSave}
+                onClick={handleInitialSave}
                 disabled={isSaving || totalItems === 0}
               >
-                {isSaving ? "Saving..." : "Save"}
+                Save
               </Button>
+              <SaveRoutineModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                userId={session?.user?.id as string}
+                routineData={formattedProducts}
+                notesData={notes}
+                // This is the bridge! The modal calls this when it finishes successfully.
+                onSuccess={() => {
+                  clearRoutine(); // Wipes builder local storage
+                  clearNotes(); // Wipes notes local storage
+                }}
+              />
             </div>
           </div>
         </div>

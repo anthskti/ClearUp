@@ -14,3 +14,6 @@ In no order
 3. System Appearance: apply light and dark modes.
 
 4. Verification via Oauth and Email verification
+   a. Need email provider service
+
+5. Implement Delete

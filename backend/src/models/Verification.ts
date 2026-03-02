@@ -33,7 +33,8 @@ Verification.init(
     sequelize,
     modelName: "Verification",
     tableName: "verification",
-  }
+    timestamps: true,
+  },
 );
 
 export default Verification;

@@ -46,9 +46,7 @@ const defineAssociations = () => {
   });
 
   RoutineProduct.belongsTo(Routine, { foreignKey: "routineId" });
-  RoutineProduct.belongsTo(Product, { foreignKey: "productId", 
-    as: "product" 
-  });
+  RoutineProduct.belongsTo(Product, { foreignKey: "productId", as: "product" });
 
   Merchant.belongsToMany(Product, {
     through: ProductMerchant,
@@ -69,10 +67,12 @@ const defineAssociations = () => {
     as: "productMerchants",
   });
   ProductMerchant.belongsTo(Product, { foreignKey: "productId" });
-  ProductMerchant.belongsTo(Merchant, { 
+  ProductMerchant.belongsTo(Merchant, {
     foreignKey: "merchantId",
-    as: "merchant"
+    as: "merchant",
   });
+
+  Verification.name;
 
   // For testing
   console.log("Database associations defined.");

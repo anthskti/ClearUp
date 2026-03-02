@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { redirect } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,10 @@ export default function ProfilePage() {
       const routineList = getRoutinesByUserId(session.user.id);
     }
   }, [session]);
+
+  if (!session) {
+    redirect("/login");
+  }
 
   const handleUpdateProfile = async () => {
     await authClient.updateUser({

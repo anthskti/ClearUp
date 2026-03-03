@@ -25,10 +25,7 @@ export default function ProfilePage() {
     }
   }, [session]);
 
-  if (!isPending && !session) {
-    redirect("/login");
-  }
-
+  // TODO
   const handleUpdateProfile = async () => {
     await authClient.updateUser({
       name: username,
@@ -43,6 +40,12 @@ export default function ProfilePage() {
       router.push("/");
     }
   };
+
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.push("/login");
+    }
+  }, [isPending, session, router]);
 
   if (isPending)
     return (

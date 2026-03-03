@@ -34,6 +34,7 @@ function Header() {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const { data: session, isPending } = authClient.useSession();
 
@@ -56,6 +57,10 @@ function Header() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   const handleSignOut = async () => {
@@ -134,7 +139,7 @@ function Header() {
         {/* Uncomment when login is ready */}
 
         <div className="flex item-center justify-end space-x-4">
-          {isPending ? (
+          {!mounted || isPending ? (
             <div className="w-[84px] h-[34px] bg-gray-200 animate-pulse rounded-md border border-transparent"></div>
           ) : session ? (
             <div className="relative group" ref={profileDropdownRef}>

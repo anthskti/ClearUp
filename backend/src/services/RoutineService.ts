@@ -61,8 +61,8 @@ export class RoutineService {
   }
 
   // DELETE routine by ID
-  async deleteRoutine(id: number): Promise<boolean> {
-    return this.routineRepository.delete(id);
+  async deleteRoutine(id: number, userId: string): Promise<boolean> {
+    return this.routineRepository.delete(id, userId);
   }
 
   // POST Add a product to a routine

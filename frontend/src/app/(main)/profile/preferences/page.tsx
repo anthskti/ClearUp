@@ -99,7 +99,7 @@ export default function ProfilePage() {
           </div>
           <div className="flex items-center justify-between p-6">
             <span></span>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleUpdateProfile}>
               Save
             </Button>
           </div>

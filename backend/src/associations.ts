@@ -26,6 +26,18 @@ const defineAssociations = () => {
   });
   Account.belongsTo(User, { foreignKey: "userId" });
 
+  // If a user delete their account, all their routines will be deleted along with it
+  User.hasMany(Routine, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+    as: "routines",
+  });
+
+  Routine.belongsTo(User, {
+    foreignKey: "userId",
+    as: "user",
+  });
+
   Routine.belongsToMany(Product, {
     through: RoutineProduct,
     foreignKey: "routineId",
@@ -43,6 +55,7 @@ const defineAssociations = () => {
   Routine.hasMany(RoutineProduct, {
     foreignKey: "routineId",
     as: "routineProducts",
+    onDelete: "CASCADE",
   });
 
   RoutineProduct.belongsTo(Routine, { foreignKey: "routineId" });

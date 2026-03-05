@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { RoutineService } from "../services/RoutineService";
 import PAGINATION from "../config/pagination";
+import { auth } from "../config/auth";
 
 export class RoutineController {
   private routineService: RoutineService;
@@ -94,15 +95,25 @@ export class RoutineController {
   async deleteRoutineById(req: Request, res: Response): Promise<void> {
     try {
       const id = parseInt(req.params.id);
-      const success = await this.routineService.deleteRoutine(id);
-
+      if (isNaN(id)) {
+        res.status(404).json({ error: "Invalid Routine Id" });
+      }
+      const session = await auth.api.getSession({ headers: req.headers });
+      const userId = session?.user?.id;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      const success = await this.routineService.deleteRoutine(id, userId);
       if (!success) {
-        res.status(404).json({ error: "Routine not found" });
+        res
+          .status(404)
+          .json({ error: "Routine not found or No Permission to Delete" });
         return;
       }
       res.status(204).send();
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Failed to delete routine" });
     }
   }
 

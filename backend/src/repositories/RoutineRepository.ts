@@ -89,8 +89,10 @@ export class RoutineRepository {
   }
 
   // DELETE routine by ID
-  async delete(id: number): Promise<boolean> {
-    const deleted = await RoutineModel.destroy({ where: { id } });
+  async delete(routineId: number, userId: string): Promise<boolean> {
+    const deleted = await RoutineModel.destroy({
+      where: { id: routineId, userId: userId },
+    });
     return deleted > 0;
   }
 

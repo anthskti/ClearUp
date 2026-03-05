@@ -1,10 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
-import React from "react";
 import { Copy, ExternalLink, Book } from "lucide-react";
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import { getRoutineWithProducts } from "@/lib/routines";
 import { ClientNotes } from "@/hooks/useBuilderNotes";
+
+import DeleteRoutineButton from "@/components/routine/DeleteRoutineButton";
+import { authClient } from "@/lib/auth-client";
+import { getSession } from "@/lib/auth";
+import { headers } from "next/headers";
 
 interface RoutineProps {
   params: Promise<{ id: string }>;
@@ -21,8 +25,17 @@ const ROUTINE_SLOTS = [
 
 export default async function ViewRoutine({ params }: RoutineProps) {
   const { id } = await params;
-
   const routineData = await getRoutineWithProducts(id);
+
+  const headersList = await headers();
+  const cookieString = headersList.get("cookie") || "";
+  let session = null;
+
+  try {
+    session = await getSession(cookieString);
+  } catch (error) {
+    console.error("Session fetch failed:", error);
+  }
 
   if (!routineData) {
     return <div>Routine not found</div>;
@@ -297,6 +310,10 @@ export default async function ViewRoutine({ params }: RoutineProps) {
             </div>
           </div>
         </div>
+        {/* Delete if user is signed in */}
+        {session?.user?.id === routineData.userId && (
+          <DeleteRoutineButton routineId={routineData.id} />
+        )}
       </div>
     </div>
   );

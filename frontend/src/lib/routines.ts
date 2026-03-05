@@ -79,3 +79,14 @@ export const getRoutinesByUserId = async (
   }
   return res.json();
 };
+
+export const deleteRoutineById = async (id: number): Promise<boolean> => {
+  const res = await fetch(`${API_URL}/api/routines/id/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error(`Faild to delete routine #${id}`);
+  }
+  return true;
+};

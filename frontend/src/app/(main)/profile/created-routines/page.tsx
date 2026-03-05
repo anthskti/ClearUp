@@ -58,12 +58,6 @@ export default function CreatedRoutinesPage() {
     );
   }
 
-  useEffect(() => {
-    if (!isPending && !session) {
-      router.push("/login");
-    }
-  }, [isPending, session, router]);
-
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl pt-24 min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-100 pb-2">

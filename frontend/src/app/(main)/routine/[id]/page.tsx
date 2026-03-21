@@ -6,7 +6,6 @@ import { getRoutineWithProducts } from "@/lib/routines";
 import { ClientNotes } from "@/hooks/useBuilderNotes";
 
 import DeleteRoutineButton from "@/components/routine/DeleteRoutineButton";
-import { authClient } from "@/lib/auth-client";
 import { getSession } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -76,8 +75,8 @@ export default async function ViewRoutine({ params }: RoutineProps) {
       <div className="relative z-1 max-w-6xl mx-auto px-6 pt-20 pb-20">
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#2E2E2E] uppercase">
-            Viewing Routine
-            <div className="text-lg text-zinc-500">{routineData.name}</div>
+            {routineData.name}
+            <div className="text-lg text-zinc-500">Viewing Routine by </div>
           </h1>
 
           {/* External Link */}

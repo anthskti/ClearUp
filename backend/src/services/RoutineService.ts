@@ -108,6 +108,10 @@ export class RoutineService {
     return this.routineProductRepository.findByRoutineId(routineId);
   }
 
+  async getRoutineProductById(id: string): Promise<RoutineProduct | null> {
+    return this.routineProductRepository.findById(id);
+  }
+
   // POST Create routine with products in bulk
   async createRoutineWithProducts(data: {
     name: string;

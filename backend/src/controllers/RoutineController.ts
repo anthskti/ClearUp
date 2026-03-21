@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { RoutineService } from "../services/RoutineService";
 import PAGINATION from "../config/pagination";
-import { auth } from "../config/auth";
 
 export class RoutineController {
   private routineService: RoutineService;
@@ -26,7 +25,17 @@ export class RoutineController {
   // GET /api/routines/user/:userId
   async getRoutinesByUserId(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.params.userId;
+      const authedUserId = req.user?.id;
+      if (!authedUserId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      const requestedUserId = req.params.userId;
+      if (requestedUserId && requestedUserId !== authedUserId) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
+      const userId = requestedUserId || authedUserId;
       const routines = await this.routineService.getRoutinesByUserId(userId);
       res.json(routines);
     } catch (error: any) {
@@ -67,7 +76,15 @@ export class RoutineController {
   // POST /api/routines
   async createRoutine(req: Request, res: Response): Promise<void> {
     try {
-      const routine = await this.routineService.createRoutine(req.body);
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      const routine = await this.routineService.createRoutine({
+        ...req.body,
+        userId,
+      });
       res.status(201).json(routine);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -78,6 +95,20 @@ export class RoutineController {
   async updateRoutineById(req: Request, res: Response): Promise<void> {
     try {
       const id = parseInt(req.params.id);
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      const existingRoutine = await this.routineService.getRoutineById(String(id));
+      if (!existingRoutine) {
+        res.status(404).json({ error: "Routine not found" });
+        return;
+      }
+      if (existingRoutine.userId !== userId) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
       const routine = await this.routineService.updateRoutine(id, req.body);
 
       if (!routine) {
@@ -98,8 +129,7 @@ export class RoutineController {
       if (isNaN(id)) {
         res.status(404).json({ error: "Invalid Routine Id" });
       }
-      const session = await auth.api.getSession({ headers: req.headers });
-      const userId = session?.user?.id;
+      const userId = req.user?.id;
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
@@ -121,6 +151,20 @@ export class RoutineController {
   async addProductToRoutine(req: Request, res: Response): Promise<void> {
     try {
       const routineId = parseInt(req.params.id);
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      const routine = await this.routineService.getRoutineById(String(routineId));
+      if (!routine) {
+        res.status(404).json({ error: "Routine not found" });
+        return;
+      }
+      if (routine.userId !== userId) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
       const routineProduct = await this.routineService.addProductToRoutine(
         routineId,
         req.body,
@@ -139,12 +183,28 @@ export class RoutineController {
   async removeProductFromRoutine(req: Request, res: Response): Promise<void> {
     try {
       const routineProductId = parseInt(req.params.id);
-
-      // const userId = parseInt(req.params.userId);
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      const routineProduct = await this.routineService.getRoutineProductById(
+        String(routineProductId),
+      );
+      if (!routineProduct) {
+        res.status(404).json({ error: "Item not found" });
+        return;
+      }
+      const routine = await this.routineService.getRoutineById(
+        String(routineProduct.routineId),
+      );
+      if (!routine || routine.userId !== userId) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
 
       const success = await this.routineService.removeProductFromRoutine(
         routineProductId,
-        // userId
       );
 
       if (!success) {
@@ -161,18 +221,38 @@ export class RoutineController {
   async updateProductInRoutine(req: Request, res: Response): Promise<void> {
     try {
       const routineProductId = parseInt(req.params.id);
-
-      const routineProduct = await this.routineService.updateProductInRoutine(
-        routineProductId,
-        req.body,
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      const routineProduct = await this.routineService.getRoutineProductById(
+        String(routineProductId),
       );
-
       if (!routineProduct) {
         res.status(404).json({ error: "Item not found" });
         return;
       }
+      const routine = await this.routineService.getRoutineById(
+        String(routineProduct.routineId),
+      );
+      if (!routine || routine.userId !== userId) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
 
-      res.json(routineProduct);
+      const updatedRoutineProduct =
+        await this.routineService.updateProductInRoutine(
+        routineProductId,
+        req.body,
+        );
+
+      if (!updatedRoutineProduct) {
+        res.status(404).json({ error: "Item not found" });
+        return;
+      }
+
+      res.json(updatedRoutineProduct);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -181,8 +261,13 @@ export class RoutineController {
   // POST /api/routines/bulk - Create routine with products in bulk
   async createRoutineBulk(req: Request, res: Response): Promise<void> {
     try {
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
       const routine = await this.routineService.createRoutineWithProducts(
-        req.body,
+        { ...req.body, userId },
       );
       res.status(201).json(routine);
     } catch (error: any) {

@@ -16,7 +16,6 @@ export const getRoutineById = async (id: string): Promise<Routine> => {
 export const createRoutine = async (data: {
   name: string;
   description?: string;
-  userId: string; // TODO for when auth is added
   items: {
     productId: number;
     category: string;
@@ -29,6 +28,7 @@ export const createRoutine = async (data: {
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(data),
   });
 
@@ -72,10 +72,22 @@ export const getRoutinesByUserId = async (
 ): Promise<RoutineWithProducts[]> => {
   const res = await fetch(`${API_URL}/api/routines/user/${userId}`, {
     cache: "no-store",
+    credentials: "include",
   });
 
   if (!res.ok) {
     throw new Error(`Failed to get user routine`);
+  }
+  return res.json();
+};
+
+export const getMyRoutines = async (): Promise<RoutineWithProducts[]> => {
+  const res = await fetch(`${API_URL}/api/routines/me`, {
+    cache: "no-store",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Failed to get authenticated user routines");
   }
   return res.json();
 };

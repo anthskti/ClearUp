@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import {
@@ -14,7 +14,7 @@ import {
   List,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getRoutinesByUserId } from "@/lib/routines";
+import { getMyRoutines } from "@/lib/routines";
 import { Routine } from "@/types/routine";
 
 export default function CreatedRoutinesPage() {
@@ -28,7 +28,7 @@ export default function CreatedRoutinesPage() {
     const fetchRoutines = async () => {
       if (session?.user?.id) {
         try {
-          const data = await getRoutinesByUserId(session.user.id);
+          const data = await getMyRoutines();
           const reversedData = data ? [...data].reverse() : [];
           setRoutines(reversedData);
         } catch (error) {

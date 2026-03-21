@@ -10,7 +10,6 @@ import { createRoutine } from "@/lib/routines";
 interface SaveRoutineModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userId: string;
   routineData: any[]; // The extracted products
   notesData: any; // The extracted notes
   onSuccess: () => void; // The magic callback to clear the parent hooks!
@@ -19,7 +18,6 @@ interface SaveRoutineModalProps {
 export default function SaveRoutineModal({
   isOpen,
   onClose,
-  userId,
   routineData,
   notesData,
   onSuccess,
@@ -38,7 +36,6 @@ export default function SaveRoutineModal({
       const response = await createRoutine({
         name: routineName.trim() || "My Skincare Routine",
         description: JSON.stringify(notesData),
-        userId: userId,
         items: routineData,
       });
 

@@ -289,7 +289,6 @@ export default function Builder() {
               <SaveRoutineModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                userId={session?.user?.id as string}
                 routineData={formattedProducts}
                 notesData={notes}
                 // This is the bridge! The modal calls this when it finishes successfully.

@@ -108,6 +108,7 @@ export class RoutineService {
     return this.routineProductRepository.findByRoutineId(routineId);
   }
 
+  // GET routine's product by Id; not needed. 
   async getRoutineProductById(id: string): Promise<RoutineProduct | null> {
     return this.routineProductRepository.findById(id);
   }

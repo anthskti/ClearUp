@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { AuthSync } from "@/components/auth/AuthSync";
 
 export default function MainLayout({
   children,
@@ -8,6 +9,7 @@ export default function MainLayout({
 }>) {
   return (
     <div className="min-h-screen">
+      <AuthSync />
       <Header />
       <div className="flex-1">{children}</div>
       <Footer />

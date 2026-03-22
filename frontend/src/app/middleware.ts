@@ -10,7 +10,9 @@ export function middleware(request: NextRequest) {
   const isAuthPage =
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
-    pathname.startsWith("/reset-password");
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/verify-email");
 
   if (isAuthPage && sessionCookie) {
     return NextResponse.redirect(new URL("/", request.url));

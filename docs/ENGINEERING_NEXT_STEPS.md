@@ -4,7 +4,7 @@ This document outlines what is left to ship for a production-ready monolith, bas
 
 ## 1) Finish Better Auth End-to-End
 
-### 1.1 Auth flow hardening
+### DONE : 1.1 Auth flow hardening
 - Enforce route guards consistently for protected pages and APIs.
     - Purpose: Auth protecting some pages, but not others. Ex. Dashboard, but not settings. 
 - Prevent authenticated users from reaching `login` and `register`.
@@ -13,13 +13,13 @@ This document outlines what is left to ship for a production-ready monolith, bas
     - Highlights the order of loading in data and checking if they're logged in. Ex. fetching a users created routines while not being logged in. To fix this, just use a loading state.
 - Define one source of truth for auth state between frontend and backend.
 
-### 1.2 Account lifecycle
+### NOT DONE : 1.2 Account lifecycle
 - Complete password reset flow (request, token validation, reset form, success state).
 - Finish email verification flow (token creation, resend, expiration handling).
 - Add account recovery UX states for expired/invalid links.
 - Verify sign-out behavior across tabs and stale session handling.
 
-### 1.3 Session and token management
+### NOT DONE : 1.3 Session and token management
 - Validate session expiry behavior and silent refresh strategy (if used).
 - Ensure session invalidation works after password change.
 - Add device/session management policy (optional now, but define now to avoid migration later).

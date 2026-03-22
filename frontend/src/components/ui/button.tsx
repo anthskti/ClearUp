@@ -6,7 +6,7 @@ const buttonVariants = cva(
   // className
   `
     inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md 
-    font-medium transition-all 
+    font-medium transition-all duration-300
     disabled:pointer-events-none disabled:opacity-50 
     [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 
     outline-none focus-visible:border-ring focus-visible:ring-ring/50 
@@ -21,7 +21,7 @@ const buttonVariants = cva(
         secondary:
           "bg-[#0E4B84] text-white font-semibold hover:bg-[#0a345c] shadow-xs",
         outline:
-          "text-black px-2 py-2 transition-all duration-300 rounded-md border border-gray-400 hover:bg-gray-200",
+          "text-black px-2 py-2 rounded-md border border-gray-400 hover:bg-gray-200",
         destructive:
           "bg-red-700/20 border-1 border-red-700/80 text-black shadow-xs hover:bg-red-700/50 hover:border-red-700 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 duration-300",
       },

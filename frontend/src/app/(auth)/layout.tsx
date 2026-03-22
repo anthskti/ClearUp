@@ -27,13 +27,5 @@ export default function AuthLayout({
     );
   }
 
-  return (
-    <div className="">
-      <div className="flex items-center justify-start">
-        {/* Add Icon or change next line to custom image*/}
-        <p className="font-bold tracking-widest text-lg">CLEARUP</p>
-      </div>
-      {children}
-    </div>
-  );
+  return <div className="">{children}</div>;
 }

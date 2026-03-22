@@ -146,7 +146,7 @@ export default function LoginPage() {
           <div className="py-2">
             Forgot your password?{" "}
             <Link
-              href="/reset-password"
+              href="/forgot-password"
               className="text-stone-900 hover:text-gray-700"
             >
               Reset it

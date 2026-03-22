@@ -28,6 +28,8 @@ In no order
 
 10. Complete Guides is consumers.
 
+11. Implement Toaster, instead of alerts.
+
 Notes:
 Auth required pages redirect to login. Need useEffect() as it causes race conditions.
 Backend auth is called seperately from frontend auth.

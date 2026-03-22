@@ -340,3 +340,9 @@ DEL a merchant
 ```bash
 DEL http://localhost:3000/api/merchant/3
 ```
+
+
+## Testing Amazon SES
+```bash
+npm run test:ses
+```

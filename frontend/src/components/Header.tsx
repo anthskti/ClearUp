@@ -12,6 +12,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { broadcastSignOut } from "@/hooks/useCrossTabSignOut";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -65,6 +66,7 @@ function Header() {
 
   const handleSignOut = async () => {
     await authClient.signOut();
+    broadcastSignOut();
     router.push("/");
   };
 

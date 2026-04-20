@@ -30,6 +30,10 @@ In no order
 
 11. Implement Toaster, instead of alerts.
 
+12. Fix design for regular pages, implementing tags
+
+13. improve logo and landing page.
+
 Notes:
 Auth required pages redirect to login. Need useEffect() as it causes race conditions.
 Backend auth is called seperately from frontend auth.

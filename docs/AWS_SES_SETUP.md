@@ -1,11 +1,11 @@
-# AWS SES + ClearUp (Better Auth)
+# ClearUp with AWS SES (Better Auth)
 
 This project sends **password reset** and **verification** emails from the backend using **Amazon SES** (`backend/src/lib/sesEmail.ts` and `backend/src/config/auth.ts`).
 
 ## 1) AWS SES console
 
 1. **Region** — Pick a region (e.g. `us-east-1`) and use the same value for `AWS_REGION`.
-2. **Verified identity** — Under *Verified identities*:
+2. **Verified identity** — Under _Verified identities_:
    - Either verify your **domain** (recommended for production), or verify a single **email address** (fine for testing).
 3. **Sandbox** — New accounts are in **sandbox**:
    - You can only send **to** verified recipient addresses (or verify production access in SES).
@@ -29,12 +29,12 @@ Or omit keys and use the **default credential chain** (EC2/ECS task role, etc.) 
 
 Copy from `backend/.env.example`:
 
-| Variable | Purpose |
-|----------|---------|
-| `AWS_REGION` | SES region |
-| `SES_FROM_EMAIL` | Must match a **verified** sender in that region |
-| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | IAM user (if not using instance role) |
-| `TRUSTED_ORIGINS` | Comma-separated frontend URLs for Better Auth (e.g. `http://localhost:3000`, `https://yourdomain.com`) |
+| Variable                                      | Purpose                                                                                                |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `AWS_REGION`                                  | SES region                                                                                             |
+| `SES_FROM_EMAIL`                              | Must match a **verified** sender in that region                                                        |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | IAM user (if not using instance role)                                                                  |
+| `TRUSTED_ORIGINS`                             | Comma-separated frontend URLs for Better Auth (e.g. `http://localhost:3000`, `https://yourdomain.com`) |
 
 Restart the backend after changing env.
 
@@ -82,10 +82,10 @@ Wire **Forgot password** on the frontend to call the same API the client library
 
 ## 6) Troubleshooting
 
-- **Email not received** — Check SES *Sending statistics*, spam folder, and sandbox restrictions (recipient must be verified in sandbox).
+- **Email not received** — Check SES _Sending statistics_, spam folder, and sandbox restrictions (recipient must be verified in sandbox).
 - **403 / MessageRejected** — From address not verified, wrong region, or IAM missing `ses:SendEmail`.
 - **`MessageRejected: Email address is not verified … in region US-EAST-1`** — SES identities are **per-region**. Either:
-  1. Open **Amazon SES** in the **same region** as `AWS_REGION` (e.g. **US East N. Virginia** for `us-east-1`), go to **Verified identities**, and ensure that exact address (or domain) shows **Verified** — if not, create it and click the verification link in your inbox; or  
+  1. Open **Amazon SES** in the **same region** as `AWS_REGION` (e.g. **US East N. Virginia** for `us-east-1`), go to **Verified identities**, and ensure that exact address (or domain) shows **Verified** — if not, create it and click the verification link in your inbox; or
   2. If you already verified the email in **another** region (e.g. `us-east-2`), set `AWS_REGION` in `.env` to **that** region, or verify the address again in `us-east-1`.
 - **`dotenv` loaded 0 vars** — Run `npm run test:ses` from the `backend/` folder, or rely on the script’s explicit path to `backend/.env` (see `scripts/testSesEmail.ts`).
 - **Link wrong host** — Fix `TRUSTED_ORIGINS` and `BETTER_AUTH_URL` / app URL so Better Auth builds the correct `url` in emails.

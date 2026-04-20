@@ -6,6 +6,7 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import ProceduralWave from "@/components/themes/ProceduralWave";
+import { Eye, EyeOff } from "lucide-react";
 
 type UiState = "idle" | "loading" | "success" | "invalid" | "expired" | "error";
 
@@ -19,6 +20,15 @@ function ResetPasswordForm() {
   const [confirm, setConfirm] = useState("");
   const [state, setState] = useState<UiState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isVisible1, setIsVisible1] = useState(false);
+  const [isVisible2, setIsVisible2] = useState(false);
+
+  const toggleVisibility1 = () => {
+    setIsVisible1(!isVisible1);
+  };
+  const toggleVisibility2 = () => {
+    setIsVisible2(!isVisible2);
+  };
 
   useEffect(() => {
     if (state !== "success") return;
@@ -101,7 +111,9 @@ function ResetPasswordForm() {
           setState("invalid");
         } else {
           setState("error");
-          setErrorMessage(error.message || "Could not reset password. Try again.");
+          setErrorMessage(
+            error.message || "Could not reset password. Try again.",
+          );
         }
         return;
       }
@@ -119,24 +131,52 @@ function ResetPasswordForm() {
       <div className="w-2/5">
         <h1 className="text-2xl font-semibold mb-4">Set a New Password!</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded border p-2 text-sm"
-            placeholder="Your new password"
-            autoComplete="new-password"
-          />
-          <input
-            type="password"
-            required
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            className="w-full rounded border p-2 text-sm"
-            placeholder="Confirm password"
-            autoComplete="new-password"
-          />
+          <div className="relative">
+            <input
+              type={isVisible1 ? "text" : "password"}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded border p-2 text-sm"
+              placeholder="Your new password"
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              onClick={toggleVisibility1}
+              className="absolute inset-y-1 right-0 flex items-center pr-3"
+              aria-label={isVisible1 ? "Hide password" : "Show password"}
+            >
+              {isVisible1 ? (
+                <Eye className="h-5 w-5 text-gray-400" />
+              ) : (
+                <EyeOff className="h-5 w-5 text-gray-400" />
+              )}
+            </button>
+          </div>
+          <div className="relative">
+            <input
+              type={isVisible2 ? "text" : "password"}
+              required
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              className="w-full rounded border p-2 text-sm"
+              placeholder="Confirm password"
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              onClick={toggleVisibility2}
+              className="absolute inset-y-1 right-0 flex items-center pr-3"
+              aria-label={isVisible2 ? "Hide password" : "Show password"}
+            >
+              {isVisible2 ? (
+                <Eye className="h-5 w-5 text-gray-400" />
+              ) : (
+                <EyeOff className="h-5 w-5 text-gray-400" />
+              )}
+            </button>
+          </div>
           {errorMessage && (
             <p className="text-sm text-red-600">{errorMessage}</p>
           )}

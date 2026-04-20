@@ -5,6 +5,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const sessionCookie = request.cookies.get("better-auth.session_token");
+  const isVerifyPage = pathname.startsWith("/verify-email");
 
   // Guest Routes
   const isAuthPage =
@@ -12,9 +13,10 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/register") ||
     pathname.startsWith("/reset-password") ||
     pathname.startsWith("/forgot-password") ||
-    pathname.startsWith("/verify-email");
+    isVerifyPage;
 
-  if (isAuthPage && sessionCookie) {
+  // Keep verify-email accessible even when a session exists.
+  if (isAuthPage && sessionCookie && !isVerifyPage) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -23,6 +25,8 @@ export function middleware(request: NextRequest) {
   if (ProtectedPages && !sessionCookie) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
+
+  return NextResponse.next();
 }
 
 export const config = {

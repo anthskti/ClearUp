@@ -1,3 +1,4 @@
+// SES TEST Email
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
 export type SendEmailInput = {
@@ -6,8 +7,6 @@ export type SendEmailInput = {
   text: string;
   html?: string;
 };
-
-
 
 /**
  * Prereqs in AWS:
@@ -32,7 +31,7 @@ export async function sendSesEmail({
   const region = process.env.AWS_REGION;
   const from = process.env.SES_FROM_EMAIL;
 
-  // For development 
+  // For development
   if (!region || !from) {
     throw new Error(
       "SES not configured: set AWS_REGION and SES_FROM_EMAIL in the backend environment.",
@@ -41,7 +40,8 @@ export async function sendSesEmail({
 
   const client = new SESv2Client({ region });
 
-  const bodyHtml = html ?? `<pre style="font-family:sans-serif">${escapeHtml(text)}</pre>`;
+  const bodyHtml =
+    html ?? `<pre style="font-family:sans-serif">${escapeHtml(text)}</pre>`;
 
   await client.send(
     new SendEmailCommand({
@@ -63,8 +63,5 @@ export async function sendSesEmail({
 }
 
 function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }

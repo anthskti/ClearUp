@@ -44,6 +44,11 @@ export const auth = betterAuth({
       );
     },
   },
+  user: {
+    deleteUser: {
+      enabled: true,
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,

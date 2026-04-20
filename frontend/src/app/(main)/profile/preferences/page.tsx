@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { redirect } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { Trash2, User, Settings, ChevronDown } from "lucide-react";
+import { Trash2, ChevronDown } from "lucide-react";
 
 import { getRoutinesByUserId } from "@/lib/routines";
 
@@ -17,6 +14,8 @@ export default function ProfilePage() {
   const router = useRouter();
 
   const [username, setUsername] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (session?.user) {
@@ -35,9 +34,42 @@ export default function ProfilePage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (confirm("Are you absolutely sure? This cannot be undone.")) {
-      await authClient.deleteUser();
+    if (!confirm("Are you absolutely sure? This cannot be undone.")) return;
+
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      // Better Auth delete-user may require fresh session.
+      // We collect password up front to make delete reliable.
+      const password = prompt(
+        "For security, enter your password to confirm account deletion.",
+      );
+
+      if (password === null) {
+        setIsDeleting(false);
+        return;
+      }
+
+      const payload: { callbackURL: string; password?: string } = {
+        callbackURL: `${window.location.origin}/`,
+      };
+
+      if (password.trim().length > 0) {
+        payload.password = password;
+      }
+
+      const { error } = await authClient.deleteUser(payload);
+      if (error) {
+        setDeleteError(error.message || "Could not delete account.");
+        setIsDeleting(false);
+        return;
+      }
+
       router.push("/");
+    } catch (err: any) {
+      setDeleteError(err?.message || "Could not delete account.");
+      setIsDeleting(false);
     }
   };
 
@@ -131,8 +163,17 @@ export default function ProfilePage() {
                 Request for account deletion. Deleting your account is permanent
                 and cannot be undone. Your data will be deleted within 30 days.
               </div>
-              <Button variant="destructive" onClick={handleDeleteAccount}>
-                <Trash2 className="w-4 h-4 mr-2" /> Delete Account
+              {deleteError && (
+                <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">
+                  {deleteError}
+                </p>
+              )}
+              <Button
+                variant="destructive"
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+              >
+                <Trash2 className="w-4 h-4" /> Delete Account
               </Button>
             </div>
           </div>

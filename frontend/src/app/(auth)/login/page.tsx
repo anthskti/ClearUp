@@ -138,7 +138,7 @@ export default function LoginPage() {
             Need an account?{" "}
             <Link
               href="/register"
-              className="text-stone-900 hover:text-gray-700"
+              className="text-stone-900 hover:text-gray-700 underline"
             >
               Sign up
             </Link>
@@ -147,7 +147,7 @@ export default function LoginPage() {
             Forgot your password?{" "}
             <Link
               href="/forgot-password"
-              className="text-stone-900 hover:text-gray-700"
+              className="text-stone-900 hover:text-gray-700 underline"
             >
               Reset it
             </Link>

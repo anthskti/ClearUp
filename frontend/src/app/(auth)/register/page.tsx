@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import ProceduralWave from "@/components/themes/ProceduralWave";
@@ -17,6 +16,7 @@ export default function RegisterPage() {
   const [isVisible, setIsVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
@@ -26,23 +26,28 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
 
-    const { data, error } = await authClient.signUp.email({
+    const { error } = await authClient.signUp.email({
       email,
       password,
       name,
+      callbackURL: `${window.location.origin}/verify-email?verified=1`,
     });
 
     if (error) {
       alert(error.message);
     } else {
-      router.push("/");
+      setSuccessMessage(
+        "Account created. Redirecting to email verification...",
+      );
+      router.replace(`/verify-email?email=${encodeURIComponent(email.trim())}`);
+      return;
     }
     setLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    const { data, error } = await authClient.signIn.social({
+    const { error } = await authClient.signIn.social({
       provider: "google",
       // Force it back to the frontend port. Issue with redirecting to 5050. Change for prod
       callbackURL: `${window.location.origin}/`,
@@ -58,8 +63,13 @@ export default function RegisterPage() {
       <ProceduralWave seed={4} height={190} />
       <div className="w-2/5">
         <h1 className="text-2xl font-semibold mb-4">Create an Account</h1>
+        {successMessage && (
+          <div className="mb-4 rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            {successMessage}
+          </div>
+        )}
         {/* Google OAuth Button */}
-        <Button
+        {/* <Button
           type="button"
           variant="outline"
           className="w-full mb-4 flex items-center justify-center gap-2"
@@ -85,11 +95,11 @@ export default function RegisterPage() {
             />
           </svg>
           Continue with Google
-        </Button>
-        <div className="flex items-center my-4">
-          <div className="grow border-t border-zinc-200"></div>
-          <span className="mx-4 text-xs text-zinc-400 uppercase">OR</span>
-          <div className="grow border-t border-zinc-200"></div>
+        </Button> */}
+        <div className="flex items-center">
+          {/* <div className="grow border-t border-zinc-200"></div>
+          <span className="mx-4 text-xs text-zinc-400 uppercase">OR</span> */}
+          {/* <div className="grow border-t border-zinc-200"></div> */}
         </div>
         <form onSubmit={handleRegister} className="">
           <div className="py-2">
@@ -198,14 +208,17 @@ export default function RegisterPage() {
               </div>
             </div>
           </div>
-          <Button variant="secondary" className="mt-2">
-            Sign In
+          <Button type="submit" variant="secondary" className="mt-2">
+            Register
           </Button>
         </form>
         <div className="items-start text-xs py-4">
           <div className="py-2">
             Already have an account?{" "}
-            <Link href="/login" className="text-stone-900 hover:text-zinc-700">
+            <Link
+              href="/login"
+              className="text-stone-900 hover:text-zinc-700 underline"
+            >
               Login
             </Link>
           </div>

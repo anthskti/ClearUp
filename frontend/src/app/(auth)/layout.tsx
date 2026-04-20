@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function AuthLayout({
   children,
@@ -10,14 +10,16 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session, isPending } = authClient.useSession();
 
-  // If there is a session token, DO NOT show these auth pages.
+  // If there is a session token, DO NOT show auth pages,
+  // except verify-email which must be reachable after sign-up.
   useEffect(() => {
-    if (!isPending && session) {
+    if (!isPending && session && pathname !== "/verify-email") {
       router.push("/");
     }
-  }, [isPending, session, router]);
+  }, [isPending, session, pathname, router]);
 
   if (isPending) {
     return (

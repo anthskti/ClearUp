@@ -10,10 +10,6 @@ import { Button } from "@/components/ui/button";
 
 type UiState = "loading" | "success" | "invalid" | "expired" | "error" | "idle";
 
-/**
- * Skeleton: verify email from link (?token=...) + optional "resend" when session exists.
- * TODO: Wire verify + sendVerificationEmail to better-auth client API.
- */
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();

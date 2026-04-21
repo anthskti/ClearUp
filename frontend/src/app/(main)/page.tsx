@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import HeroSection from "@/components/home/HeroSection";
+import TrustBanner from "@/components/home/TrustBanner";
 
 const TrendingBuilds = dynamic(
   () => import("@/components/home/TrendingBuilds"),
@@ -23,6 +24,7 @@ const Home = () => {
   return (
     <main className="bg-white min-h-screen">
       <HeroSection />
+      <TrustBanner />
       <ScrollReveal>
         <TrendingBuilds />
       </ScrollReveal>

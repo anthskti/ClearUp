@@ -2,7 +2,7 @@ export const TrustBanner = () => {
   return (
     <div className="w-full bg-white border-y border-zinc-100 py-8">
       <div className="container mx-auto px-6">
-        <p className="text-center text-sm font-semibold text-stone-950 uppercase tracking-wider mb-6">
+        <p className="text-center text-sm font-semibold text-stone-950 lowercase tracking-wider mb-6">
           Powering routines with
         </p>
         <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-70 transition-all duration-500">

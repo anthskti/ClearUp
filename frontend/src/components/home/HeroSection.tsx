@@ -20,7 +20,7 @@ const HeroSection = () => {
 
       <div className="container mx-auto relative grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10 px-6 py-12">
         {/* Left Column */}
-        <div className="flex flex-col gap-6 max-w-2xl animate-in fade-in slide-in-from-bottom-8 duration-1000 ">
+        <div className="flex flex-col gap-6 max-w-2xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 text-sm font-medium w-fit mb-4">
             <Sparkles className="w-4 h-4" />
             <span>Your Skincare Organizer</span>
@@ -61,7 +61,7 @@ const HeroSection = () => {
         </div>
         {/* Left */}
         <div className="relative h-[350px] hidden lg:block delay-500 animate-in fade-in zoom-in-95 duration-1000 fill-mode-backwards">
-          <div className="absolute inset-0 bg-white rounded-2xl shadow-2xl border border-zinc-100 overflow-hidden transform -rotate-1 hover:rotate-0 transition-transform duration-500">
+          <div className="absolute inset-0 bg-white rounded-2xl shadow-2xl border border-zinc-100 overflow-hidden transform -rotate-1 transition-transform duration-500">
             <Image
               src="/assets/home.jpg"
               alt="ClearUp Interface"
@@ -71,7 +71,7 @@ const HeroSection = () => {
             />
           </div>
           {/* Floating Element 1 (e.g., A scraped target category) */}
-          <div className="absolute -right-20 -top-10 bg-white p-4 rounded-xl shadow-xl border border-zinc-100 flex items-center gap-4 rotate-1 hover:scale-105 transition-transform duration-500 cursor-default">
+          <div className="absolute -right-20 -top-10 bg-white p-4 rounded-xl shadow-xl border border-zinc-100 flex items-center gap-4 rotate-1 transition-transform duration-500 cursor-default">
             <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-500">
               <Droplets className="w-5 h-5" />
             </div>

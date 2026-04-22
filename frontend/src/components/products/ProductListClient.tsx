@@ -15,6 +15,7 @@ import ProceduralWave from "@/components/themes/ProceduralWave";
 import { Product } from "@/types/product";
 // import { ProductCategory } from "@/types/product";
 import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
+import { SkinTypeTags } from "./SkinTypeTags";
 
 interface ProductListClientProps {
   category: string;
@@ -188,11 +189,46 @@ export default function ProductListClient({
           </div>
         );
       // Default: Just render the default
+      // Default: Just render the default
       default:
         const val = product[col.id as keyof Product];
+
+        // Render skin types with tooltip tags only for the skinType column.
+        if (Array.isArray(val)) {
+          if (val.length === 0)
+            return <span className="text-[12px] text-zinc-400">—</span>;
+
+          if (col.id === "skinType") {
+            return <SkinTypeTags skinTypes={val.map(String)} />;
+          }
+
+          const firstItem = val[0];
+          const remainingCount = val.length - 1;
+
+          return (
+            <div className="flex items-center gap-1.5">
+              {/* First Tag */}
+              <span className="px-2 py-0.5 bg-zinc-100 text-zinc-700 text-xs font-medium rounded-md border border-zinc-200 whitespace-nowrap">
+                {firstItem}
+              </span>
+
+              {/* +N Badge */}
+              {remainingCount > 0 && (
+                <div
+                  className="px-1.5 py-0.5 bg-zinc-50 text-zinc-500 text-[10px] font-bold rounded-md border border-zinc-200 cursor-help hover:bg-zinc-200 hover:text-zinc-700 transition-colors"
+                  title={val.slice(1).join(", ")}
+                >
+                  +{remainingCount}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        // If it's just a normal string or number
         return (
           <span className="text-[12px] text-zinc-900">
-            {Array.isArray(val) ? val.join(", ") : val}
+            {val as React.ReactNode}
           </span>
         );
     }
@@ -207,19 +243,12 @@ export default function ProductListClient({
             <h1 className="text-3xl font-extrabold uppercase text-zinc-900 mb-6">
               {config.category}
             </h1>
-            <div className="relative mb-8">
-              <Search
-                className="absolute left-3 top-3 text-zinc-400"
-                size={16}
-              />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleSearchKeyDown}
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-200 rounded-md text-sm outline-none focus:border-[#0e4a84]"
-              />
+            {/* Showing # Results */}
+            <div className="flex flex-cols justify-between items-center mb-6">
+              <span></span>
+              <div className="flex gap-2 text-sm text-zinc-500 font-medium">
+                Showing {products.length} Results
+              </div>
             </div>
           </div>
 
@@ -308,20 +337,24 @@ export default function ProductListClient({
         {/* --- RIGHT CONTENT (LIST) --- */}
         <main className="lg:col-span-10">
           {/* List Header */}
-          <div className="flex flex-cols justify-between items-center mb-6">
-            <span></span>
-            <div className="flex gap-2">
-              {/* Sort button, NOT IMPLMENTED FOR DEMO */}
-              <button className="text-sm font-bold text-zinc-700 flex items-center gap-2 bg-white px-4 py-2 border border-zinc-200 rounded hover:bg-zinc-50">
-                <SlidersHorizontal size={14} /> Sort: Popular
-              </button>
-            </div>
-          </div>
-          <div className="flex flex-cols justify-between items-center mb-6">
-            <span></span>
-            <div className="flex gap-2 text-sm text-zinc-500 font-medium">
-              Showing {products.length} Results
-            </div>
+
+          {/* Sort button, NOT IMPLMENTED FOR DEMO */}
+          {/* <div className="flex justify-end items-center mb-6">
+            <button className="text-sm font-bold text-zinc-700 flex items-center gap-2 bg-white px-4 py-2 border border-zinc-200 rounded hover:bg-zinc-50">
+              <SlidersHorizontal size={14} /> Sort: Popular
+            </button>
+          </div> */}
+          {/* Search Bar */}
+          <div className="relative mb-8 w-[40%] ml-auto">
+            <Search className="absolute left-3 top-3 text-zinc-400" size={16} />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-200 rounded-md text-sm outline-none focus:border-[#0e4a84]"
+            />
           </div>
 
           {/* The Product Table / List Headers */}

@@ -1,30 +1,34 @@
 // components/home/TrendingBuilds.tsx
-import React from "react";
+
+import { Star } from "lucide-react";
 
 const ROUTINES = [
   {
     id: 1,
     title: "The Glass Skin Routine",
-    author: "@UserGlows",
+    author: "@User1",
     price: 37,
     tags: ["Hydration", "Glow"],
     products: ["/img1.jpg", "/img2.jpg", "/img3.jpg"],
+    likes: 85,
   },
   {
     id: 2,
     title: "Low Maintenance Prevent Acne",
-    author: "@UserSimple",
+    author: "@User2",
     price: 30,
     tags: ["Prevent", "Dry Skin"],
     products: ["/img4.jpg", "/img5.jpg", "/img3.jpg", "/img3.jpg"],
+    likes: 102,
   },
   {
     id: 3,
     title: "Pore Minimizing Routine",
-    author: "@UserClear",
+    author: "@User3",
     price: 44,
     tags: ["Acne", "Oily", "Big Pores"],
     products: ["/img6.jpg", "/img7.jpg", "/img8.jpg", "/img9.jpg"],
+    likes: 67,
   },
 ];
 
@@ -33,7 +37,7 @@ const TrendingBuilds = () => {
     <section className="bg-white py-16 px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h2 className="text-xl text-center font-bold text-zinc-900">
+          <h2 className="text-2xl text-center font-bold text-zinc-900">
             Trending Community Builds
           </h2>
         </div>
@@ -42,7 +46,7 @@ const TrendingBuilds = () => {
           {ROUTINES.map((routine) => (
             <div
               key={routine.id}
-              className="bg-white border border-zinc-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer"
+              className="bg-white border border-zinc-200 rounded-lg p-5 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer"
             >
               {/* Header */}
               <div className="flex justify-between items-start mb-4">
@@ -78,15 +82,23 @@ const TrendingBuilds = () => {
               </div>
 
               {/* Footer Tags */}
-              <div className="flex gap-2">
-                {routine.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 border border-zinc-200 px-2 py-1 rounded-full"
-                  >
-                    {tag}
+              <div className="flex justify-between gap-2">
+                <div>
+                  {routine.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 border border-zinc-200 px-2 py-1 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-1 text-amber-500 pr-2">
+                  <Star className="w-4 h-4 fill-current" />
+                  <span className="text-sm font-bold text-stone-700">
+                    {routine.likes}
                   </span>
-                ))}
+                </div>
               </div>
             </div>
           ))}

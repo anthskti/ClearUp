@@ -9,6 +9,22 @@ export class RoutineController {
     this.routineService = new RoutineService();
   }
 
+  private canAccessUserScopedResource(
+    authedUserId: string,
+    targetUserId: string,
+    role?: string,
+  ): boolean {
+    return role === "admin" || authedUserId === targetUserId;
+  }
+
+  private canManageRoutine(
+    authedUserId: string,
+    routineOwnerId: string,
+    role?: string,
+  ): boolean {
+    return role === "admin" || authedUserId === routineOwnerId;
+  }
+
   // GET /api/routines/
   async getAllRoutines(req: Request, res: Response): Promise<void> {
     try {
@@ -26,12 +42,16 @@ export class RoutineController {
   async getRoutinesByUserId(req: Request, res: Response): Promise<void> {
     try {
       const authedUserId = req.user?.id;
+      const role = req.user?.role;
       if (!authedUserId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
       const requestedUserId = req.params.userId;
-      if (requestedUserId && requestedUserId !== authedUserId) {
+      if (
+        requestedUserId &&
+        !this.canAccessUserScopedResource(authedUserId, requestedUserId, role)
+      ) {
         res.status(403).json({ error: "Forbidden" });
         return;
       }
@@ -96,6 +116,7 @@ export class RoutineController {
     try {
       const id = parseInt(req.params.id);
       const userId = req.user?.id;
+      const role = req.user?.role;
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
@@ -105,7 +126,7 @@ export class RoutineController {
         res.status(404).json({ error: "Routine not found" });
         return;
       }
-      if (existingRoutine.userId !== userId) {
+      if (!this.canManageRoutine(userId, existingRoutine.userId, role)) {
         res.status(403).json({ error: "Forbidden" });
         return;
       }
@@ -130,11 +151,21 @@ export class RoutineController {
         res.status(404).json({ error: "Invalid Routine Id" });
       }
       const userId = req.user?.id;
+      const role = req.user?.role;
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
-      const success = await this.routineService.deleteRoutine(id, userId);
+      const existingRoutine = await this.routineService.getRoutineById(String(id));
+      if (!existingRoutine) {
+        res.status(404).json({ error: "Routine not found" });
+        return;
+      }
+      if (!this.canManageRoutine(userId, existingRoutine.userId, role)) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
+      const success = await this.routineService.deleteRoutine(id, existingRoutine.userId);
       if (!success) {
         res
           .status(404)
@@ -152,6 +183,7 @@ export class RoutineController {
     try {
       const routineId = parseInt(req.params.id);
       const userId = req.user?.id;
+      const role = req.user?.role;
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
@@ -161,7 +193,7 @@ export class RoutineController {
         res.status(404).json({ error: "Routine not found" });
         return;
       }
-      if (routine.userId !== userId) {
+      if (!this.canManageRoutine(userId, routine.userId, role)) {
         res.status(403).json({ error: "Forbidden" });
         return;
       }
@@ -184,6 +216,7 @@ export class RoutineController {
     try {
       const routineProductId = parseInt(req.params.id);
       const userId = req.user?.id;
+      const role = req.user?.role;
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
@@ -198,7 +231,7 @@ export class RoutineController {
       const routine = await this.routineService.getRoutineById(
         String(routineProduct.routineId),
       );
-      if (!routine || routine.userId !== userId) {
+      if (!routine || !this.canManageRoutine(userId, routine.userId, role)) {
         res.status(403).json({ error: "Forbidden" });
         return;
       }
@@ -222,6 +255,7 @@ export class RoutineController {
     try {
       const routineProductId = parseInt(req.params.id);
       const userId = req.user?.id;
+      const role = req.user?.role;
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
@@ -236,7 +270,7 @@ export class RoutineController {
       const routine = await this.routineService.getRoutineById(
         String(routineProduct.routineId),
       );
-      if (!routine || routine.userId !== userId) {
+      if (!routine || !this.canManageRoutine(userId, routine.userId, role)) {
         res.status(403).json({ error: "Forbidden" });
         return;
       }

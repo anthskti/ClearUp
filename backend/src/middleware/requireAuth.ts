@@ -2,10 +2,18 @@ import { Request, Response, NextFunction } from "express";
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../config/auth";
 
+export type AppRole = "user" | "admin";
+
+export type AuthenticatedUser = {
+  id: string;
+  email?: string;
+  role?: AppRole;
+};
+
 declare global {
   namespace Express {
     interface Request {
-      user?: any; 
+      user?: AuthenticatedUser;
     }
   }
 }
@@ -34,7 +42,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const userWithRole = session.user as typeof session.user & { role?: string };
+  const userWithRole = session.user as typeof session.user & { role?: AppRole };
 
   if (userWithRole.role !== "admin") {
     return res.status(403).json({ error: "Forbidden: Admins only" });

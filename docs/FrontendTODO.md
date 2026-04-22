@@ -37,3 +37,9 @@ In no order
 Notes:
 Auth required pages redirect to login. Need useEffect() as it causes race conditions.
 Backend auth is called seperately from frontend auth.
+
+Backend TODO
+
+1. Implement Logging with Morgan or Winston
+
+2. backend filtering with pagination regarding the filters on the left hand side of product page.

@@ -9,19 +9,30 @@ import compression from "compression";
 
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./config/auth";
+import {
+  authAuditLogger,
+  authBruteForceLimiter,
+  authRouteLimiter,
+} from "./middleware/security";
+import { validateSecurityConfig } from "./lib/security";
 
 const app = express();
 const port = process.env.PORT || 5000;
 const cors = require("cors");
+const trustedOrigins =
+  process.env.TRUSTED_ORIGINS?.split(",")
+    .map((s: string) => s.trim())
+    .filter(Boolean) ?? ["http://localhost:3000"];
 
 // Security and Handshakes First
 app.use(
   cors({
-    origin: "http://localhost:3000", // Needed for betterauth
+    origin: trustedOrigins,
     credentials: true,
   }),
 );
 app.set("trust proxy", 1);
+app.use(express.json()); // parse JSON before auth/rate-limit middlewares
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -51,9 +62,8 @@ app.use(
   }),
 );
 
+app.use("/api/auth", authRouteLimiter, authBruteForceLimiter, authAuditLogger);
 app.all("/api/auth/*path", toNodeHandler(auth));
-
-app.use(express.json()); // parsing JSON bodies
 
 // Routes
 app.use("/api/products", productRoutes);
@@ -86,6 +96,7 @@ app.get("/health", (req, res) => {
 // Initialize database and start server
 const startServer = async () => {
   try {
+    validateSecurityConfig();
     // Test database connection
     console.log("Testing database connection...");
     await sequelize.authenticate();

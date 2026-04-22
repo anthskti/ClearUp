@@ -13,7 +13,7 @@ This document outlines what is left to ship for a production-ready monolith, bas
     - Highlights the order of loading in data and checking if they're logged in. Ex. fetching a users created routines while not being logged in. To fix this, just use a loading state.
 - Define one source of truth for auth state between frontend and backend.
 
-### NOT DONE : 1.2 Account lifecycle
+### DONE : 1.2 Account lifecycle
 - Complete password reset flow (request, token validation, reset form, success state).
 - Finish email verification flow (token creation, resend, expiration handling).
 - Add account recovery UX states for expired/invalid links.
@@ -25,7 +25,7 @@ This document outlines what is left to ship for a production-ready monolith, bas
 - Add device/session management policy (optional now, but define now to avoid migration later).
 - Confirm secure cookie configuration per environment (local, staging, production).
 
-### 1.4 OAuth/provider readiness
+### NOT DONE : 1.4 OAuth/provider readiness
 - Audit provider config and callback URL handling.
 - Add explicit error states for provider failures and denied permissions.
 - Confirm account linking/duplicate identity behavior.
@@ -33,21 +33,24 @@ This document outlines what is left to ship for a production-ready monolith, bas
 
 ## 2) Authorization and Security Controls
 
-### 2.1 Role and permission model
-- Define default user roles and permission boundaries.
-- Add backend-level authorization checks for routine CRUD and saved items.
-- Remove any frontend-only authorization assumptions.
+### DONE : 2.1 Role and permission model
+- Defined baseline roles as `user` and `admin` in backend auth typing.
+- Added centralized backend authorization checks for routine CRUD and routine-product saved items.
+  - Owners can manage their own data.
+  - Admins can override ownership where required for operations/support.
+- Removed frontend-only assumptions by enforcing ownership checks in controller logic.
 
-### 2.2 Security baseline
-- Add rate limiting for auth and other abuse-prone endpoints.
-- Add brute-force protections for login and reset routes.
-- Validate CSRF, CORS, and cookie policies for monolith deployment.
-- Add audit logging for key security events (login, reset, verification, revoke).
+### DONE : 2.2 Security baseline
+- Added auth-specific rate limiting on `/api/auth/*` routes.
+- Added stricter brute-force protections for sign-in/reset/verification-related auth endpoints.
+- Updated CORS to use environment-driven trusted origins (`TRUSTED_ORIGINS`) instead of hardcoded localhost.
+- Added security audit logging for key auth event classes (sign-in/reset/verify/sign-out/revoke paths), with response status and duration metadata.
+- Added startup security config validation warnings for risky production settings.
 
-### 2.3 Data and privacy
-- Validate what user data is stored, why, and retention window.
-- Add account deletion/data export policy (can be phased, but document now).
-- Redact sensitive fields in logs and error output.
+### DONE : 2.3 Data and privacy
+- Added recursive sensitive field redaction utility for logs and security event metadata.
+- Applied redaction to security/audit logging so raw secrets and tokens are never emitted.
+- Documented account lifecycle policy and retention baseline in `docs/SECURITY_PRIVACY_BASELINE.md`.
 
 ## 3) Monolith Architecture Cleanup (Auth + Product Domain)
 

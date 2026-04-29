@@ -5,6 +5,16 @@ import { requireAdmin } from "../middleware/requireAuth";
 const router = express.Router();
 const productController = new ProductController();
 
+// PRODUCT
+
+// ADMIN endpoints
+router.post("/admin/import/csv", requireAdmin, (req, res) =>
+  productController.importProductsCsv(req, res)
+);
+router.post("/admin/import/prices", requireAdmin, (req, res) =>
+  productController.importPriceUpdatesCsv(req, res)
+);
+
 router.put("/product-merchant/:id", (req, res) =>
   productController.updateProductMerchant(req, res)
 );

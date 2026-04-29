@@ -1,16 +1,28 @@
 import { RoutineRepository } from "../repositories/RoutineRepository";
 import { RoutineProductRepository } from "../repositories/RoutineProductRepository";
-import { Routine, RoutineWithProducts, RoutineProduct } from "../types/routine";
+import { UserRepository } from "../repositories/UserRepository";
+import {
+  Routine,
+  RoutineWithProducts,
+  RoutineProduct,
+} from "../types/routine";
+import {
+  AdminStats,
+  FeaturedRoutineView,
+} from "../types/routine-admin";
+import { BasicUserRow, UserDailyCountRow } from "../types/user";
 import { ProductCategory } from "../types/product";
 import PAGINATION from "../config/pagination";
 
 export class RoutineService {
   private routineRepository: RoutineRepository;
   private routineProductRepository: RoutineProductRepository;
+  private userRepository: UserRepository;
 
   constructor() {
     this.routineRepository = new RoutineRepository();
     this.routineProductRepository = new RoutineProductRepository();
+    this.userRepository = new UserRepository();
   }
   // Standard CRUD Methods
 
@@ -37,6 +49,124 @@ export class RoutineService {
     id: string,
   ): Promise<RoutineWithProducts | null> {
     return this.routineRepository.findByIdWithProducts(id);
+  }
+
+  // GET Admin Statistics
+  async getAdminStats(daysInput?: number): Promise<AdminStats> {
+    const days = Math.min(Math.max(daysInput || 14, 7), 60);
+    const since = new Date();
+    since.setDate(since.getDate() - (days - 1));
+    since.setHours(0, 0, 0, 0);
+
+    const [totalUsers, totalRoutines, totalRoutineProductLinks, featuredCount] =
+      await Promise.all([
+        this.userRepository.countAll(),
+        this.routineRepository.countAll(),
+        this.routineRepository.countRoutineProductLinks(),
+        this.routineRepository.getFeaturedCount(),
+      ]);
+
+    const [recentUsers, recentRoutines, topAuthorsRaw] = await Promise.all([
+      this.userRepository.getRecentUsers(since),
+      this.routineRepository.getRecentGuides(since),
+      this.routineRepository.getTopAuthors(5),
+    ]);
+    const topAuthorIds = topAuthorsRaw.map((row) => String(row.userId));
+    const topUsers = await this.userRepository.findBasicByIds(topAuthorIds);
+
+    const topUserMap = new Map<string, BasicUserRow>(
+      topUsers.map((user) => [user.id, user]),
+    );
+    const topAuthors = topAuthorsRaw.map((row) => {
+      const user = topUserMap.get(row.userId);
+      return {
+        userId: String(row.userId),
+        name: user?.name || "Unknown user",
+        email: user?.email || "",
+        count: Number(row.count) || 0,
+      };
+    });
+
+    const seriesByDate = new Map<string, { date: string; users: number; routines: number }>();
+    for (let i = 0; i < days; i += 1) {
+      const date = new Date(since);
+      date.setDate(since.getDate() + i);
+      const key = date.toISOString().slice(0, 10);
+      seriesByDate.set(key, { date: key, users: 0, routines: 0 });
+    }
+
+    for (const row of recentUsers as UserDailyCountRow[]) {
+      const key = new Date(row.day).toISOString().slice(0, 10);
+      const current = seriesByDate.get(key);
+      if (current) current.users = Number(row.count) || 0;
+    }
+    for (const row of recentRoutines) {
+      const key = new Date(row.day).toISOString().slice(0, 10);
+      const current = seriesByDate.get(key);
+      if (current) current.routines = Number(row.count) || 0;
+    }
+
+    return {
+      totals: {
+        users: totalUsers,
+        routines: totalRoutines,
+        routineProductLinks: totalRoutineProductLinks,
+        featuredRoutines: featuredCount,
+      },
+      series: Array.from(seriesByDate.values()),
+      topAuthors,
+    };
+  }
+
+  // GET featured routines
+  async getFeaturedRoutines(): Promise<FeaturedRoutineView[]> {
+    const featuredEntries = await this.routineRepository.getFeaturedEntries(20); // 20 sets the limit
+    const routineIds = featuredEntries.map((entry) => Number(entry.routineId));
+    const routines = await this.routineRepository.findManyByIds(routineIds);
+
+    const routineMap = new Map(routines.map((routine) => [routine.id, routine]));
+    return featuredEntries
+      .map((entry) => {
+        const routine = routineMap.get(entry.routineId);
+        if (!routine) return null;
+        return {
+          routineId: routine.id,
+          name: routine.name,
+          description: routine.description,
+          userId: routine.userId,
+          pinnedBy: entry.pinnedBy,
+        };
+      })
+      .filter(Boolean) as FeaturedRoutineView[];
+  }
+
+  // POST add a featured routine
+  async addFeaturedRoutine(routineId: number, userId: string): Promise<{
+    status: "created" | "already_featured";
+  }> {
+    const routine = await this.routineRepository.findById(String(routineId));
+    if (!routine) {
+      throw new Error("Routine not found");
+    }
+
+    const alreadyFeatured = await this.routineRepository.findFeaturedByRoutineId(
+      routineId,
+    );
+    if (alreadyFeatured) {
+      return { status: "already_featured" };
+    }
+
+    const featuredCount = await this.routineRepository.getFeaturedCount();
+    if (featuredCount >= 20) {
+      throw new Error("Featured guide limit reached (20)");
+    }
+
+    await this.routineRepository.createFeaturedRoutine(routineId, userId);
+    return { status: "created" };
+  }
+
+  async removeFeaturedRoutine(routineId: number): Promise<boolean> {
+    return this.routineRepository.removeFeaturedRoutine(routineId);
   }
 
   // POST a single routine
@@ -79,6 +209,7 @@ export class RoutineService {
     });
   }
 
+  // INFO: IDK about this, i was thinking of just overwriting the routine and updating.
   // DELETE a product from a routine
   async removeProductFromRoutine(
     routineProductId: number,
@@ -108,7 +239,7 @@ export class RoutineService {
     return this.routineProductRepository.findByRoutineId(routineId);
   }
 
-  // GET routine's product by Id; not needed. 
+  // GET routine's product by Id; not needed.
   async getRoutineProductById(id: string): Promise<RoutineProduct | null> {
     return this.routineProductRepository.findById(id);
   }

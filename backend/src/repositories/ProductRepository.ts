@@ -3,6 +3,7 @@
 import ProductModel from "../models/Product";
 import { Product, ProductCategory, SkinType } from "../types/product";
 import PAGINATION from "../config/pagination";
+import { Op } from "sequelize";
 
 export class ProductRepository {
   // Get all products with pagination, infinite scroll
@@ -101,7 +102,7 @@ export class ProductRepository {
     return deleted > 0;
   }
 
-  // SEARCH products by query (searches name, brand, tags, activeIngredient)
+  // GET / SEARCH products by query (searches name, brand, tags, activeIngredient)
   async search(
     query: string,
     limit: number = PAGINATION.LIMIT,
@@ -126,6 +127,16 @@ export class ProductRepository {
     });
 
     return products.map((product: any) => this.mapToProductType(product));
+  }
+
+  // GET / SEARCH product by name and brand
+  async findModelByNameAndBrand(name: string, brand: string): Promise<any | null> {
+    return ProductModel.findOne({
+      where: {
+        name: { [Op.iLike]: name },
+        brand: { [Op.iLike]: brand },
+      },
+    });
   }
 
   private mapToProductType(dbProduct: any): Product {

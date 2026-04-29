@@ -1,5 +1,6 @@
 import MerchantModel from "../models/Merchant";
 import { Merchant } from "../types/merchant";
+import { Op } from "sequelize";
 
 export class MerchantRepository {
   // GET all merchants
@@ -42,6 +43,14 @@ export class MerchantRepository {
   async delete(id: number): Promise<boolean> {
     const deleted = await MerchantModel.destroy({ where: { id } });
     return deleted > 0;
+  }
+
+  // GET merhant ID by name
+  async findModelByName(name: string): Promise<any | null> {
+    return MerchantModel.findOne({
+      where: { name: { [Op.iLike]: name } },
+      attributes: ['id']
+    });
   }
 
   private mapToMerchantType(dbMerchant: any): Merchant {

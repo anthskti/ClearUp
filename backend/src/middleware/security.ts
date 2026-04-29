@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import { getClientIp, logSecurityEvent } from "../lib/security";
 
+// Rate limit for auth routes
 export const authRouteLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 120,
@@ -12,6 +13,7 @@ export const authRouteLimiter = rateLimit({
 
 const BRUTE_FORCE_PATH_REGEX = /(sign-in|login|reset|forgot|verification|verify)/i;
 
+// Brute force protection for auth routes
 export const authBruteForceLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 15,
@@ -22,6 +24,7 @@ export const authBruteForceLimiter = rateLimit({
   message: "Too many attempts. Please wait before trying again.",
 });
 
+// Audit logging for auth routes 
 export function authAuditLogger(req: Request, res: Response, next: NextFunction) {
   const startedAt = Date.now();
   const path = req.path;

@@ -177,4 +177,33 @@ export class ProductController {
       res.status(500).json({ error: error.message });
     }
   }
+  // POST /api/products/admin/import/csv
+  async importProductsCsv(req: Request, res: Response): Promise<void> {
+    try {
+      const csv = String(req.body?.csv || "");
+      if (!csv.trim()) {
+        res.status(400).json({ error: "Missing csv body content" });
+        return;
+      }
+      const result = await this.productService.importProductsCsv(csv);
+      res.status(200).json(result);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed CSV import" });
+    }
+  }
+
+  // POST /api/products/admin/import/prices
+  async importPriceUpdatesCsv(req: Request, res: Response): Promise<void> {
+    try {
+      const csv = String(req.body?.csv || "");
+      if (!csv.trim()) {
+        res.status(400).json({ error: "Missing csv body content" });
+        return;
+      }
+      const result = await this.productService.importPriceUpdatesCsv(csv);
+      res.status(200).json(result);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed price import" });
+    }
+  }
 }

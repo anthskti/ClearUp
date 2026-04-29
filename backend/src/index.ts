@@ -14,6 +14,7 @@ import {
   authBruteForceLimiter,
   authRouteLimiter,
 } from "./middleware/security";
+import { requireAuth } from "./middleware/requireAuth";
 import { validateSecurityConfig } from "./lib/security";
 
 const app = express();
@@ -61,8 +62,21 @@ app.use(
     },
   }),
 );
-
+// Audits all auth routes (sign-in, sign-up, sign-out, etc.)
 app.use("/api/auth", authRouteLimiter, authBruteForceLimiter, authAuditLogger);
+
+// Authorizes user and returns their effective role (user or admin)
+app.get("/api/auth/me", requireAuth, (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  return res.json({
+    id: req.user.id,
+    email: req.user.email ?? null,
+    role: req.user.role ?? "user",
+  });
+});
+// Handles all auth routes (sign-in, sign-up, sign-out, etc.)
 app.all("/api/auth/*path", toNodeHandler(auth));
 
 // Routes

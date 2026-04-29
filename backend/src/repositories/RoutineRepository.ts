@@ -3,14 +3,30 @@
 import RoutineModel from "../models/Routine";
 import ProductModel from "../models/Product";
 import RoutineProductModel from "../models/RoutineProduct";
+import FeaturedRoutineModel from "../models/FeaturedRoutine";
 import {
   Routine,
   RoutineWithProducts,
   RoutineProductWithDetails,
 } from "../types/routine";
+import {
+  FeaturedRoutineEntryRow,
+  RoutineDailyCountRow,
+  RoutineSummaryRow,
+  TopAuthorCountRow,
+} from "../types/routine-admin";
 import PAGINATION from "../config/pagination";
+import { Op, fn, col, literal } from "sequelize";
 
 export class RoutineRepository {
+  async countAll(): Promise<number> {
+    return RoutineModel.count();
+  }
+
+  async countRoutineProductLinks(): Promise<number> {
+    return RoutineProductModel.count();
+  }
+
   // Get all routines
   async findAll(
     limit: number = PAGINATION.LIMIT,
@@ -61,6 +77,77 @@ export class RoutineRepository {
       ],
     });
     return routine ? this.mapToRoutineWithProductsType(routine) : null;
+  }
+
+  // GET recent guides with date and count
+  async getRecentGuides(since: Date): Promise<RoutineDailyCountRow[]> {
+    return RoutineModel.findAll({
+      where: {
+        createdAt: {
+          [Op.gte]: since,
+        },
+      } as any,
+      attributes: [
+        [fn("DATE_TRUNC", "day", col("createdAt")), "day"],
+        [fn("COUNT", col("*")), "count"],
+      ],
+      group: [fn("DATE_TRUNC", "day", col("createdAt"))],
+      raw: true,
+    }) as unknown as RoutineDailyCountRow[];
+  }
+
+  // GET top authors with count
+  async getTopAuthors(limit = 5): Promise<TopAuthorCountRow[]> {
+    return RoutineModel.findAll({
+      attributes: ["userId", [fn("COUNT", col("*")), "count"]],
+      group: ["userId"],
+      order: [[literal("count"), "DESC"]],
+      limit,
+      raw: true,
+    }) as unknown as TopAuthorCountRow[];
+  }
+
+  // GET featured count
+  async getFeaturedCount(): Promise<number> {
+    return FeaturedRoutineModel.count();
+  }
+
+  // GET featured routines entries (limit 20)
+  async getFeaturedEntries(limit = 20): Promise<FeaturedRoutineEntryRow[]> {
+    return FeaturedRoutineModel.findAll({
+      order: [["createdAt", "DESC"]],
+      limit,
+      raw: true,
+    }) as unknown as FeaturedRoutineEntryRow[];
+  }
+
+  // GET featured routine by routineId
+  async findFeaturedByRoutineId(routineId: number): Promise<any | null> {
+    return FeaturedRoutineModel.findOne({ where: { routineId } });
+  }
+
+  // POST create a featured routine
+  async createFeaturedRoutine(routineId: number, pinnedBy: string): Promise<void> {
+    await FeaturedRoutineModel.create({ routineId, pinnedBy });
+  }
+
+  // DELETE featured routine by routineId
+  async removeFeaturedRoutine(routineId: number): Promise<boolean> {
+    const deleted = await FeaturedRoutineModel.destroy({
+      where: { routineId },
+    });
+    return deleted > 0;
+  }
+
+  // GET routines by ids
+  async findManyByIds(ids: number[]): Promise<RoutineSummaryRow[]> {
+    if (!ids.length) {
+      return [];
+    }
+    return RoutineModel.findAll({
+      where: { id: ids },
+      raw: true,
+    }) as unknown as RoutineSummaryRow[];
   }
 
   // POST a single routine

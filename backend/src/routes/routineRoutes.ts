@@ -1,12 +1,26 @@
 import express from "express";
 import { RoutineController } from "../controllers/RoutineController";
-import { requireAuth } from "../middleware/requireAuth";
+import { requireAdmin, requireAuth } from "../middleware/requireAuth";
 
 const router = express.Router();
 const routineController = new RoutineController();
 
 
 // ROUTINE 
+
+// ADMIN endpoints
+router.get("/admin/stats", requireAdmin, (req, res) =>
+  routineController.getAdminStats(req, res)
+);
+router.get("/admin/featured", requireAdmin, (req, res) =>
+  routineController.getFeaturedRoutines(req, res)
+);
+router.post("/admin/featured/:id", requireAdmin, (req, res) =>
+  routineController.addFeaturedRoutine(req, res)
+);
+router.delete("/admin/featured/:id", requireAdmin, (req, res) =>
+  routineController.removeFeaturedRoutine(req, res)
+);
 
 // GET all routines
 router.get("/", (req, res) => routineController.getAllRoutines(req, res));

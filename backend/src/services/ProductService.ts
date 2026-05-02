@@ -1,14 +1,22 @@
 import { ProductRepository } from "../repositories/ProductRepository";
-import { Product, ProductCategory, SkinType } from "../types/product";
+import {
+  CreateProductInput,
+  Product,
+  ProductCategory,
+  SkinType,
+  UpdateProductInput,
+} from "../types/product";
 import { ProductMerchantRepository } from "../repositories/ProductMerchantRepository";
 import parseCsvText from "../scripts/parseCsvText";
 import ProductModel from "../models/Product";
 import ProductMerchantModel from "../models/ProductMerchant";
 import {
   Merchant,
+  CreateProductMerchantInput,
   ProductMerchant,
   ProductMerchantWithDetails,
   ProductWithMerchants,
+  UpdateProductMerchantInput,
 } from "../types/merchant";
 import { MerchantRepository } from "../repositories/MerchantRepository";
 import { CsvImportResult, CsvRowError } from "../types/csv";
@@ -49,44 +57,14 @@ export class ProductService {
   }
 
   // POST a single product
-  async createProduct(productData: {
-    name: string;
-    brand: string;
-    category: ProductCategory;
-    labels: string[];
-    skinType: SkinType[];
-    country: string;
-    capacity: string;
-    price: number;
-    instructions: string[];
-    activeIngredient: string;
-    ingredients: string;
-    imageUrls: string[];
-    averageRating: number;
-    reviewCount: number;
-    tags: string[];
-  }): Promise<Product> {
+  async createProduct(productData: CreateProductInput): Promise<Product> {
     return this.productRepository.create(productData);
   }
 
   // PUT update single product by ID
   async updateProduct(
     id: number,
-    updates: Partial<{
-      name?: string;
-      brand?: string;
-      category?: ProductCategory;
-      labels?: string[];
-      skinType?: SkinType[];
-      country?: string;
-      capacity?: string;
-      price?: number;
-      instructions?: string[];
-      activeIngredient?: string;
-      ingredients?: string;
-      imageUrls?: string[];
-      tags?: string[];
-    }>,
+    updates: UpdateProductInput,
   ): Promise<Product | null> {
     return this.productRepository.update(id, updates);
   }
@@ -112,13 +90,7 @@ export class ProductService {
   // POST new merchants for a product
   async addMerchantByProductId(
     productId: number,
-    merchantData: {
-      merchantId: number;
-      website: string;
-      price: number;
-      stock: boolean;
-      shipping: string;
-    },
+    merchantData: Omit<CreateProductMerchantInput, "productId">,
   ): Promise<ProductMerchant> {
     const product = await this.productRepository.findById(productId.toString());
     if (!product) {
@@ -133,7 +105,7 @@ export class ProductService {
   // PUT update a product-merchant info
   async updateProductMerchant(
     productMerchantId: number,
-    updates: Partial<{ website: string; price: number; stock: boolean }>,
+    updates: UpdateProductMerchantInput,
   ): Promise<ProductMerchant | null> {
     return this.productMerchantRepository.update(productMerchantId, updates);
   }
@@ -300,7 +272,8 @@ export class ProductService {
     };
   }
 
-  // POST batch post price updates via csv: name, brand, merchant, price
+  // POST batch post price updates via csv 
+  // name, brand, merchant, price
   async importPriceUpdatesCsv(csv: string): Promise<CsvImportResult> {
     const startedAt = Date.now();
     const rows = parseCsvText(csv);

@@ -1,7 +1,12 @@
 // Translates storage format to application format
 
 import ProductModel from "../models/Product";
-import { Product, ProductCategory, SkinType } from "../types/product";
+import {
+  CreateProductInput,
+  Product,
+  ProductCategory,
+  UpdateProductInput,
+} from "../types/product";
 import PAGINATION from "../config/pagination";
 import { Op } from "sequelize";
 
@@ -41,21 +46,7 @@ export class ProductRepository {
   }
 
   // POST a single product
-  async create(productData: {
-    name: string;
-    brand: string;
-    category: ProductCategory;
-    labels: string[];
-    skinType: SkinType[];
-    country: string;
-    capacity: string;
-    price: number;
-    instructions: string[];
-    activeIngredient: string;
-    ingredients: string;
-    imageUrls: string[];
-    tags: string[];
-  }): Promise<Product> {
+  async create(productData: CreateProductInput): Promise<Product> {
     try {
       const product = await ProductModel.create(productData);
 
@@ -71,23 +62,7 @@ export class ProductRepository {
   // PUT update a single product by ID
   async update(
     id: number,
-    updates: Partial<{
-      name: string;
-      brand: string;
-      category: ProductCategory;
-      labels: string[];
-      skinType: SkinType[];
-      country: string;
-      capacity: string;
-      price: number;
-      instructions: string[];
-      activeIngredient: string;
-      ingredients?: string;
-      averageRating: number;
-      reviewCount: number;
-      imageUrls: string[];
-      tags: string[];
-    }>,
+    updates: UpdateProductInput,
   ): Promise<Product | null> {
     const [rows, [updatedProduct]] = await ProductModel.update(updates, {
       where: { id },

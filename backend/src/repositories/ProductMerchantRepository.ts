@@ -1,6 +1,11 @@
 import ProductMerchantModel from "../models/ProductMerchant";
 import MerchantModel from "../models/Merchant";
-import { ProductMerchant, ProductMerchantWithDetails } from "../types/merchant";
+import {
+  CreateProductMerchantInput,
+  ProductMerchant,
+  ProductMerchantWithDetails,
+  UpdateProductMerchantInput,
+} from "../types/merchant";
 
 export class ProductMerchantRepository {
   // GET all merchants for a product
@@ -19,14 +24,9 @@ export class ProductMerchantRepository {
   }
 
   // POST new merchant on product list
-  async create(productMerchantData: {
-    productId: number;
-    merchantId: number;
-    website: string;
-    price: number;
-    stock: boolean;
-    shipping: string;
-  }): Promise<ProductMerchant> {
+  async create(
+    productMerchantData: CreateProductMerchantInput,
+  ): Promise<ProductMerchant> {
     try {
       const productMerchant = await ProductMerchantModel.create(
         productMerchantData
@@ -43,12 +43,7 @@ export class ProductMerchantRepository {
   // PUT update a product-merchant info (ex. price, stock)
   async update(
     id: number,
-    updates: Partial<{
-      website?: string;
-      price?: number;
-      stock?: boolean;
-      shipping?: string;
-    }>
+    updates: UpdateProductMerchantInput,
   ): Promise<ProductMerchant | null> {
     const [rows, [updatedProductMerchant]] = await ProductMerchantModel.update(
       updates,

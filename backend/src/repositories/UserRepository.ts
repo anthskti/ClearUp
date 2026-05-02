@@ -3,6 +3,7 @@ import { Op, fn, col } from "sequelize";
 import { BasicUserRow, UserDailyCountRow } from "../types/user";
 
 export class UserRepository {
+  // GET Total Users
   async countAll(): Promise<number> {
     return UserModel.count();
   }
@@ -24,6 +25,7 @@ export class UserRepository {
     }) as unknown as UserDailyCountRow[];
   }
 
+  // GET with id, return name and email.
   async findBasicByIds(ids: string[]): Promise<BasicUserRow[]> {
     if (!ids.length) {
       return [];

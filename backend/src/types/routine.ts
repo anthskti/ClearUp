@@ -16,6 +16,14 @@ export interface RoutineProduct {
   category: ProductCategory;
 }
 
+export type CreateRoutineProductInput = Pick<
+  RoutineProduct,
+  "routineId" | "productId" | "category"
+>;
+export type UpdateRoutineProductInput = Partial<
+  Pick<RoutineProduct, "category">
+>;
+
 export type RoutineProductWithDetails = RoutineProduct & {
   product?: Pick<
     Product,

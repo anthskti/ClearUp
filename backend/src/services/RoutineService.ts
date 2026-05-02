@@ -1,15 +1,8 @@
 import { RoutineRepository } from "../repositories/RoutineRepository";
 import { RoutineProductRepository } from "../repositories/RoutineProductRepository";
 import { UserRepository } from "../repositories/UserRepository";
-import {
-  Routine,
-  RoutineWithProducts,
-  RoutineProduct,
-} from "../types/routine";
-import {
-  AdminStats,
-  FeaturedRoutineView,
-} from "../types/routine-admin";
+import { Routine, RoutineWithProducts, RoutineProduct } from "../types/routine";
+import { AdminStats, FeaturedRoutineView } from "../types/routine-admin";
 import { BasicUserRow, UserDailyCountRow } from "../types/user";
 import { ProductCategory } from "../types/product";
 import PAGINATION from "../config/pagination";
@@ -87,7 +80,10 @@ export class RoutineService {
       };
     });
 
-    const seriesByDate = new Map<string, { date: string; users: number; routines: number }>();
+    const seriesByDate = new Map<
+      string,
+      { date: string; users: number; routines: number }
+    >();
     for (let i = 0; i < days; i += 1) {
       const date = new Date(since);
       date.setDate(since.getDate() + i);
@@ -124,7 +120,9 @@ export class RoutineService {
     const routineIds = featuredEntries.map((entry) => Number(entry.routineId));
     const routines = await this.routineRepository.findManyByIds(routineIds);
 
-    const routineMap = new Map(routines.map((routine) => [routine.id, routine]));
+    const routineMap = new Map(
+      routines.map((routine) => [routine.id, routine]),
+    );
     return featuredEntries
       .map((entry) => {
         const routine = routineMap.get(entry.routineId);
@@ -141,7 +139,10 @@ export class RoutineService {
   }
 
   // POST add a featured routine
-  async addFeaturedRoutine(routineId: number, userId: string): Promise<{
+  async addFeaturedRoutine(
+    routineId: number,
+    userId: string,
+  ): Promise<{
     status: "created" | "already_featured";
   }> {
     const routine = await this.routineRepository.findById(String(routineId));
@@ -149,9 +150,8 @@ export class RoutineService {
       throw new Error("Routine not found");
     }
 
-    const alreadyFeatured = await this.routineRepository.findFeaturedByRoutineId(
-      routineId,
-    );
+    const alreadyFeatured =
+      await this.routineRepository.findFeaturedByRoutineId(routineId);
     if (alreadyFeatured) {
       return { status: "already_featured" };
     }

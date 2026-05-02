@@ -1,5 +1,9 @@
 import MerchantModel from "../models/Merchant";
-import { Merchant } from "../types/merchant";
+import {
+  CreateMerchantInput,
+  Merchant,
+  UpdateMerchantInput,
+} from "../types/merchant";
 import { Op } from "sequelize";
 
 export class MerchantRepository {
@@ -10,10 +14,7 @@ export class MerchantRepository {
   }
 
   // POST a merchant
-  async create(merchantData: {
-    name: string;
-    logo: string;
-  }): Promise<Merchant> {
+  async create(merchantData: CreateMerchantInput): Promise<Merchant> {
     try {
       const merchant = await MerchantModel.create(merchantData);
       return this.mapToMerchantType(merchant);
@@ -27,10 +28,7 @@ export class MerchantRepository {
   // Update a merchant
   async update(
     id: number,
-    updates: Partial<{
-      name: string;
-      logo: string;
-    }>,
+    updates: UpdateMerchantInput,
   ): Promise<Merchant | null> {
     const [rows, [updatedMerchant]] = await MerchantModel.update(updates, {
       where: { id },

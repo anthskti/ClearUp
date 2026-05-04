@@ -9,10 +9,12 @@ import {
   Settings,
   ListPlus,
   Bookmark,
+  Shield,
   LogOut,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { broadcastSignOut } from "@/hooks/useCrossTabSignOut";
+import { useEffectiveRole } from "@/hooks/useEffectiveRole";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -38,6 +40,7 @@ function Header() {
   const [mounted, setMounted] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const { data: session, isPending } = authClient.useSession();
+  const { isAdmin } = useEffectiveRole();
 
   useEffect(() => {
     const scrolling = () => {
@@ -175,6 +178,15 @@ function Header() {
                   </span>
                 </div>
                 <div className="py-1 border-b border-gray-100">
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="flex items-center px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 hover:text-black transition-colors"
+                    >
+                      <Shield className="w-4 h-4 mr-2 text-gray-400" />
+                      Admin Dashboard
+                    </Link>
+                  )}
                   <Link
                     href="/profile/preferences"
                     className="flex items-center px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 hover:text-black transition-colors"

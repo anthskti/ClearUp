@@ -2,11 +2,18 @@
 
 import { Product, ProductCategory } from "./product";
 
+export interface RoutineAuthor {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface Routine {
   id: number;
   name: string;
   description?: string;
   userId: string;
+  author?: RoutineAuthor;
 }
 
 export interface RoutineProduct {

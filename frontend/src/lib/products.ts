@@ -124,3 +124,47 @@ export const addMerchantByProductId = async (
   }
   return res.json();
 };
+
+export const importProductsCsv = async (csv: string): Promise<{
+  ok: boolean;
+  processed: number;
+  created: number;
+  updated: number;
+  message: string;
+}> => {
+  const res = await fetch(`${API_URL}/api/products/admin/import/csv`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ csv }),
+  });
+  if (!res.ok) {
+    const errorData = await res
+      .json()
+      .catch(() => ({ error: "Failed product CSV import" }));
+    throw new Error(errorData.error || "Failed product CSV import");
+  }
+  return res.json();
+};
+
+export const importPriceUpdatesCsv = async (csv: string): Promise<{
+  ok: boolean;
+  processed: number;
+  updatedOffers: number;
+  skipped: number;
+  message: string;
+}> => {
+  const res = await fetch(`${API_URL}/api/products/admin/import/prices`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ csv }),
+  });
+  if (!res.ok) {
+    const errorData = await res
+      .json()
+      .catch(() => ({ error: "Failed price CSV import" }));
+    throw new Error(errorData.error || "Failed price CSV import");
+  }
+  return res.json();
+};

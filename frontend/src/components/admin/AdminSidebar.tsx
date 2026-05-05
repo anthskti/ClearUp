@@ -20,9 +20,9 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-64 flex-col bg-white">
+    <aside className="flex w-64 shrink-0 flex-col border-r border-zinc-200 bg-white">
       {/* Header */}
-      <div className="flex h-16 items-center gap-2 border-b border-slate-200 px-6">
+      <div className="flex h-16 items-center gap-2 border-b border-zinc-200 px-6">
         <span className="text-lg font-bold tracking-tight text-zinc-950">
           ClearUp Admin
         </span>
@@ -36,7 +36,7 @@ export default function AdminSidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all duration-300 ${isActive ? "bg-zinc-200 text-zinc-950 shadow-sm" : "text-zinc-500 hover:bg-zinc-300 hover:text-zinc-900"}`}
+              className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all duration-300 ${isActive ? "bg-zinc-100 font-medium text-zinc-950 shadow-sm" : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"}`}
             >
               <Icon
                 size={18}

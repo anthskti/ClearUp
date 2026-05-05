@@ -180,7 +180,7 @@ function Header() {
                 <div className="py-1 border-b border-gray-100">
                   {isAdmin && (
                     <Link
-                      href="/admin"
+                      href="/admin/dashboard"
                       className="flex items-center px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 hover:text-black transition-colors"
                     >
                       <Shield className="w-4 h-4 mr-2 text-gray-400" />

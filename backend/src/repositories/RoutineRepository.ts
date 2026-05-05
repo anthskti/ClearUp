@@ -4,6 +4,7 @@ import RoutineModel from "../models/Routine";
 import ProductModel from "../models/Product";
 import RoutineProductModel from "../models/RoutineProduct";
 import FeaturedRoutineModel from "../models/FeaturedRoutine";
+import UserModel from "../models/User";
 import {
   Routine,
   RoutineWithProducts,
@@ -12,7 +13,6 @@ import {
 import {
   FeaturedRoutineEntryRow,
   RoutineDailyCountRow,
-  RoutineSummaryRow,
   TopAuthorCountRow,
 } from "../types/routine-admin";
 import PAGINATION from "../config/pagination";
@@ -36,19 +36,25 @@ export class RoutineRepository {
       limit: limit,
       offset: offset,
       order: [["createdAt", "DESC"]],
+      include: [this.authorInclude()],
     });
     return routines.map((routine: any) => this.mapToRoutineType(routine));
   }
 
   // GET routines by userId
   async findByUserId(userId: string): Promise<Routine[]> {
-    const routines = await RoutineModel.findAll({ where: { userId } });
+    const routines = await RoutineModel.findAll({
+      where: { userId },
+      include: [this.authorInclude()],
+    });
     return routines.map((routine: any) => this.mapToRoutineType(routine));
   }
 
   // GET routine (singular) by Id
   async findById(id: string): Promise<Routine | null> {
-    const routine = await RoutineModel.findByPk(parseInt(id));
+    const routine = await RoutineModel.findByPk(parseInt(id), {
+      include: [this.authorInclude()],
+    });
     return routine ? this.mapToRoutineType(routine) : null;
   }
 
@@ -56,6 +62,7 @@ export class RoutineRepository {
   async findByIdWithProducts(id: string): Promise<RoutineWithProducts | null> {
     const routine = await RoutineModel.findByPk(parseInt(id), {
       include: [
+        this.authorInclude(),
         {
           model: RoutineProductModel,
           as: "routineProducts",
@@ -140,14 +147,15 @@ export class RoutineRepository {
   }
 
   // GET routines by ids
-  async findManyByIds(ids: number[]): Promise<RoutineSummaryRow[]> {
+  async findManyByIds(ids: number[]): Promise<Routine[]> {
     if (!ids.length) {
       return [];
     }
-    return RoutineModel.findAll({
+    const routines = await RoutineModel.findAll({
       where: { id: ids },
-      raw: true,
-    }) as unknown as RoutineSummaryRow[];
+      include: [this.authorInclude()],
+    });
+    return routines.map((routine: any) => this.mapToRoutineType(routine));
   }
 
   // POST a single routine
@@ -183,12 +191,32 @@ export class RoutineRepository {
     return deleted > 0;
   }
 
+  private authorInclude() {
+    return {
+      model: UserModel,
+      as: "user",
+      attributes: ["id", "name", "email"],
+      required: false,
+    };
+  }
+
+  private mapAuthor(dbRoutine: any): Routine["author"] {
+    const u = dbRoutine.user;
+    if (!u) return undefined;
+    return {
+      id: String(u.id),
+      name: String(u.name ?? ""),
+      email: String(u.email ?? ""),
+    };
+  }
+
   private mapToRoutineType(dbRoutine: any): Routine {
     return {
       id: dbRoutine.id,
       name: dbRoutine.name,
       description: dbRoutine.description,
       userId: dbRoutine.userId,
+      author: this.mapAuthor(dbRoutine),
     };
   }
 
@@ -198,6 +226,7 @@ export class RoutineRepository {
       name: dbRoutine.name,
       description: dbRoutine.description,
       userId: dbRoutine.userId,
+      author: this.mapAuthor(dbRoutine),
       products: dbRoutine.routineProducts
         ? dbRoutine.routineProducts.map(
             (rp: any): RoutineProductWithDetails => ({

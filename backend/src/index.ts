@@ -2,6 +2,7 @@ import express from "express";
 import productRoutes from "./routes/productRoutes";
 import routineRoutes from "./routes/routineRoutes";
 import merchantRoutes from "./routes/merchantRoutes";
+import userRoutes from "./routes/userRoutes";
 import defineAssociations from "./associations";
 import sequelize from "./db";
 import rateLimit from "express-rate-limit";
@@ -80,6 +81,7 @@ app.get("/api/auth/me", requireAuth, (req, res) => {
 app.all("/api/auth/*path", toNodeHandler(auth));
 
 // Routes
+app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use(
   "/api/routines",

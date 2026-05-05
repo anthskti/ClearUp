@@ -133,6 +133,7 @@ export class RoutineService {
           description: routine.description,
           userId: routine.userId,
           pinnedBy: entry.pinnedBy,
+          author: routine.author,
         };
       })
       .filter(Boolean) as FeaturedRoutineView[];

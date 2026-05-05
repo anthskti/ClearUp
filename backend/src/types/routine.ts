@@ -2,11 +2,20 @@
 
 import { Product, ProductCategory } from "./product";
 
+// Public author summary for routine cards and guide headers (from `User` join). 
+export interface RoutineAuthor {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface Routine {
   id: number;
   name: string;
   description?: string;
   userId: string;
+  // Present when the API loads the owning user (list/detail with join). 
+  author?: RoutineAuthor;
 }
 
 export interface RoutineProduct {

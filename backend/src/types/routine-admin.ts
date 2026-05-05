@@ -1,3 +1,5 @@
+import type { RoutineAuthor } from "./routine";
+
 export type AdminStats = {
   totals: {
     users: number;
@@ -24,6 +26,7 @@ export type FeaturedRoutineView = {
   description?: string;
   userId: string;
   pinnedBy: string;
+  author?: RoutineAuthor;
 };
 
 export type RoutineDailyCountRow = {
@@ -40,11 +43,4 @@ export type FeaturedRoutineEntryRow = {
   routineId: number;
   pinnedBy: string;
   createdAt?: string | Date;
-};
-
-export type RoutineSummaryRow = {
-  id: number;
-  name: string;
-  description?: string;
-  userId: string;
 };

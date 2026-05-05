@@ -8,3 +8,12 @@ export type BasicUserRow = {
   name: string;
   email: string;
 };
+
+export type AdminUserListRow = {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  role: string;
+  createdAt: string;
+};

@@ -48,7 +48,7 @@ export default function Builder() {
     if (typeof window !== "undefined") {
       const url = savedRoutineId
         ? `${window.location.origin}/routine/${savedRoutineId}`
-        : "Save first, and your URL will be here!";
+        : `${window.location.origin}`;
       navigator.clipboard.writeText(url);
       // You could add a toast notification here
     }

@@ -20,6 +20,7 @@ import ProceduralWave from "@/components/themes/ProceduralWave";
 import getProductData from "@/components/product/details";
 import { DETAIL_CONFIG, CategoryKey } from "@/components/product/details";
 import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
+import { useEffectiveRole } from "@/hooks/useEffectiveRole";
 
 import { Product } from "@/types/product";
 import { ProductMerchantWithDetails } from "@/types/merchant";
@@ -43,6 +44,7 @@ export default function ProductClient({
     DETAIL_CONFIG[product.category as CategoryKey] || DETAIL_CONFIG.default;
 
   const [isMerchantModalOpen, setIsMerchantModalOpen] = useState(false);
+  const { isAdmin } = useEffectiveRole();
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8] pt-20">
@@ -146,16 +148,17 @@ export default function ProductClient({
               <h3 className="text-sm font-bold uppercase text-zinc-400">
                 Marketplace Data
               </h3>
-              <span>
-                {/* Unhide when Users are available */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsMerchantModalOpen(true)}
-                >
-                  Add Merchant Info
-                </Button>
-              </span>
+              {isAdmin ? (
+                <span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsMerchantModalOpen(true)}
+                  >
+                    Add Merchant Info
+                  </Button>
+                </span>
+              ) : null}
             </div>
 
             <div className="overflow-hidden rounded-lg">

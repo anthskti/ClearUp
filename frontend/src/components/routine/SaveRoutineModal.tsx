@@ -87,7 +87,7 @@ export default function SaveRoutineModal({
               </div>
               <input
                 readOnly
-                value={`clearup.ca/routines/${savedRoutineId}`}
+                value={`clearup.skin/routine/${savedRoutineId}`}
                 className="px-4 py-2 text-sm text-zinc-600 outline-none w-full bg-transparent"
               />
               <button className="px-4 py-2 hover:bg-zinc-50 border-l border-zinc-200 transition-colors">

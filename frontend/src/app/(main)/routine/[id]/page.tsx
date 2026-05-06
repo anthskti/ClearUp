@@ -1,12 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Copy, ExternalLink, Book } from "lucide-react";
+import { Book, ExternalLink } from "lucide-react";
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import { getRoutineWithProducts } from "@/lib/routines";
-import { ClientNotes } from "@/hooks/useBuilderNotes";
 
 import DeleteRoutineButton from "@/components/routine/DeleteRoutineButton";
-import { getSession } from "@/lib/auth";
+import RoutineDescriptionEditor from "@/components/routine/RoutineDescriptionEditor";
+import RoutineShareLink from "@/components/routine/RoutineShareLink";
+import { getEffectiveUser, getSession } from "@/lib/auth";
 import { headers } from "next/headers";
 
 interface RoutineProps {
@@ -29,9 +30,11 @@ export default async function ViewRoutine({ params }: RoutineProps) {
   const headersList = await headers();
   const cookieString = headersList.get("cookie") || "";
   let session = null;
+  let effectiveUser = null;
 
   try {
     session = await getSession(cookieString);
+    effectiveUser = await getEffectiveUser(cookieString);
   } catch (error) {
     console.error("Session fetch failed:", error);
   }
@@ -40,14 +43,8 @@ export default async function ViewRoutine({ params }: RoutineProps) {
     return <div>Routine not found</div>;
   }
 
-  let notes: ClientNotes = { morning: [], evening: [] };
-  try {
-    if (routineData.description) {
-      notes = JSON.parse(routineData.description);
-    }
-  } catch (e: any) {
-    console.error("Failed to parse routine notes", e);
-  }
+  const canEditRoutine =
+    session?.user?.id === routineData.userId || effectiveUser?.role === "admin";
 
   const finalRoutine = ROUTINE_SLOTS.map((slot) => {
     const matchedItem =
@@ -68,6 +65,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
     (acc, step) => acc + step.products.length,
     0,
   );
+  const authorName = routineData.author?.name || "ClearUp User";
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8]">
@@ -76,23 +74,15 @@ export default async function ViewRoutine({ params }: RoutineProps) {
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#2E2E2E] uppercase">
             {routineData.name}
-            <div className="text-lg text-zinc-500">Viewing Routine by </div>
+            {authorName !== "ClearUp User" && (
+              <div className="text-lg text-zinc-500">
+                Viewing Routine by{" "}
+                <span className="underline">{authorName}</span>
+              </div>
+            )}
           </h1>
 
-          {/* External Link */}
-          <div className="flex items-center bg-white border border-zinc-200 rounded-md overflow-hidden shadow-sm max-w-md w-full md:w-auto">
-            <div className="bg-zinc-50 px-3 py-2 border-r border-zinc-200 text-zinc-400">
-              <ExternalLink size={16} />
-            </div>
-            <input
-              readOnly
-              value={`clearup.ca/routines/${id}`}
-              className="px-4 py-2 text-sm text-zinc-600 outline-none w-full md:w-64 bg-transparent"
-            />
-            <button className="px-4 py-2 hover:bg-zinc-50 border-l border-zinc-200 transition-colors">
-              <Copy size={16} className="text-zinc-500" />
-            </button>
-          </div>
+          <RoutineShareLink routineId={id} />
         </div>
 
         {/* Table header */}
@@ -249,70 +239,13 @@ export default async function ViewRoutine({ params }: RoutineProps) {
           </div>
         </div>
 
-        {/* User instructions card */}
-        <div className="mt-12 bg-white rounded-xl shadow-sm border border-zinc-200 p-8">
-          <h3 className="text-lg font-bold text-zinc-900 mb-6 flex items-center gap-2">
-            <Book size={20} /> Users Notes:
-          </h3>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Morning Notes */}
-            <div>
-              <div className="flex items-center gap-2 mb-4 text-amber-500 font-bold uppercase text-xs tracking-wider">
-                <div className="w-2 h-2 rounded-full bg-amber-500" /> Morning
-              </div>
-              {notes.morning.length > 0 ? (
-                <ol className="relative border-l border-zinc-200 ml-3 space-y-6">
-                  {notes.morning.map((note, index) => (
-                    <li key={index} className="ml-6">
-                      <span className="absolute -left-1.5 w-3 h-3 bg-zinc-200 rounded-full mt-1.5 ring-4 ring-white" />
-                      <h4 className="font-bold text-zinc-900 text-sm">
-                        {note.title}
-                      </h4>
-                      <p className="text-sm text-zinc-500 mt-1 leading-relaxed">
-                        {note.description}
-                      </p>
-                    </li>
-                  ))}
-                </ol>
-              ) : (
-                <p className="text-sm text-zinc-400 italic ml-4">
-                  No morning notes added.
-                </p>
-              )}
-            </div>
-
-            {/* Evening Notes */}
-            <div>
-              <div className="flex items-center gap-2 mb-4 text-violet-500 font-bold uppercase text-xs tracking-wider">
-                <div className="w-2 h-2 rounded-full bg-violet-500" /> Night
-              </div>
-              {notes.evening.length > 0 ? (
-                <ol className="relative border-l border-zinc-200 ml-3 space-y-6">
-                  {notes.evening.map((note, index) => (
-                    <li key={index} className="ml-6">
-                      <span className="absolute -left-1.5 w-3 h-3 bg-zinc-200 rounded-full mt-1.5 ring-4 ring-white" />
-                      <h4 className="font-bold text-zinc-900 text-sm">
-                        {note.title}
-                      </h4>
-                      <p className="text-sm text-zinc-500 mt-1 leading-relaxed">
-                        {note.description}
-                      </p>
-                    </li>
-                  ))}
-                </ol>
-              ) : (
-                <p className="text-sm text-zinc-400 italic ml-4">
-                  No evening notes added.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
+        <RoutineDescriptionEditor
+          routineId={routineData.id}
+          initialDescription={routineData.description}
+          canEdit={canEditRoutine}
+        />
         {/* Delete if user is signed in */}
-        {session?.user?.id === routineData.userId && (
-          <DeleteRoutineButton routineId={routineData.id} />
-        )}
+        {canEditRoutine && <DeleteRoutineButton routineId={routineData.id} />}
       </div>
     </div>
   );

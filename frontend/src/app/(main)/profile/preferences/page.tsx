@@ -136,20 +136,24 @@ export default function ProfilePage() {
             </Button>
           </div>
         </div>
+        {/* DISABLED */}
         {/* Website Theme; Light, Dark, or System */}
-        <div className="py-10">
+        {/* <div className="py-10">
           <div className="text-2xl font-semibold mb-4">Appearance</div>
           <div className="text-sm mb-4">Choose how ClearUp looks.</div>
           <div className="bg-white border border-zinc-200 rounded-lg p-6">
             <div className="">1</div>
           </div>
-        </div>
+        </div> */}
+
+        {/* DISABLED */}
         {/* Passsword and Auth from outside thing. Will either have Password, update, or oauth connection */}
-        <div className="py-10">
+        {/* <div className="py-10">
           <div className="text-2xl font-semibold mb-4">
             Password and Authentication
           </div>
-        </div>
+        </div> */}
+
         {/* Account Removal */}
         <div className="py-10">
           <div className="text-2xl font-semibold mb-4">Account Removal</div>

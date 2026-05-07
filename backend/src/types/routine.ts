@@ -1,6 +1,6 @@
 // Routine DTO for application communication
 
-import { Product, ProductCategory } from "./product";
+import { Product, ProductCategory, SkinType } from "./product";
 
 // Public author summary for routine cards and guide headers (from `User` join). 
 export interface RoutineAuthor {
@@ -14,6 +14,8 @@ export interface Routine {
   name: string;
   description?: string;
   userId: string;
+  // Routine-level audience tags (subset of product SkinType enum).
+  skinTypeTags: SkinType[];
   // Present when the API loads the owning user (list/detail with join). 
   author?: RoutineAuthor;
 }

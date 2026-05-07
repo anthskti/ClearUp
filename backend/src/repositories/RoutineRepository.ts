@@ -17,6 +17,8 @@ import {
 } from "../types/routine-admin";
 import PAGINATION from "../config/pagination";
 import { Op, fn, col, literal } from "sequelize";
+import { sanitizeSkinTypeTags } from "../types/routineSkinTypeTags";
+import type { SkinType } from "../types/product";
 
 export class RoutineRepository {
   async countAll(): Promise<number> {
@@ -158,13 +160,71 @@ export class RoutineRepository {
     return routines.map((routine: any) => this.mapToRoutineType(routine));
   }
 
+  /**
+   * Batched: first up to `limitPerRoutine` distinct product image URLs per routine,
+   * in routine-product row order (stable, cheap for featured cards).
+   */
+  async findPreviewImageUrlsForRoutines(
+    routineIds: number[],
+    limitPerRoutine: number,
+  ): Promise<Map<number, string[]>> {
+    const map = new Map<number, string[]>();
+    if (!routineIds.length || limitPerRoutine <= 0) {
+      return map;
+    }
+    for (const id of routineIds) {
+      map.set(id, []);
+    }
+
+    const rows = await RoutineProductModel.findAll({
+      where: { routineId: routineIds },
+      include: [
+        {
+          model: ProductModel,
+          as: "product",
+          attributes: ["imageUrls"],
+          required: false,
+        },
+      ],
+      order: [
+        ["routineId", "ASC"],
+        ["id", "ASC"],
+      ],
+    });
+
+    for (const row of rows) {
+      const rid = row.routineId;
+      const bucket = map.get(rid);
+      if (!bucket || bucket.length >= limitPerRoutine) {
+        continue;
+      }
+      const urls = (row as { product?: { imageUrls?: unknown } }).product
+        ?.imageUrls;
+      if (!Array.isArray(urls) || urls.length === 0) {
+        continue;
+      }
+      const firstUrl = urls[0];
+      if (typeof firstUrl !== "string" || !firstUrl.trim()) {
+        continue;
+      }
+      if (!bucket.includes(firstUrl)) {
+        bucket.push(firstUrl);
+      }
+    }
+    return map;
+  }
+
   // POST a single routine
   async create(routineData: {
     name: string;
     description?: string;
     userId: string;
+    skinTypeTags?: SkinType[];
   }): Promise<Routine> {
-    const routine = await RoutineModel.create(routineData);
+    const routine = await RoutineModel.create({
+      ...routineData,
+      skinTypeTags: sanitizeSkinTypeTags(routineData.skinTypeTags ?? []),
+    });
     return this.mapToRoutineType(routine);
   }
 
@@ -174,6 +234,7 @@ export class RoutineRepository {
     updates: Partial<{
       name: string;
       description?: string;
+      skinTypeTags: SkinType[];
     }>,
   ): Promise<Routine | null> {
     const [rows, [updatedRoutine]] = await RoutineModel.update(updates, {
@@ -216,6 +277,7 @@ export class RoutineRepository {
       name: dbRoutine.name,
       description: dbRoutine.description,
       userId: dbRoutine.userId,
+      skinTypeTags: sanitizeSkinTypeTags(dbRoutine.skinTypeTags),
       author: this.mapAuthor(dbRoutine),
     };
   }
@@ -226,6 +288,7 @@ export class RoutineRepository {
       name: dbRoutine.name,
       description: dbRoutine.description,
       userId: dbRoutine.userId,
+      skinTypeTags: sanitizeSkinTypeTags(dbRoutine.skinTypeTags),
       author: this.mapAuthor(dbRoutine),
       products: dbRoutine.routineProducts
         ? dbRoutine.routineProducts.map(

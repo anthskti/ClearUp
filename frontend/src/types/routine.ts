@@ -1,6 +1,6 @@
 // Routine DTO for application communication
 
-import { Product, ProductCategory } from "./product";
+import { Product, ProductCategory, SkinType } from "./product";
 
 export interface RoutineAuthor {
   id: string;
@@ -13,6 +13,8 @@ export interface Routine {
   name: string;
   description?: string;
   userId: string;
+  // Routine-level skin type tags (same enum as product `skinType`). 
+  skinTypeTags: SkinType[];
   author?: RoutineAuthor;
 }
 

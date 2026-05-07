@@ -6,6 +6,7 @@ import { getRoutineWithProducts } from "@/lib/routines";
 
 import DeleteRoutineButton from "@/components/routine/DeleteRoutineButton";
 import RoutineDescriptionEditor from "@/components/routine/RoutineDescriptionEditor";
+import RoutineSkinTypeTagsEditor from "@/components/routine/RoutineSkinTypeTagsEditor";
 import RoutineShareLink from "@/components/routine/RoutineShareLink";
 import { getEffectiveUser, getSession } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -239,6 +240,11 @@ export default async function ViewRoutine({ params }: RoutineProps) {
           </div>
         </div>
 
+        <RoutineSkinTypeTagsEditor
+          routineId={routineData.id}
+          initialTags={routineData.skinTypeTags ?? []}
+          canEdit={canEditRoutine}
+        />
         <RoutineDescriptionEditor
           routineId={routineData.id}
           initialDescription={routineData.description}

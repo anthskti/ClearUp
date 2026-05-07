@@ -62,6 +62,18 @@ export class RoutineController {
     }
   }
 
+  // GET /api/routines/featured (public — landing page)
+  async getPublicFeaturedRoutines(req: Request, res: Response): Promise<void> {
+    try {
+      const featuredRoutines = await this.routineService.getFeaturedRoutines();
+      res.json(featuredRoutines);
+    } catch (error: any) {
+      res.status(500).json({
+        error: error.message || "Failed to load featured routines",
+      });
+    }
+  }
+
   // POST /api/routines/admin/featured/:id
   async addFeaturedRoutine(req: Request, res: Response): Promise<void> {
     try {
@@ -206,7 +218,22 @@ export class RoutineController {
         res.status(403).json({ error: "Forbidden" });
         return;
       }
-      const routine = await this.routineService.updateRoutine(id, req.body);
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      const patch: Partial<{
+        name: string;
+        description: string;
+        skinTypeTags: unknown;
+      }> = {};
+      if (typeof body.name === "string") {
+        patch.name = body.name;
+      }
+      if (typeof body.description === "string") {
+        patch.description = body.description;
+      }
+      if (body.skinTypeTags !== undefined) {
+        patch.skinTypeTags = body.skinTypeTags;
+      }
+      const routine = await this.routineService.updateRoutine(id, patch);
 
       if (!routine) {
         res.status(404).json({ error: "Routine not found" });
@@ -376,9 +403,15 @@ export class RoutineController {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
-      const routine = await this.routineService.createRoutineWithProducts(
-        { ...req.body, userId },
-      );
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      const routine = await this.routineService.createRoutineWithProducts({
+        name: typeof body.name === "string" ? body.name : "",
+        description:
+          typeof body.description === "string" ? body.description : undefined,
+        userId,
+        skinTypeTags: body.skinTypeTags,
+        items: Array.isArray(body.items) ? body.items : [],
+      });
       res.status(201).json(routine);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

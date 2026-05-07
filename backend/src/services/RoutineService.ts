@@ -5,6 +5,7 @@ import { Routine, RoutineWithProducts, RoutineProduct } from "../types/routine";
 import { AdminStats, FeaturedRoutineView } from "../types/routine-admin";
 import { BasicUserRow, UserDailyCountRow } from "../types/user";
 import { ProductCategory } from "../types/product";
+import { sanitizeSkinTypeTags } from "../types/routineSkinTypeTags";
 import PAGINATION from "../config/pagination";
 
 export class RoutineService {
@@ -119,6 +120,11 @@ export class RoutineService {
     const featuredEntries = await this.routineRepository.getFeaturedEntries(20); // 20 sets the limit
     const routineIds = featuredEntries.map((entry) => Number(entry.routineId));
     const routines = await this.routineRepository.findManyByIds(routineIds);
+    const previewMap =
+      await this.routineRepository.findPreviewImageUrlsForRoutines(
+        routineIds,
+        4,
+      );
 
     const routineMap = new Map(
       routines.map((routine) => [routine.id, routine]),
@@ -134,6 +140,8 @@ export class RoutineService {
           userId: routine.userId,
           pinnedBy: entry.pinnedBy,
           author: routine.author,
+          skinTypeTags: routine.skinTypeTags ?? [],
+          previewImageUrls: previewMap.get(routine.id) ?? [],
         };
       })
       .filter(Boolean) as FeaturedRoutineView[];
@@ -185,10 +193,27 @@ export class RoutineService {
     updates: Partial<{
       name: string;
       description?: string;
-      userId: string;
+      skinTypeTags: unknown;
     }>,
   ): Promise<Routine | null> {
-    return this.routineRepository.update(id, updates);
+    const payload: Partial<{
+      name: string;
+      description?: string;
+      skinTypeTags: ReturnType<typeof sanitizeSkinTypeTags>;
+    }> = {};
+    if (updates.name !== undefined) {
+      payload.name = updates.name;
+    }
+    if (updates.description !== undefined) {
+      payload.description = updates.description;
+    }
+    if (updates.skinTypeTags !== undefined) {
+      payload.skinTypeTags = sanitizeSkinTypeTags(updates.skinTypeTags);
+    }
+    if (Object.keys(payload).length === 0) {
+      return this.routineRepository.findById(String(id));
+    }
+    return this.routineRepository.update(id, payload);
   }
 
   // DELETE routine by ID
@@ -250,6 +275,7 @@ export class RoutineService {
     name: string;
     description?: string;
     userId: string;
+    skinTypeTags?: unknown;
     items: {
       productId: number;
       category: ProductCategory;
@@ -260,6 +286,10 @@ export class RoutineService {
       name: data.name,
       description: data.description,
       userId: data.userId,
+      skinTypeTags:
+        data.skinTypeTags !== undefined
+          ? sanitizeSkinTypeTags(data.skinTypeTags)
+          : undefined,
     });
 
     // Then create all the routine products

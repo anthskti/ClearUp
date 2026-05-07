@@ -38,6 +38,13 @@ router.get("/me", requireAuth, (req, res) =>
 // GET specific Routine by ID
 router.get("/id/:id", (req, res) => routineController.getRoutineById(req, res));
 
+
+// GET Public featured routines (landing page)
+router.get("/featured", (req, res) =>
+  routineController.getPublicFeaturedRoutines(req, res),
+);
+
+
 // POST a new Routine
 router.post("/", requireAuth, (req, res) =>
   routineController.createRoutine(req, res)

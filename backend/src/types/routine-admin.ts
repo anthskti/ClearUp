@@ -1,4 +1,5 @@
 import type { RoutineAuthor } from "./routine";
+import type { SkinType } from "./product";
 
 export type AdminStats = {
   totals: {
@@ -27,6 +28,9 @@ export type FeaturedRoutineView = {
   userId: string;
   pinnedBy: string;
   author?: RoutineAuthor;
+  skinTypeTags: SkinType[];
+  /** First images from up to 4 routine products (URLs only; browser loads from origin CDN). */
+  previewImageUrls: string[];
 };
 
 export type RoutineDailyCountRow = {

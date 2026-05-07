@@ -4,7 +4,7 @@ import {
   RoutineWithProducts,
   RoutineProduct,
 } from "@/types/routine";
-import { ProductCategory } from "@/types/product";
+import { ProductCategory, SkinType } from "@/types/product";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
@@ -35,6 +35,8 @@ export type FeaturedRoutine = {
   userId: string;
   pinnedBy: string;
   author?: RoutineAuthor;
+  skinTypeTags: SkinType[];
+  previewImageUrls: string[];
 };
 
 export const getRoutineById = async (id: string): Promise<Routine> => {
@@ -96,6 +98,20 @@ export const getFeaturedRoutines = async (): Promise<FeaturedRoutine[]> => {
   }
   return res.json();
 };
+
+// Public endpoint for landing page (no auth).
+export async function getPublicFeaturedRoutines(): Promise<FeaturedRoutine[]> {
+  const res = await fetch(`${API_URL}/api/routines/featured`, {
+    next: { revalidate: 120 },
+  });
+  if (!res.ok) {
+    const errorData = await res
+      .json()
+      .catch(() => ({ error: "Failed to load featured routines" }));
+    throw new Error(errorData.error || "Failed to load featured routines");
+  }
+  return res.json();
+}
 
 export const featureRoutine = async (routineId: number): Promise<void> => {
   const res = await fetch(`${API_URL}/api/routines/admin/featured/${routineId}`, {
@@ -215,7 +231,7 @@ export const deleteRoutineById = async (id: number): Promise<boolean> => {
 
 export const updateRoutineById = async (
   id: number,
-  data: { name?: string; description?: string },
+  data: { name?: string; description?: string; skinTypeTags?: SkinType[] },
 ): Promise<Routine> => {
   const res = await fetch(`${API_URL}/api/routines/id/${id}`, {
     method: "PUT",

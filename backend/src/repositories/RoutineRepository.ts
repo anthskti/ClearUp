@@ -9,6 +9,7 @@ import {
   Routine,
   RoutineWithProducts,
   RoutineProductWithDetails,
+  GuideRoutineView,
 } from "../types/routine";
 import {
   FeaturedRoutineEntryRow,
@@ -16,9 +17,10 @@ import {
   TopAuthorCountRow,
 } from "../types/routine-admin";
 import PAGINATION from "../config/pagination";
-import { Op, fn, col, literal } from "sequelize";
+import { Op, QueryTypes, fn, col, literal } from "sequelize";
 import { sanitizeSkinTypeTags } from "../types/routineSkinTypeTags";
 import type { SkinType } from "../types/product";
+import sequelize from "../db";
 
 export class RoutineRepository {
   async countAll(): Promise<number> {
@@ -212,6 +214,118 @@ export class RoutineRepository {
       }
     }
     return map;
+  }
+
+  async findTotalPricesForRoutineIds(
+    routineIds: number[],
+  ): Promise<Map<number, number>> {
+    const map = new Map<number, number>();
+    for (const id of routineIds) {
+      map.set(id, 0);
+    }
+    if (!routineIds.length) {
+      return map;
+    }
+    const rows = (await sequelize.query(
+      `
+      SELECT rp."routineId" AS "routineId", COALESCE(SUM(p.price), 0)::float AS total
+      FROM routine_products rp
+      INNER JOIN products p ON p.id = rp."productId"
+      WHERE rp."routineId" IN (:routineIds)
+      GROUP BY rp."routineId"
+      `,
+      {
+        replacements: { routineIds },
+        type: QueryTypes.SELECT,
+      },
+    )) as { routineId: number; total: number }[];
+
+    for (const row of rows) {
+      map.set(Number(row.routineId), Number(row.total) || 0);
+    }
+    return map;
+  }
+
+
+  // Public guides: only routines whose owner exists in `user` (registered accounts).
+  // Random order, optional tag overlap + max total price filters (evaluated in SQL).
+  async findGuidesPublic(options: {
+    limit: number;
+    offset: number;
+    tags: SkinType[];
+    maxPrice?: number;
+  }): Promise<GuideRoutineView[]> {
+    const { limit, offset, tags, maxPrice } = options;
+
+    const tagsClause =
+      tags.length > 0
+        ? `AND r."skinTypeTags" && ARRAY[${tags
+            .map((t) => sequelize.escape(t))
+            .join(",")}]::varchar[]`
+        : "";
+
+    const priceClause =
+      maxPrice !== undefined &&
+      Number.isFinite(maxPrice) &&
+      maxPrice >= 0
+        ? `AND (
+            SELECT COALESCE(SUM(p.price), 0)
+            FROM routine_products rp
+            INNER JOIN products p ON p.id = rp."productId"
+            WHERE rp."routineId" = r.id
+          ) <= :maxPrice`
+        : "";
+
+    const replacements: Record<string, unknown> = { limit, offset };
+    if (priceClause) {
+      replacements.maxPrice = maxPrice;
+    }
+
+    const idRows = (await sequelize.query(
+      `
+      SELECT r.id
+      FROM routines r
+      INNER JOIN "user" u ON u.id = r."userId"
+      WHERE 1 = 1
+      ${tagsClause}
+      ${priceClause}
+      ORDER BY RANDOM()
+      LIMIT :limit OFFSET :offset
+      `,
+      {
+        replacements,
+        type: QueryTypes.SELECT,
+      },
+    )) as { id: number }[];
+
+    const orderedIds = idRows.map((row) => row.id);
+    if (!orderedIds.length) {
+      return [];
+    }
+
+    const routines = await this.findManyByIds(orderedIds);
+    const orderIndex = new Map(orderedIds.map((id, i) => [id, i]));
+    const sorted = [...routines].sort(
+      (a, b) => (orderIndex.get(a.id) ?? 0) - (orderIndex.get(b.id) ?? 0),
+    );
+
+    const [previewMap, priceMap] = await Promise.all([
+      this.findPreviewImageUrlsForRoutines(orderedIds, 4),
+      this.findTotalPricesForRoutineIds(orderedIds),
+    ]);
+
+    return sorted.map(
+      (r): GuideRoutineView => ({
+        routineId: r.id,
+        name: r.name,
+        description: r.description,
+        userId: r.userId,
+        author: r.author,
+        skinTypeTags: r.skinTypeTags ?? [],
+        previewImageUrls: previewMap.get(r.id) ?? [],
+        estimatedTotalPrice: priceMap.get(r.id) ?? 0,
+      }),
+    );
   }
 
   // POST a single routine

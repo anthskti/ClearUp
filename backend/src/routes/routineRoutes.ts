@@ -44,6 +44,8 @@ router.get("/featured", (req, res) =>
   routineController.getPublicFeaturedRoutines(req, res),
 );
 
+// GET Public community guides (registered authors only; filters + random order)
+router.get("/guides", (req, res) => routineController.getPublicGuides(req, res));
 
 // POST a new Routine
 router.post("/", requireAuth, (req, res) =>

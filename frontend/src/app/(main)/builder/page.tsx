@@ -10,6 +10,8 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useBuilderRoutine } from "@/hooks/useBuilderRoutine";
 import { useBuilderNotes } from "@/hooks/useBuilderNotes";
+import type { SkinType } from "@/types/product";
+import RoutineSkinTypeTagPicker from "@/components/routine/RoutineSkinTypeTagPicker";
 
 import SaveRoutineModal from "@/components/routine/SaveRoutineModal";
 
@@ -31,9 +33,16 @@ export default function Builder() {
 
   const [savedRoutineId, setSavedRoutineId] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [skinTypeTags, setSkinTypeTags] = useState<SkinType[]>([]);
   const { data: session } = authClient.useSession(); // session data
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const toggleSkinTypeTag = (tag: SkinType) => {
+    setSkinTypeTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  };
 
   const handleInitialSave = async () => {
     if (!session) {
@@ -266,6 +275,15 @@ export default function Builder() {
           lg:top-20 lg:bottom-auto lg:shadow-sm 
           `}
         >
+          <div className="mb-4">
+            <div className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
+              Skin type tags
+            </div>
+            <RoutineSkinTypeTagPicker
+              value={skinTypeTags}
+              onToggle={toggleSkinTypeTag}
+            />
+          </div>
           <div className="max-w-6xl mx-auto flex justify-between items-center">
             <div>
               <div className="text-xs uppercase font-bold text-zinc-400 tracking-wider">
@@ -291,10 +309,12 @@ export default function Builder() {
                 onClose={() => setIsModalOpen(false)}
                 routineData={formattedProducts}
                 notesData={notes}
+                skinTypeTags={skinTypeTags}
                 // This is the bridge! The modal calls this when it finishes successfully.
                 onSuccess={() => {
                   clearRoutine(); // Wipes builder local storage
                   clearNotes(); // Wipes notes local storage
+                  setSkinTypeTags([]);
                 }}
               />
             </div>

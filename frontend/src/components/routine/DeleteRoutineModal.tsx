@@ -47,12 +47,12 @@ export default function DeleteRoutineModal({
           <div className="flex flex-col items-center text-center py-4">
             <AlertTriangle className="w-6 h-6 text-red-600" />
           </div>
-          <div className="text-xl font-bold mb-2">Routine Deletion?</div>
+          <div className="text-xl font-bold mb-2">Delete your Routine?</div>
           <div className="text-sm text-zinc-500 mb-6">
             Are you sure you want to delete this routine? This action cannot be
             undone and will permanently remove it from your profile.
           </div>
-          <div className="flex flex-col items-center text-center py-4">
+          <div className="flex flex-col items-center text-center py-2">
             <Button
               variant="destructive"
               //   className="border-zinc-200 shadow-sm w-full"

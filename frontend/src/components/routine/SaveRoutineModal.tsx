@@ -4,14 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, CheckCircle, ExternalLink, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import type { SkinType } from "@/types/product";
 import { createRoutine } from "@/lib/routines";
+import RoutineShareLink from "./RoutineShareLink";
 
 interface SaveRoutineModalProps {
   isOpen: boolean;
   onClose: () => void;
   routineData: any[]; // The extracted products
   notesData: any; // The extracted notes
+  skinTypeTags: SkinType[];
   onSuccess: () => void; // The magic callback to clear the parent hooks!
 }
 
@@ -20,6 +22,7 @@ export default function SaveRoutineModal({
   onClose,
   routineData,
   notesData,
+  skinTypeTags,
   onSuccess,
 }: SaveRoutineModalProps) {
   const router = useRouter();
@@ -36,6 +39,7 @@ export default function SaveRoutineModal({
       const response = await createRoutine({
         name: routineName.trim() || "My Skincare Routine",
         description: JSON.stringify(notesData),
+        skinTypeTags,
         items: routineData,
       });
 
@@ -76,24 +80,12 @@ export default function SaveRoutineModal({
             >
               Close
             </Button>
-            <div className=" my-3 border-b border-zinc-200 w-5/6"></div>
+            <div className=" my-3 border-b border-zinc-200 w-full"></div>
             {/* External Link */}
             <div className="text-sm text-zinc-500 mb-3">
-              Share with friends with this link.
+              Share with friends with this link!
             </div>
-            <div className="flex items-center bg-white border border-zinc-200 rounded-md overflow-hidden shadow-sm w-full">
-              <div className="bg-zinc-50 px-3 py-2 border-r border-zinc-200 text-zinc-400">
-                <ExternalLink size={16} />
-              </div>
-              <input
-                readOnly
-                value={`clearup.skin/routine/${savedRoutineId}`}
-                className="px-4 py-2 text-sm text-zinc-600 outline-none w-full bg-transparent"
-              />
-              <button className="px-4 py-2 hover:bg-zinc-50 border-l border-zinc-200 transition-colors">
-                <Copy size={16} className="text-zinc-500" />
-              </button>
-            </div>
+            <RoutineShareLink routineId={String(savedRoutineId)} />
           </div>
         ) : (
           /* Input View */

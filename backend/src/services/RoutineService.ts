@@ -1,10 +1,10 @@
 import { RoutineRepository } from "../repositories/RoutineRepository";
 import { RoutineProductRepository } from "../repositories/RoutineProductRepository";
 import { UserRepository } from "../repositories/UserRepository";
-import { Routine, RoutineWithProducts, RoutineProduct } from "../types/routine";
+import { Routine, RoutineWithProducts, RoutineProduct, GuideRoutineView } from "../types/routine";
 import { AdminStats, FeaturedRoutineView } from "../types/routine-admin";
 import { BasicUserRow, UserDailyCountRow } from "../types/user";
-import { ProductCategory } from "../types/product";
+import { ProductCategory, SkinType } from "../types/product";
 import { sanitizeSkinTypeTags } from "../types/routineSkinTypeTags";
 import PAGINATION from "../config/pagination";
 
@@ -145,6 +145,16 @@ export class RoutineService {
         };
       })
       .filter(Boolean) as FeaturedRoutineView[];
+  }
+
+  // GET Routines (randomly) from registered users
+  async getPublicGuides(options: {
+    limit: number;
+    offset: number;
+    tags: SkinType[];
+    maxPrice?: number;
+  }): Promise<GuideRoutineView[]> {
+    return this.routineRepository.findGuidesPublic(options);
   }
 
   // POST add a featured routine

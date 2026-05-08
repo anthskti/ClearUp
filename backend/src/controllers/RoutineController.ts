@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { RoutineService } from "../services/RoutineService";
 import PAGINATION from "../config/pagination";
+import { sanitizeSkinTypeTags } from "../types/routineSkinTypeTags";
 
 export class RoutineController {
   private routineService: RoutineService;
@@ -70,6 +71,50 @@ export class RoutineController {
     } catch (error: any) {
       res.status(500).json({
         error: error.message || "Failed to load featured routines",
+      });
+    }
+  }
+
+  // GET /api/routines/guides (public — community guides, server-filtered)
+  async getPublicGuides(req: Request, res: Response): Promise<void> {
+    try {
+      const limitParsed = parseInt(req.query.limit as string) || PAGINATION.LIMIT;
+      const offsetParsed = parseInt(req.query.offset as string) || PAGINATION.OFFSET;
+      const limit = Math.min(
+        Math.max(Number.isFinite(limitParsed) ? limitParsed : 24, 1),
+        50,
+      );
+      const offset = Math.max(
+        Number.isFinite(offsetParsed) ? offsetParsed : 0,
+        0,
+      );
+
+      const tagsRaw = req.query.tags;
+      const tagPieces =
+        typeof tagsRaw === "string" && tagsRaw.trim()
+          ? tagsRaw.split(",").map((s) => s.trim())
+          : [];
+      const tags = sanitizeSkinTypeTags(tagPieces);
+
+      const maxRaw = req.query.maxPrice;
+      let maxPrice: number | undefined;
+      if (maxRaw !== undefined && String(maxRaw).trim() !== "") {
+        const n = parseFloat(String(maxRaw));
+        if (Number.isFinite(n) && n >= 0) {
+          maxPrice = n;
+        }
+      }
+
+      const guides = await this.routineService.getPublicGuides({
+        limit,
+        offset,
+        tags,
+        maxPrice,
+      });
+      res.json(guides);
+    } catch (error: any) {
+      res.status(500).json({
+        error: error.message || "Failed to load guides",
       });
     }
   }

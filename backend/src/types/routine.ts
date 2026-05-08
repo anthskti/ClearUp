@@ -45,3 +45,17 @@ export type RoutineProductWithDetails = RoutineProduct & {
 export interface RoutineWithProducts extends Routine {
   products?: RoutineProductWithDetails[];
 }
+
+// Public guides listing (registered authors only, server-filtered). 
+export type GuideRoutineView = {
+  routineId: number;
+  name: string;
+  description?: string;
+  userId: string;
+  author?: RoutineAuthor;
+  skinTypeTags: SkinType[];
+  previewImageUrls: string[];
+  /** Sum of linked product prices (CAD in catalog). */
+  estimatedTotalPrice: number;
+};
+

@@ -5,10 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, Save, Tags } from "lucide-react";
 import { updateRoutineById } from "@/lib/routines";
 import type { SkinType } from "@/types/product";
-import {
-  ROUTINE_SKIN_TYPE_OPTIONS,
-  skinTypeLabel,
-} from "@/lib/routineSkinTypeTags";
+import RoutineSkinTypeTagPicker from "./RoutineSkinTypeTagPicker";
 
 interface RoutineSkinTypeTagsEditorProps {
   routineId: number;
@@ -79,28 +76,11 @@ export default function RoutineSkinTypeTagsEditor({
       <p className="mb-4 text-sm text-zinc-500">
         Help others find this guide. Tags match product skin type categories.
       </p>
-      <div className="flex flex-wrap gap-2">
-        {ROUTINE_SKIN_TYPE_OPTIONS.map((t) => {
-          const on = tags.includes(t);
-          return (
-            <button
-              key={t}
-              type="button"
-              disabled={!canEdit}
-              onClick={() => canEdit && toggle(t)}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                on
-                  ? "bg-blue-100 text-blue-900 ring-1 ring-blue-200"
-                  : canEdit
-                    ? "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-                    : "bg-zinc-50 text-zinc-400"
-              }`}
-            >
-              {skinTypeLabel(t)}
-            </button>
-          );
-        })}
-      </div>
+      <RoutineSkinTypeTagPicker
+        value={tags}
+        onToggle={toggle}
+        disabled={!canEdit}
+      />
       {error && <p className="mt-4 text-xs text-red-600">{error}</p>}
     </div>
   );

@@ -39,6 +39,17 @@ export type FeaturedRoutine = {
   previewImageUrls: string[];
 };
 
+export type GuideRoutine = {
+  routineId: number;
+  name: string;
+  description?: string;
+  userId: string;
+  author?: RoutineAuthor;
+  skinTypeTags: SkinType[];
+  previewImageUrls: string[];
+  estimatedTotalPrice: number;
+};
+
 export const getRoutineById = async (id: string): Promise<Routine> => {
   const res = await fetch(`${API_URL}/api/routines/id/${id}`, {
     cache: "no-store",
@@ -113,6 +124,39 @@ export async function getPublicFeaturedRoutines(): Promise<FeaturedRoutine[]> {
   return res.json();
 }
 
+export async function getPublicGuides(params: {
+  tags?: string;
+  maxPrice?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<GuideRoutine[]> {
+  const search = new URLSearchParams();
+  if (params.tags?.trim()) {
+    search.set("tags", params.tags.trim());
+  }
+  if (params.maxPrice?.trim()) {
+    search.set("maxPrice", params.maxPrice.trim());
+  }
+  if (params.limit != null) {
+    search.set("limit", String(params.limit));
+  }
+  if (params.offset != null) {
+    search.set("offset", String(params.offset));
+  }
+  const qs = search.toString();
+  const res = await fetch(
+    `${API_URL}/api/routines/guides${qs ? `?${qs}` : ""}`,
+    { next: { revalidate: 60 } },
+  );
+  if (!res.ok) {
+    const errorData = await res
+      .json()
+      .catch(() => ({ error: "Failed to load guides" }));
+    throw new Error(errorData.error || "Failed to load guides");
+  }
+  return res.json();
+}
+
 export const featureRoutine = async (routineId: number): Promise<void> => {
   const res = await fetch(`${API_URL}/api/routines/admin/featured/${routineId}`, {
     method: "POST",
@@ -142,6 +186,7 @@ export const unfeatureRoutine = async (routineId: number): Promise<void> => {
 export const createRoutine = async (data: {
   name: string;
   description?: string;
+  skinTypeTags?: SkinType[];
   items: {
     productId: number;
     category: string;

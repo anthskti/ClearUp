@@ -17,6 +17,7 @@ import {
 } from "./middleware/security";
 import { requireAuth } from "./middleware/requireAuth";
 import { validateSecurityConfig } from "./lib/security";
+import { runMigrations } from "./migrations";
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -121,25 +122,9 @@ const startServer = async () => {
     // Define associations between models
     defineAssociations();
 
-    // FIXED SYNC LOGIC
-    // 1. If we are running the Seed Script, we use force: true (handled in seed.ts, not here).
-    // 2. If we are running the Server, we generally just want to connect.
-    // 3. We avoid 'alter: true' because it crashes on Enum Arrays in Postgres.
-
-    const shouldForce = process.env.FORCE_SYNC === "true";
-
-    // If NOT forcing, we use empty options {}.
-    // This tells Sequelize: "Create tables if they don't exist, otherwise do nothing."
-    const syncOptions = shouldForce ? { force: true } : { alter: false };
-
-    console.log(`Syncing database models... (Force: ${shouldForce})`);
-
-    if (shouldForce) {
-      console.warn("WARNING: Using force sync - data will be wiped!");
-    }
-
-    await sequelize.sync(syncOptions);
-    console.log("Database models synced successfully.");
+    console.log("Running DB migrations...");
+    await runMigrations();
+    console.log("Database migrations complete.");
 
     // Start the server
     app.listen(port, () => {

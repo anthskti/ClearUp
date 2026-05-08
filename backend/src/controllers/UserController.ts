@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { UserRepository } from "../repositories/UserRepository";
 import PAGINATION from "../config/pagination";
+import { handleInternalError } from "../lib/httpError";
 
 export class UserController {
   private userRepository: UserRepository;
@@ -28,10 +29,8 @@ export class UserController {
         limit,
         offset,
       });
-    } catch (error: any) {
-      res.status(500).json({
-        error: error.message || "Failed to list users",
-      });
+    } catch (error: unknown) {
+      handleInternalError(res, "UserController.listAdminUsers", error);
     }
   }
 }

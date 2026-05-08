@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ProductService } from "../services/ProductService";
 import PAGINATION from "../config/pagination";
+import { handleInternalError } from "../lib/httpError";
 
 export class ProductController {
   private productService: ProductService;
@@ -30,8 +31,8 @@ export class ProductController {
         );
         res.json(products);
       }
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getAllProducts", error);
     }
   }
 
@@ -59,8 +60,8 @@ export class ProductController {
         );
       }
       res.json(products);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getProductsByCategory", error);
     }
   }
   // GET /api/product/:id
@@ -72,8 +73,8 @@ export class ProductController {
         return;
       }
       res.json(product);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getProductById", error);
     }
   }
 
@@ -82,8 +83,8 @@ export class ProductController {
     try {
       const product = await this.productService.createProduct(req.body);
       res.status(201).json(product);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.createProduct", error);
     }
   }
 
@@ -99,8 +100,8 @@ export class ProductController {
       }
 
       res.json(product);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.updateProductById", error);
     }
   }
 
@@ -114,8 +115,8 @@ export class ProductController {
         res.status(404).json({ error: "Product not found" });
       }
       res.status(204).send();
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.deleteProductById", error);
     }
   }
 
@@ -125,8 +126,8 @@ export class ProductController {
       const productId = parseInt(req.params.id);
       const pm = await this.productService.getMerchantsByProductId(productId);
       res.json(pm);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getMerchantsById", error);
     }
   }
   // POST /api/id/:id/merchants
@@ -139,8 +140,8 @@ export class ProductController {
       );
 
       res.status(201).json(pm);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.addMerchantByProductId", error);
     }
   }
 
@@ -158,8 +159,8 @@ export class ProductController {
       }
 
       res.json(pm);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.updateProductMerchant", error);
     }
   }
   // DELETE /api/product-merchant/:id
@@ -173,8 +174,8 @@ export class ProductController {
         res.status(404).json({ error: "Product not found" });
       }
       res.status(204).send();
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.removeMerchantFromProduct", error);
     }
   }
   // POST /api/products/admin/import/csv
@@ -187,8 +188,8 @@ export class ProductController {
       }
       const result = await this.productService.importProductsCsv(csv);
       res.status(200).json(result);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed CSV import" });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.importProductsCsv", error);
     }
   }
 
@@ -202,8 +203,8 @@ export class ProductController {
       }
       const result = await this.productService.importPriceUpdatesCsv(csv);
       res.status(200).json(result);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed price import" });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.importPriceUpdatesCsv", error);
     }
   }
 }

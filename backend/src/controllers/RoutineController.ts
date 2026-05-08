@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { RoutineService } from "../services/RoutineService";
 import PAGINATION from "../config/pagination";
 import { sanitizeSkinTypeTags } from "../types/routineSkinTypeTags";
+import { handleInternalError } from "../lib/httpError";
 
 export class RoutineController {
   private routineService: RoutineService;
@@ -34,8 +35,8 @@ export class RoutineController {
 
       const routines = await this.routineService.getAllRoutines(limit, offset);
       res.json(routines);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.getAllRoutines", error);
     }
   }
 
@@ -48,8 +49,8 @@ export class RoutineController {
       );
       const stats = await this.routineService.getAdminStats(days);
       res.json(stats);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to load admin stats" });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.getAdminStats", error);
     }
   }
 
@@ -58,8 +59,8 @@ export class RoutineController {
     try {
       const featuredRoutines = await this.routineService.getFeaturedRoutines();
       res.json(featuredRoutines);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to load featured routines" });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.getFeaturedRoutines", error);
     }
   }
 
@@ -68,10 +69,8 @@ export class RoutineController {
     try {
       const featuredRoutines = await this.routineService.getFeaturedRoutines();
       res.json(featuredRoutines);
-    } catch (error: any) {
-      res.status(500).json({
-        error: error.message || "Failed to load featured routines",
-      });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.getPublicFeaturedRoutines", error);
     }
   }
 
@@ -112,10 +111,8 @@ export class RoutineController {
         maxPrice,
       });
       res.json(guides);
-    } catch (error: any) {
-      res.status(500).json({
-        error: error.message || "Failed to load guides",
-      });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.getPublicGuides", error);
     }
   }
 
@@ -139,16 +136,17 @@ export class RoutineController {
         return;
       }
       res.status(201).json({ ok: true });
-    } catch (error: any) {
-      if (error.message === "Routine not found") {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "";
+      if (message === "Routine not found") {
         res.status(404).json({ error: "Routine not found" });
         return;
       }
-      if (error.message === "Featured guide limit reached (20)") {
+      if (message === "Featured guide limit reached (20)") {
         res.status(400).json({ error: "Featured guide limit reached (20)" });
         return;
       }
-      res.status(500).json({ error: error.message || "Failed to feature routine" });
+      handleInternalError(res, "RoutineController.addFeaturedRoutine", error);
     }
   }
 
@@ -166,8 +164,8 @@ export class RoutineController {
         return;
       }
       res.status(204).send();
-    } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to remove featured routine" });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.removeFeaturedRoutine", error);
     }
   }
 
@@ -191,8 +189,8 @@ export class RoutineController {
       const userId = requestedUserId || authedUserId;
       const routines = await this.routineService.getRoutinesByUserId(userId);
       res.json(routines);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.getRoutinesByUserId", error);
     }
   }
 
@@ -205,8 +203,8 @@ export class RoutineController {
         return;
       }
       res.json(routine);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.getRoutineById", error);
     }
   }
 
@@ -221,8 +219,8 @@ export class RoutineController {
         return;
       }
       res.json(routine);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.getRoutineWithProducts", error);
     }
   }
 
@@ -239,8 +237,8 @@ export class RoutineController {
         userId,
       });
       res.status(201).json(routine);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.createRoutine", error);
     }
   }
 
@@ -286,8 +284,8 @@ export class RoutineController {
       }
 
       res.json(routine);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.updateRoutineById", error);
     }
   }
 
@@ -321,8 +319,8 @@ export class RoutineController {
         return;
       }
       res.status(204).send();
-    } catch (error: any) {
-      res.status(500).json({ error: "Failed to delete routine" });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.deleteRoutineById", error);
     }
   }
 
@@ -350,12 +348,13 @@ export class RoutineController {
         req.body,
       );
       res.status(201).json(routineProduct);
-    } catch (error: any) {
-      if (error.message === "Routine not found") {
-        res.status(404).json({ error: error.message });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "";
+      if (message === "Routine not found") {
+        res.status(404).json({ error: message });
         return;
       }
-      res.status(500).json({ error: error.message });
+      handleInternalError(res, "RoutineController.addProductToRoutine", error);
     }
   }
 
@@ -393,8 +392,8 @@ export class RoutineController {
         return;
       }
       res.status(204).send();
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.removeProductFromRoutine", error);
     }
   }
 
@@ -435,8 +434,8 @@ export class RoutineController {
       }
 
       res.json(updatedRoutineProduct);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.updateProductInRoutine", error);
     }
   }
 
@@ -458,8 +457,8 @@ export class RoutineController {
         items: Array.isArray(body.items) ? body.items : [],
       });
       res.status(201).json(routine);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.createRoutineBulk", error);
     }
   }
 }

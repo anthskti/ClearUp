@@ -57,6 +57,6 @@ The startup sequence is intentionally explicit and defensive:
 3. Register model associations (`defineAssociations()`).
 4. Sync models (`sequelize.sync(...)`) with env-driven behavior:
    - `FORCE_SYNC=true` -> destructive sync (`force: true`)
-   - default path -> non-destructive sync (`alter: false`)
+   - default path -> non-destructive sync (`alter: false`) // need to update
 5. Start listening on `PORT` (default `5000`).
 6. On startup failure, log details and exit with non-zero status.

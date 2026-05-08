@@ -3,20 +3,23 @@ import { admin } from "better-auth/plugins";
 import { Pool } from "pg";
 import { sendSesEmail } from "../lib/sesEmail";
 
-const trustedOrigins =
-  process.env.TRUSTED_ORIGINS?.split(",")
-    .map((s) => s.trim())
-    .filter(Boolean) ?? ["http://localhost:3000"];
+const trustedOrigins = process.env.TRUSTED_ORIGINS?.split(",")
+  .map((s) => s.trim())
+  .filter(Boolean) ?? ["http://localhost:3000"];
+
+const caCert = process.env.DB_SSL_CERT?.replace(/\\n/g, "\n");
 
 export const auth = betterAuth({
   // Connect directly to your existing PostgreSQL database
   database: new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false, // Bypasses strict certificate validation for cloud DBs
-      // BUT can cause issues with MITM
-      // Later implement cert.pem from supabase
-    },
+    ssl:
+      process.env.NODE_ENV === "production"
+        ? {
+            rejectUnauthorized: true, //
+            ca: caCert,
+          }
+        : false,
   }),
 
   emailAndPassword: {
@@ -29,7 +32,9 @@ export const auth = betterAuth({
         subject: "Reset your ClearUp password",
         text: `You requested a password reset.\n\nOpen this link (valid for a limited time):\n${url}\n\nIf you did not request this, ignore this email.`,
         html: `<p>You requested a password reset.</p><p><a href="${url}">Reset your password</a></p><p>If you did not request this, ignore this email.</p>`,
-      }).catch((err) => console.error("[auth] sendResetPassword email failed:", err));
+      }).catch((err) =>
+        console.error("[auth] sendResetPassword email failed:", err),
+      );
     },
   },
   emailVerification: {

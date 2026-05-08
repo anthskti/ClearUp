@@ -9,14 +9,23 @@ if (process.env.DATABASE_URL) {
   // For Cloud Database via Supabase
   console.log("Connected to database via Connection String (Cloud)");
 
+  const caCert = process.env.DB_SSL_CERT?.replace(/\\n/g, "\n");
+
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: "postgres",
     logging: false,
     dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false,
-      },
+      ssl:
+        process.env.NODE_ENV === "production"
+          ? {
+              require: true,
+              rejectUnauthorized: true, // false before SSL Certificate, MITM protection
+              ca: caCert, // Need SSL Certificate from Supabase dashboard
+            }
+          : {
+              require: true,
+              rejectUnauthorized: false, // DEV, issues arise from MITM
+            },
     },
   });
 } else {
@@ -31,7 +40,7 @@ if (process.env.DATABASE_URL) {
       port: parseInt(process.env.DB_PORT || "5432"),
       dialect: "postgres",
       logging: false,
-    }
+    },
   );
 }
 

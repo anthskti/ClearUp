@@ -1,8 +1,25 @@
 import { ReactNode } from "react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { getEffectiveUser } from "@/lib/auth";
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const cookieString = (await headers()).get("cookie") || "";
+  const effectiveUser = await getEffectiveUser(cookieString).catch(() => null);
+
+  if (!effectiveUser) {
+    redirect("/login");
+  }
+  if (effectiveUser.role !== "admin") {
+    redirect("/");
+  }
+
   return (
     <div className="flex h-screen w-full bg-zinc-50 text-zinc-900">
       {/* Sidebar */}

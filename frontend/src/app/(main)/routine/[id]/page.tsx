@@ -8,7 +8,7 @@ import DeleteRoutineButton from "@/components/routine/DeleteRoutineButton";
 import RoutineDescriptionEditor from "@/components/routine/RoutineDescriptionEditor";
 import RoutineSkinTypeTagsEditor from "@/components/routine/RoutineSkinTypeTagsEditor";
 import RoutineShareLink from "@/components/routine/RoutineShareLink";
-import { getEffectiveUser, getSession } from "@/lib/auth";
+import { getEffectiveUser } from "@/lib/auth";
 import { headers } from "next/headers";
 
 interface RoutineProps {
@@ -30,14 +30,12 @@ export default async function ViewRoutine({ params }: RoutineProps) {
 
   const headersList = await headers();
   const cookieString = headersList.get("cookie") || "";
-  let session = null;
   let effectiveUser = null;
 
   try {
-    session = await getSession(cookieString);
     effectiveUser = await getEffectiveUser(cookieString);
   } catch (error) {
-    console.error("Session fetch failed:", error);
+    console.error("User fetch failed:", error);
   }
 
   if (!routineData) {
@@ -45,7 +43,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
   }
 
   const canEditRoutine =
-    session?.user?.id === routineData.userId || effectiveUser?.role === "admin";
+    effectiveUser?.id === routineData.userId || effectiveUser?.role === "admin";
 
   const finalRoutine = ROUTINE_SLOTS.map((slot) => {
     const matchedItem =

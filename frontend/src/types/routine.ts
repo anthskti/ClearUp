@@ -13,7 +13,7 @@ export interface Routine {
   name: string;
   description?: string;
   userId: string;
-  // Routine-level skin type tags (same enum as product `skinType`). 
+  // Routine-level skin type tags (same enum as product `skinType`).
   skinTypeTags: SkinType[];
   author?: RoutineAuthor;
 }
@@ -35,3 +35,26 @@ export type RoutineProductWithDetails = RoutineProduct & {
 export interface RoutineWithProducts extends Routine {
   products?: RoutineProductWithDetails[];
 }
+
+export type FeaturedRoutine = {
+  routineId: number;
+  name: string;
+  description?: string;
+  userId: string;
+  pinnedBy: string; // Diff
+  author?: RoutineAuthor;
+  skinTypeTags: SkinType[];
+  previewImageUrls: string[];
+  estimatedTotalPrice: number;
+};
+
+export type GuideRoutine = {
+  routineId: number;
+  name: string;
+  description?: string;
+  userId: string;
+  author?: RoutineAuthor;
+  skinTypeTags: SkinType[];
+  previewImageUrls: string[];
+  estimatedTotalPrice: number;
+};

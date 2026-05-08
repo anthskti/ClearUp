@@ -1,4 +1,4 @@
-import type { AdminDashboardStats } from "@/lib/routines";
+import { AdminDashboardStats } from "@/types/routine-admin";
 
 type Props = {
   series: AdminDashboardStats["series"];
@@ -15,10 +15,7 @@ export function AdminTrendChart({ series }: Props) {
   }
 
   // Calculate the maximum value for the chart
-  const maxVal = Math.max(
-    1,
-    ...series.flatMap((s) => [s.users, s.routines]),
-  );
+  const maxVal = Math.max(1, ...series.flatMap((s) => [s.users, s.routines]));
 
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">

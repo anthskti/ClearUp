@@ -54,6 +54,37 @@ export class RoutineRepository {
     return routines.map((routine: any) => this.mapToRoutineType(routine));
   }
 
+  //Get Routines for a user with linked products (incl. imageUrls and price)
+  async findByUserIdWithProducts(userId: string): Promise<RoutineWithProducts[]> {
+    const routines = await RoutineModel.findAll({
+      where: { userId },
+      include: [
+        this.authorInclude(),
+        {
+          model: RoutineProductModel,
+          as: "routineProducts",
+          include: [
+            {
+              model: ProductModel,
+              as: "product",
+              attributes: [
+                "id",
+                "name",
+                "brand",
+                "price",
+                "averageRating",
+                "imageUrls",
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    return routines.map((routine: any) =>
+      this.mapToRoutineWithProductsType(routine),
+    );
+  }
+
   // GET routine (singular) by Id
   async findById(id: string): Promise<Routine | null> {
     const routine = await RoutineModel.findByPk(parseInt(id), {

@@ -3,52 +3,13 @@ import {
   RoutineAuthor,
   RoutineWithProducts,
   RoutineProduct,
+  FeaturedRoutine,
+  GuideRoutine,
 } from "@/types/routine";
+import type { AdminDashboardStats } from "@/types/routine-admin";
 import { ProductCategory, SkinType } from "@/types/product";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
-
-export type AdminDashboardStats = {
-  totals: {
-    users: number;
-    routines: number;
-    routineProductLinks: number;
-    featuredRoutines: number;
-  };
-  series: {
-    date: string;
-    users: number;
-    routines: number;
-  }[];
-  topAuthors: {
-    userId: string;
-    name: string;
-    email: string;
-    count: number;
-  }[];
-};
-
-export type FeaturedRoutine = {
-  routineId: number;
-  name: string;
-  description?: string;
-  userId: string;
-  pinnedBy: string;
-  author?: RoutineAuthor;
-  skinTypeTags: SkinType[];
-  previewImageUrls: string[];
-};
-
-export type GuideRoutine = {
-  routineId: number;
-  name: string;
-  description?: string;
-  userId: string;
-  author?: RoutineAuthor;
-  skinTypeTags: SkinType[];
-  previewImageUrls: string[];
-  estimatedTotalPrice: number;
-};
 
 export const getRoutineById = async (id: string): Promise<Routine> => {
   const res = await fetch(`${API_URL}/api/routines/id/${id}`, {
@@ -158,10 +119,13 @@ export async function getPublicGuides(params: {
 }
 
 export const featureRoutine = async (routineId: number): Promise<void> => {
-  const res = await fetch(`${API_URL}/api/routines/admin/featured/${routineId}`, {
-    method: "POST",
-    credentials: "include",
-  });
+  const res = await fetch(
+    `${API_URL}/api/routines/admin/featured/${routineId}`,
+    {
+      method: "POST",
+      credentials: "include",
+    },
+  );
   if (!res.ok) {
     const errorData = await res
       .json()
@@ -171,10 +135,13 @@ export const featureRoutine = async (routineId: number): Promise<void> => {
 };
 
 export const unfeatureRoutine = async (routineId: number): Promise<void> => {
-  const res = await fetch(`${API_URL}/api/routines/admin/featured/${routineId}`, {
-    method: "DELETE",
-    credentials: "include",
-  });
+  const res = await fetch(
+    `${API_URL}/api/routines/admin/featured/${routineId}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
   if (!res.ok) {
     const errorData = await res
       .json()

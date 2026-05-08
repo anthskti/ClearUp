@@ -3,8 +3,8 @@ import ProceduralWave from "@/components/themes/ProceduralWave";
 import GuidesFilters from "@/components/guides/GuidesFilters";
 import GuidesGrid from "@/components/guides/GuidesGrid";
 import GuidesPagination from "@/components/guides/GuidesPagination";
+import type { GuideRoutine } from "@/types/routine";
 import { getPublicGuides } from "@/lib/routines";
-import type { GuideRoutine } from "@/lib/routines";
 import { parseSkinTypeTagsFromParam } from "@/lib/routineSkinTypeTags";
 
 export const metadata: Metadata = {

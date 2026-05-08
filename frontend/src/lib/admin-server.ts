@@ -1,17 +1,23 @@
 import "server-only";
 import { cookies } from "next/headers";
-import type { AdminDashboardStats, FeaturedRoutine } from "@/lib/routines";
-import type { RoutineWithProducts } from "@/types/routine";
+import type { RoutineWithProducts, FeaturedRoutine } from "@/types/routine";
+import type { AdminDashboardStats } from "@/types/routine-admin";
 import type { AdminUsersPagePayload } from "@/types/admin";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
 async function cookieHeader(): Promise<string> {
   const store = await cookies();
-  return store.getAll().map((c) => `${c.name}=${c.value}`).join("; ");
+  return store
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
 }
 
-async function fetchWithCookies(path: string, init?: RequestInit): Promise<Response> {
+async function fetchWithCookies(
+  path: string,
+  init?: RequestInit,
+): Promise<Response> {
   const cookie = await cookieHeader();
   return fetch(`${API_URL}${path}`, {
     ...init,

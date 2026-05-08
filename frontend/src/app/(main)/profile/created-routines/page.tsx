@@ -8,19 +8,26 @@ import {
   Plus,
   ArrowRight,
   Loader2,
-  Calendar,
   Sparkles,
   LayoutGrid,
   List,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { skinTypeLabel } from "@/lib/routineSkinTypeTags";
 import { getMyRoutines } from "@/lib/routines";
-import { Routine } from "@/types/routine";
+import type {
+  RoutineProductWithDetails,
+  RoutineWithProducts,
+} from "@/types/routine";
+import RoutinePreviewCard, {
+  estimatedPriceFromRoutineProducts,
+  previewUrlsFromRoutineProducts,
+} from "@/components/guides/RoutinePreviewCard";
 
 export default function CreatedRoutinesPage() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
-  const [routines, setRoutines] = useState<Routine[]>([]);
+  const [routines, setRoutines] = useState<RoutineWithProducts[]>([]);
   const [isLoadingRoutines, setIsLoadingRoutines] = useState(true);
   const [isListView, setIsListView] = useState(false);
 
@@ -123,7 +130,7 @@ export default function CreatedRoutinesPage() {
               : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           }
         >
-          {routines.map((routine: any) =>
+          {routines.map((routine) =>
             isListView ? (
               // Routines Row List
               <div
@@ -141,18 +148,31 @@ export default function CreatedRoutinesPage() {
                     </span>
                   </div>
 
-                  <p className="text-sm text-zinc-500 mb-4 line-clamp-1">
-                    {routine.description?.startsWith("{")
-                      ? "Custom routine notes attached."
-                      : routine.description || "No description provided."}
-                  </p>
+                  <div>
+                    {routine.skinTypeTags.length > 0 ? (
+                      <div className="mb-3 flex flex-wrap gap-1.5">
+                        {routine.skinTypeTags.map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-700"
+                          >
+                            {skinTypeLabel(t)}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <div>
+                        <span className="px-2 py-0.5"></span>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Product Image Thumbnails */}
                   {routine.products && routine.products.length > 0 && (
                     <div className="flex items-center">
                       {routine.products
                         .slice(0, 6)
-                        .map((rp: any, idx: number) => (
+                        .map((rp: RoutineProductWithDetails, idx: number) => (
                           <div
                             key={idx}
                             className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-zinc-50 shrink-0 -ml-2 first:ml-0 shadow-sm relative group/tooltip"
@@ -190,42 +210,24 @@ export default function CreatedRoutinesPage() {
                   >
                     <Button
                       variant="outline"
-                      className="w-full md:w-auto group-hover:bg-zinc-50 transition-colors"
+                      className="group/btn w-full transition-colors md:w-auto group-hover:bg-zinc-50"
                     >
                       View Routine
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover/btn:translate-x-1" />
                     </Button>
                   </Link>
                 </div>
               </div>
             ) : (
-              // Routines Grid Card
-              <div
+              <RoutinePreviewCard
                 key={routine.id}
-                className="group bg-white rounded-xl border border-zinc-200 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all duration-200 overflow-hidden flex flex-col"
-              >
-                <div className="p-5 flex-1">
-                  <h3 className="text-lg font-bold mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">
-                    {routine.name}
-                  </h3>
-
-                  {/* Optional: Show when it was created if you add timestamps to your model later */}
-                  <div className="flex items-center text-xs text-zinc-400 mb-4">
-                    <Calendar className="w-3 h-3 mr-1" />
-                    <span>Routine ID #{routine.id}</span>
-                  </div>
-                </div>
-
-                <div className="px-5 py-4 border-t border-zinc-100 bg-zinc-50/50 mt-auto">
-                  <Link
-                    href={`/routine/${routine.id}`}
-                    className="text-sm font-medium text-black hover:text-blue-600 flex items-center justify-between w-full"
-                  >
-                    View full routine
-                    <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </div>
-              </div>
+                routineId={routine.id}
+                name={routine.name}
+                authorLabel={routine.author?.name?.trim()}
+                skinTypeTags={routine.skinTypeTags ?? []}
+                previewImageUrls={previewUrlsFromRoutineProducts(routine)}
+                estimatedTotalPrice={estimatedPriceFromRoutineProducts(routine)}
+              />
             ),
           )}
         </div>

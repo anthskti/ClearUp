@@ -31,6 +31,7 @@ export type FeaturedRoutineView = {
   skinTypeTags: SkinType[];
   /** First images from up to 4 routine products (URLs only; browser loads from origin CDN). */
   previewImageUrls: string[];
+  estimatedTotalPrice: number;
 };
 
 export type RoutineDailyCountRow = {

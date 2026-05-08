@@ -106,8 +106,22 @@ app.use(
 );
 
 // Health
-app.get("/health", (req, res) => {
-  res.json({ status: "OK", message: "Server is running!" });
+app.get("/health", async (_req, res) => {
+  try {
+    await sequelize.authenticate();
+    res.status(200).json({
+      ok: true,
+      status: "OK",
+      message: "Server and database are reachable.",
+    });
+  } catch (error: unknown) {
+    console.error("[health] database check failed:", error);
+    res.status(503).json({
+      ok: false,
+      status: "DEGRADED",
+      message: "Database unavailable.",
+    });
+  }
 });
 
 // Initialize database and start server

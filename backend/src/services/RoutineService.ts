@@ -28,9 +28,9 @@ export class RoutineService {
     return this.routineRepository.findAll(limit, offset);
   }
 
-  // GET routines by userId
-  async getRoutinesByUserId(userId: string): Promise<Routine[]> {
-    return this.routineRepository.findByUserId(userId);
+  // GET routines by userId (includes products + imageUrls for UI previews)
+  async getRoutinesByUserId(userId: string): Promise<RoutineWithProducts[]> {
+    return this.routineRepository.findByUserIdWithProducts(userId);
   }
 
   // GET routine (singular) by Id
@@ -120,11 +120,10 @@ export class RoutineService {
     const featuredEntries = await this.routineRepository.getFeaturedEntries(20); // 20 sets the limit
     const routineIds = featuredEntries.map((entry) => Number(entry.routineId));
     const routines = await this.routineRepository.findManyByIds(routineIds);
-    const previewMap =
-      await this.routineRepository.findPreviewImageUrlsForRoutines(
-        routineIds,
-        4,
-      );
+    const [previewMap, priceMap] = await Promise.all([
+      this.routineRepository.findPreviewImageUrlsForRoutines(routineIds, 4),
+      this.routineRepository.findTotalPricesForRoutineIds(routineIds),
+    ]);
 
     const routineMap = new Map(
       routines.map((routine) => [routine.id, routine]),
@@ -142,6 +141,7 @@ export class RoutineService {
           author: routine.author,
           skinTypeTags: routine.skinTypeTags ?? [],
           previewImageUrls: previewMap.get(routine.id) ?? [],
+          estimatedTotalPrice: priceMap.get(routine.id) ?? 0,
         };
       })
       .filter(Boolean) as FeaturedRoutineView[];

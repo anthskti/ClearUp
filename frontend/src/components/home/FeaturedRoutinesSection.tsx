@@ -3,27 +3,6 @@ import FeaturedRoutinesClient, {
   type FeaturedRoutineCard,
 } from "./FeaturedRoutinesClient";
 
-// function blurbFromDescription(description?: string): string | undefined {
-//   if (!description?.trim()) return undefined;
-//   try {
-//     const p = JSON.parse(description) as {
-//       morning?: unknown[];
-//       evening?: unknown[];
-//     };
-//     const m = Array.isArray(p.morning) ? p.morning.length : 0;
-//     const e = Array.isArray(p.evening) ? p.evening.length : 0;
-//     const total = m + e;
-//     if (total > 0) {
-//       return `Includes ${total} personalized note${total === 1 ? "" : "s"} (morning & evening).`;
-//     }
-//   } catch {
-//     // plain text
-//     const t = description.trim();
-//     return t.length > 140 ? `${t.slice(0, 140)}…` : t;
-//   }
-//   return undefined;
-// }
-
 export default async function FeaturedRoutinesSection() {
   let cards: FeaturedRoutineCard[] = [];
   try {
@@ -34,7 +13,7 @@ export default async function FeaturedRoutinesSection() {
       authorLabel: f.author?.name?.trim() || "",
       skinTypeTags: f.skinTypeTags ?? [],
       previewImageUrls: f.previewImageUrls ?? [],
-      // blurb: blurbFromDescription(f.description),
+      estimatedTotalPrice: f.estimatedTotalPrice ?? 0,
     }));
   } catch {
     cards = [];

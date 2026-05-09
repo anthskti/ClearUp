@@ -120,6 +120,31 @@ export class ProductController {
     }
   }
 
+  // GET /api/products/merchants/batch?ids=1,2,3
+  async getMerchantsBatch(req: Request, res: Response): Promise<void> {
+    try {
+      const raw = req.query.ids;
+      if (typeof raw !== "string" || !raw.trim()) {
+        res.json({});
+        return;
+      }
+      const ids = raw
+        .split(",")
+        .map((s) => parseInt(s.trim(), 10))
+        .filter((n) => !Number.isNaN(n) && n > 0);
+      const MAX_IDS = 25; // Max 25 products per request. This is to prevent abuse of the API.
+      if (ids.length > MAX_IDS) {
+        res.status(400).json({ error: `At most ${MAX_IDS} product ids` });
+        return;
+      }
+      const grouped =
+        await this.productService.getMerchantsGroupedByProductId(ids);
+      res.json(grouped);
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getMerchantsBatch", error);
+    }
+  }
+
   // GET /api/id/:id/merchants
   async getMerchantsById(req: Request, res: Response): Promise<void> {
     try {

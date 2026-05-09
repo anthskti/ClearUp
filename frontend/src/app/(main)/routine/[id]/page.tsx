@@ -1,8 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Book, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import { getRoutineWithProducts } from "@/lib/routines";
+import {
+  getMerchantOffersByProductIds,
+  pickLowestPriceOffer,
+} from "@/lib/products";
 
 import DeleteRoutineButton from "@/components/routine/DeleteRoutineButton";
 import RoutineDescriptionEditor from "@/components/routine/RoutineDescriptionEditor";
@@ -41,6 +45,12 @@ export default async function ViewRoutine({ params }: RoutineProps) {
   if (!routineData) {
     return <div>Routine not found</div>;
   }
+
+  const productIds =
+    routineData.products
+      ?.map((rp) => rp.product?.id)
+      .filter((id): id is number => typeof id === "number" && id > 0) ?? [];
+  const offersByProductId = await getMerchantOffersByProductIds(productIds);
 
   const canEditRoutine =
     effectiveUser?.id === routineData.userId || effectiveUser?.role === "admin";
@@ -123,40 +133,63 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                 {step.products.length > 0 ? (
                   // FILLED STATE
                   <div className="flex flex-col gap-4">
-                    {step.products.map((prod) => (
-                      <div key={prod.id} className="flex items-center gap-4">
-                        <div className="w-12 h-12 md:w-16 md:h-16 bg-zinc-100 rounded-md border border-zinc-200 shrink-0 overflow-hidden">
-                          {prod.imageUrls && prod.imageUrls[0] ? (
-                            <Image
-                              src={prod.imageUrls[0]}
-                              alt={prod.name}
-                              width={64}
-                              height={64}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-zinc-200" />
-                          )}
-                        </div>
+                    {step.products.map((prod) => {
+                      const best = pickLowestPriceOffer(
+                        offersByProductId[prod.id] ?? [],
+                      );
+                      const merchantName = best?.merchant?.name ?? "Direct";
+                      const merchantHref = best?.website?.trim() || undefined;
+                      const logo = best?.merchant?.logo?.trim();
 
-                        <div className="grow min-w-0">
-                          <div className="text-xs font-bold text-zinc-400 uppercase mb-0.5">
-                            {prod.brand}
+                      return (
+                        <div key={prod.id} className="flex items-center gap-4">
+                          <div className="w-12 h-12 md:w-16 md:h-16 bg-zinc-100 rounded-md border border-zinc-200 shrink-0 overflow-hidden">
+                            {prod.imageUrls && prod.imageUrls[0] ? (
+                              <Image
+                                src={prod.imageUrls[0]}
+                                alt={prod.name}
+                                width={64}
+                                height={64}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-zinc-200" />
+                            )}
                           </div>
-                          <Link
-                            href={`/product/id/${prod.id}`}
-                            className="font-medium text-black leading-tight hover:underline hover:text-blue-800 block transition-all duration-100"
-                          >
-                            {prod.name}
-                          </Link>
-                          {/* Mobile Merchant Display */}
-                          <div className="md:hidden text-xs text-zinc-500 mt-1 flex items-center gap-1">
-                            {/* via {step.product.merchant || "Unknown"}{" "} */}
-                            via {"Unknown"} <ExternalLink size={10} />
+
+                          <div className="grow min-w-0">
+                            <div className="text-xs font-bold text-zinc-400 uppercase mb-0.5">
+                              {prod.brand}
+                            </div>
+                            <Link
+                              href={`/product/id/${prod.id}`}
+                              className="font-medium text-black leading-tight hover:underline hover:text-blue-800 block transition-all duration-100"
+                            >
+                              {prod.name}
+                            </Link>
+                            {/* Mobile Merchant Display */}
+                            <div className="md:hidden text-xs text-zinc-500 mt-1 flex items-center gap-1 flex-wrap">
+                              <span>via</span>
+                              {merchantHref ? (
+                                <a
+                                  href={merchantHref}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="underline underline-offset-2"
+                                >
+                                  {merchantName}
+                                </a>
+                              ) : (
+                                <span>{merchantName}</span>
+                              )}
+                              {merchantHref ? (
+                                <ExternalLink size={10} className="shrink-0" />
+                              ) : null}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <></> // Empty state shows nothing
@@ -167,26 +200,35 @@ export default async function ViewRoutine({ params }: RoutineProps) {
               <div className="hidden md:flex col-span-2 items-center">
                 {step.products.length > 0 && (
                   <div className="flex flex-col gap-8">
-                    {step.products.map((prod) => (
-                      <div
-                        key={prod.id}
-                        className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm"
-                      >
-                        {/* {prod.merchantLogo && prod.merchantLogo !== "/placeholder-logo.png" ? (
-                           <Image 
-                             src={prod.merchantLogo || ""}
-                             alt="Merchant"
-                             width={20}
-                             height={20}
-                             className="object-cover"
-                           />
-                        ) : ( */}
-                        <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">
-                          -
+                    {step.products.map((prod) => {
+                      const best = pickLowestPriceOffer(
+                        offersByProductId[prod.id] ?? [],
+                      );
+                      const merchantName = best?.merchant?.name ?? "-";
+                      const merchantHref = best?.website?.trim() || undefined;
+                      const logo = best?.merchant?.logo?.trim();
+
+                      return (
+                        <div
+                          key={prod.id}
+                          className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm min-h-[44px]"
+                        >
+                          {logo &&
+                          logo !== "-" &&
+                          /^https?:\/\//i.test(logo) ? (
+                            <img
+                              src={logo}
+                              alt="merchantName"
+                              className="w-5 h-5 rounded object-cover shrink-0"
+                            />
+                          ) : (
+                            <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700 shrink-0">
+                              {merchantName.charAt(0).toUpperCase()}
+                            </div>
+                          )}
                         </div>
-                        {/* )} */}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import ProductMerchantModel from "../models/ProductMerchant";
 import MerchantModel from "../models/Merchant";
 import {
@@ -21,6 +22,28 @@ export class ProductMerchantRepository {
       ],
     });
     return productMerchants.map((pm: any) => this.mapToProductMerchantWithDetailsType(pm));
+  }
+
+  // GET all merchant rows for many products (single query).
+  async findByProductIds(
+    productIds: number[],
+  ): Promise<ProductMerchantWithDetails[]> {
+    if (!productIds.length) {
+      return [];
+    }
+    const productMerchants = await ProductMerchantModel.findAll({
+      where: { productId: { [Op.in]: productIds } },
+      include: [
+        {
+          model: MerchantModel,
+          as: "merchant",
+          attributes: ["id", "name", "logo"],
+        },
+      ],
+    });
+    return productMerchants.map((pm: any) =>
+      this.mapToProductMerchantWithDetailsType(pm),
+    );
   }
 
   // POST new merchant on product list

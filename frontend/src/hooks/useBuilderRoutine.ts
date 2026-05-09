@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Product, ProductCategory } from "@/types/product";
-import { getMerchantsByProductId } from "@/lib/products";
+import { getMerchantsByProductId, pickLowestPriceOffer } from "@/lib/products";
 
 export interface RoutineSlot {
   id: ProductCategory;
@@ -89,7 +89,7 @@ export const useBuilderRoutine = () => {
       try {
         const merchants = await getMerchantsByProductId(String(product.id));
         if (merchants && merchants.length > 0) {
-          const bestOffer = merchants.sort((a, b) => a.price - b.price)[0];
+          const bestOffer = pickLowestPriceOffer(merchants)!;
 
           setRoutine((prev) =>
             prev.map((slot) =>
@@ -122,7 +122,7 @@ export const useBuilderRoutine = () => {
                       p.id === product.id
                         ? {
                             ...p,
-                            merchant: "Direct",
+                            merchant: "-",
                             merchantLogo: "/placeholder-logo.png",
                           }
                         : p,

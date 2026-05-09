@@ -26,6 +26,11 @@ router.delete("/product-merchant/:id", (req, res) =>
 router.get("/", (req, res) => productController.getAllProducts(req, res));
 router.post("/", (req, res) => productController.createProduct(req, res));
 
+// GET product merchants in batches
+router.get("/merchants/batch", (req, res) =>
+  productController.getMerchantsBatch(req, res),
+);
+
 // GET /api/products/category/
 router.get("/category/:category", (req, res) =>
   productController.getProductsByCategory(req, res)

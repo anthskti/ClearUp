@@ -87,6 +87,32 @@ export class ProductService {
     return this.productMerchantRepository.findByProductId(productId);
   }
 
+  // GET current offers per product for routine/builder views
+  // Lazy read: current offers per product for routine/builder views.
+  // Keys every requested id (empty array when no rows).
+  async getMerchantsGroupedByProductId(
+    productIds: number[],
+  ): Promise<Record<string, ProductMerchantWithDetails[]>> {
+    const unique = [...new Set(productIds)].filter(
+      (id) => Number.isFinite(id) && id > 0,
+    );
+    const out: Record<string, ProductMerchantWithDetails[]> = {};
+    for (const id of unique) {
+      out[String(id)] = [];
+    }
+    if (!unique.length) {
+      return out;
+    }
+    const rows =
+      await this.productMerchantRepository.findByProductIds(unique);
+    for (const row of rows) {
+      const key = String(row.productId);
+      if (!out[key]) out[key] = [];
+      out[key].push(row);
+    }
+    return out;
+  }
+
   // POST new merchants for a product
   async addMerchantByProductId(
     productId: number,

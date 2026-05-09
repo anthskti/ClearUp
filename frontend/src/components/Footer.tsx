@@ -79,7 +79,9 @@ function Footer() {
               </h4>
               <ul className="space-y-3 text-sm text-white">
                 <li>
-                  <Link href="/">Instagram</Link>
+                  <Link href="https://www.instagram.com/clearup.skin/">
+                    Instagram
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -93,9 +95,9 @@ function Footer() {
           </p>
 
           <div className="flex gap-6 text-xs text-white show-menu-item-divider">
-            <Link href="/privacy">Privacy Policy</Link>
-            <Link href="/TOS">Terms of Service</Link>
-            <Link href="/accessibility">Accessibility</Link>
+            {/* <Link href="/privacy">Privacy Policy</Link> */}
+            <Link href="/tos">Terms of Service</Link>
+            {/* <Link href="/accessibility">Accessibility</Link> */}
           </div>
         </div>
       </div>

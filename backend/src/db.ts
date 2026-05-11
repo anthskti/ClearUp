@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
 import { Sequelize } from "sequelize";
+import fs from "fs";
+import path from "path";
 
 dotenv.config();
 
@@ -9,7 +11,14 @@ if (process.env.DATABASE_URL) {
   // For Cloud Database via Supabase
   console.log("Connected to database via Connection String (Cloud)");
 
-  const caCert = process.env.DB_SSL_CERT?.replace(/\\n/g, "\n");
+  // Read the certificate from the file system
+  let caCert;
+  const certPath = path.join(process.cwd(), "certs", "prod-ca-2021.crt");
+  try {
+    caCert = fs.readFileSync(certPath).toString();
+  } catch (err) {
+    console.error("Failed to read Supabase SSL certificate:", err);
+  }
 
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: "postgres",

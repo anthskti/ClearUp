@@ -27,10 +27,9 @@ export async function getMerchantOffersByProductIds(
   if (!unique.length) return {};
 
   const qs = unique.sort((a, b) => a - b).join(",");
-  const res = await fetch(
-    `${API_URL}/api/products/merchants/batch?ids=${encodeURIComponent(qs)}`,
-    { next: { revalidate: MERCHANT_OFFERS_REVALIDATE_SEC } },
-  );
+  const res = await fetch(`${API_URL}/api/products/merchants/batch?ids=${qs}`, {
+    next: { revalidate: MERCHANT_OFFERS_REVALIDATE_SEC },
+  });
   if (!res.ok) {
     console.error("getMerchantOffersByProductIds: batch request failed");
     return Object.fromEntries(unique.map((id) => [id, []]));
@@ -167,7 +166,9 @@ export const addMerchantByProductId = async (
   return res.json();
 };
 
-export const importProductsCsv = async (csv: string): Promise<{
+export const importProductsCsv = async (
+  csv: string,
+): Promise<{
   ok: boolean;
   processed: number;
   created: number;
@@ -189,7 +190,9 @@ export const importProductsCsv = async (csv: string): Promise<{
   return res.json();
 };
 
-export const importPriceUpdatesCsv = async (csv: string): Promise<{
+export const importPriceUpdatesCsv = async (
+  csv: string,
+): Promise<{
   ok: boolean;
   processed: number;
   updatedOffers: number;

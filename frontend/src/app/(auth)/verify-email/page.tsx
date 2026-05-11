@@ -1,5 +1,3 @@
-// Not implementing it yet. Until everything is complete
-
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
@@ -131,10 +129,10 @@ function VerifyEmailContent() {
   if (state === "success") {
     return (
       <div className="mx-auto max-w-md p-8 text-center space-y-4">
-        <p className="font-medium text-green-700">Email verified successfully.</p>
-        <p className="text-sm text-zinc-500">
-          Redirecting you in a moment...
+        <p className="font-medium text-green-700">
+          Email verified successfully.
         </p>
+        <p className="text-sm text-zinc-500">Redirecting you in a moment...</p>
         <div className="flex items-center justify-center gap-3">
           <Link href="/" className="text-sm underline">
             Continue to app

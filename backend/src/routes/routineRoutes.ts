@@ -1,5 +1,6 @@
 import express from "express";
 import { RoutineController } from "../controllers/RoutineController";
+import { requireAdmin, requireAuth } from "../middleware/requireAuth";
 
 const router = express.Router();
 const routineController = new RoutineController();
@@ -7,32 +8,62 @@ const routineController = new RoutineController();
 
 // ROUTINE 
 
+// ADMIN endpoints
+router.get("/admin/stats", requireAdmin, (req, res) =>
+  routineController.getAdminStats(req, res)
+);
+router.get("/admin/featured", requireAdmin, (req, res) =>
+  routineController.getFeaturedRoutines(req, res)
+);
+router.post("/admin/featured/:id", requireAdmin, (req, res) =>
+  routineController.addFeaturedRoutine(req, res)
+);
+router.delete("/admin/featured/:id", requireAdmin, (req, res) =>
+  routineController.removeFeaturedRoutine(req, res)
+);
+
 // GET all routines
 router.get("/", (req, res) => routineController.getAllRoutines(req, res));
 
 // GET all routines by User ID
-router.get("/user/:userId", (req, res) =>
+router.get("/user/:userId", requireAuth, (req, res) =>
+  routineController.getRoutinesByUserId(req, res)
+);
+
+// GET all routines for current authenticated user
+router.get("/me", requireAuth, (req, res) =>
   routineController.getRoutinesByUserId(req, res)
 );
 
 // GET specific Routine by ID
 router.get("/id/:id", (req, res) => routineController.getRoutineById(req, res));
 
+
+// GET Public featured routines (landing page)
+router.get("/featured", (req, res) =>
+  routineController.getPublicFeaturedRoutines(req, res),
+);
+
+// GET Public community guides (registered authors only; filters + random order)
+router.get("/guides", (req, res) => routineController.getPublicGuides(req, res));
+
 // POST a new Routine
-router.post("/", (req, res) => routineController.createRoutine(req, res));
+router.post("/", requireAuth, (req, res) =>
+  routineController.createRoutine(req, res)
+);
 
 // Create a new Routine with products in bulk
-router.post("/bulk", (req, res) =>
+router.post("/bulk", requireAuth, (req, res) =>
   routineController.createRoutineBulk(req, res)
 );
 
 // PUT update a Routine
-router.put("/id/:id", (req, res) =>
+router.put("/id/:id", requireAuth, (req, res) =>
   routineController.updateRoutineById(req, res)
 );
 
 // DEL a Routine
-router.delete("/id/:id", (req, res) =>
+router.delete("/id/:id", requireAuth, (req, res) =>
   routineController.deleteRoutineById(req, res)
 );
 
@@ -44,17 +75,17 @@ router.get("/id/:id/products", (req, res) =>
 );
 
 // POST a product TO a specific routine
-router.post("/id/:id/products", (req, res) =>
+router.post("/id/:id/products", requireAuth, (req, res) =>
   routineController.addProductToRoutine(req, res)
 );
 
 // PUT update a specific product within a routine
-router.put("/products/:id", (req, res) =>
+router.put("/products/:id", requireAuth, (req, res) =>
   routineController.updateProductInRoutine(req, res)
 );
 
 // DEL a specific product from a routine using routineproduct key
-router.delete("/products/:id", (req, res) =>
+router.delete("/products/:id", requireAuth, (req, res) =>
   routineController.removeProductFromRoutine(req, res)
 );
 

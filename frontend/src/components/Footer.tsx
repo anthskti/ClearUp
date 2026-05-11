@@ -13,7 +13,7 @@ function Footer() {
             <h3 className="text-lg font-bold mb-4 tracking-wide uppercase">
               Clear Up
             </h3>
-            <p className="text-sm mb-6 leading-relaxed">
+            {/* <p className="text-sm mb-6 leading-relaxed">
               Get exclusive updates on your favorite products.
             </p>
 
@@ -29,7 +29,7 @@ function Footer() {
               >
                 Join
               </button>
-            </form>
+            </form> */}
           </div>
 
           <div className="hidden md:block md:col-span-1" />
@@ -43,10 +43,10 @@ function Footer() {
               </h4>
               <ul className="space-y-3 text-sm text-white">
                 <li>
-                  <Link href="/">About Us</Link>
+                  <Link href="/about-us">About Us</Link>
                 </li>
                 <li>
-                  <Link href="/">Why You'll Love ClearUp</Link>
+                  <Link href="/why-clearup">Why You'll Love ClearUp</Link>
                 </li>
               </ul>
             </div>
@@ -61,13 +61,13 @@ function Footer() {
                   <Link href="/contact">Contact Us</Link>
                 </li>
                 <li>
-                  <Link href="/products">View Products</Link>
+                  <Link href="/products/category/other">View Products</Link>
                 </li>
                 <li>
                   <Link href="/guides">View Guides</Link>
                 </li>
                 <li>
-                  <Link href="/FAQ">FAQ</Link>
+                  <Link href="/faq">FAQ</Link>
                 </li>
               </ul>
             </div>
@@ -79,10 +79,9 @@ function Footer() {
               </h4>
               <ul className="space-y-3 text-sm text-white">
                 <li>
-                  <Link href="/team">Team ClearUp</Link>
-                </li>
-                <li>
-                  <Link href="/">Instagram</Link>
+                  <Link href="https://www.instagram.com/clearup.skin/">
+                    Instagram
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -96,9 +95,9 @@ function Footer() {
           </p>
 
           <div className="flex gap-6 text-xs text-white show-menu-item-divider">
-            <Link href="/privacy">Privacy Policy</Link>
-            <Link href="/TOS">Terms of Service</Link>
-            <Link href="/accessibility">Accessibility</Link>
+            {/* <Link href="/privacy">Privacy Policy</Link> */}
+            <Link href="/tos">Terms of Service</Link>
+            {/* <Link href="/accessibility">Accessibility</Link> */}
           </div>
         </div>
       </div>

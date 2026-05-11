@@ -12,7 +12,7 @@ const HowItWorks = () => {
             </div>
             <h3 className="font-bold text-lg mb-2">Pick Products</h3>
             <p className="text-zinc-800 text-sm px-4">
-              Filter over 10,000 products by price, skin type, ingredients, and
+              Filter over 10+ products by price, skin type, ingredients, and
               concern.
             </p>
           </div>

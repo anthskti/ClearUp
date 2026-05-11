@@ -234,7 +234,7 @@ body -> raw
 {
     "name": "My Second Routine",
     "description": "making my second routine",
-    "userId": 1
+    # "userId": 1
 }
 ```
 
@@ -339,4 +339,17 @@ DEL a merchant
 
 ```bash
 DEL http://localhost:3000/api/merchant/3
+```
+
+
+## Testing Amazon SES
+Go to AWS SES
+
+For adding identities:
+Search "SES" --> Amazon Simple Email Services.
+Click the menu on the left --> Identity. add Domain when domain is purchase.
+Current utilizing email instead of domain name though.
+
+```bash
+npm run test:ses
 ```

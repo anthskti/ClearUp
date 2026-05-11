@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1014.0",
+    "better-auth": "^1.4.19",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
     "csv-parser": "^3.2.0",
@@ -8,7 +10,8 @@
     "express-rate-limit": "^8.2.1",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "umzug": "^3.8.3"
   },
   "name": "backend",
   "version": "1.0.0",
@@ -17,7 +20,10 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
-    "watch": "tsc --watch"
+    "test:ses": "ts-node scripts/testSesEmail.ts",
+    "watch": "tsc --watch",
+    "migrate:up": "ts-node scripts/migrateUp.ts",
+    "migrate:down": "ts-node scripts/migrateDown.ts"
   },
   "keywords": [],
   "author": "",

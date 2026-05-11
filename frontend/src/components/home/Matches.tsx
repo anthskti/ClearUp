@@ -36,7 +36,7 @@ const Matches = () => {
     <section>
       <div className="py-10 px-4 md:px-8 w-full mx-auto">
         <div className="text-center mb-10">
-          <h2 className="text-xl font-bold text-zinc-900">
+          <h2 className="text-2xl font-bold text-zinc-900">
             Find Your Perfect Match
           </h2>
         </div>

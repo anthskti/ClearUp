@@ -1,8 +1,14 @@
 // Translates storage format to application format
 
 import ProductModel from "../models/Product";
-import { Product, ProductCategory, SkinType } from "../types/product";
+import {
+  CreateProductInput,
+  Product,
+  ProductCategory,
+  UpdateProductInput,
+} from "../types/product";
 import PAGINATION from "../config/pagination";
+import { Op } from "sequelize";
 
 export class ProductRepository {
   // Get all products with pagination, infinite scroll
@@ -40,21 +46,7 @@ export class ProductRepository {
   }
 
   // POST a single product
-  async create(productData: {
-    name: string;
-    brand: string;
-    category: ProductCategory;
-    labels: string[];
-    skinType: SkinType[];
-    country: string;
-    capacity: string;
-    price: number;
-    instructions: string[];
-    activeIngredient: string;
-    ingredients: string;
-    imageUrls: string[];
-    tags: string[];
-  }): Promise<Product> {
+  async create(productData: CreateProductInput): Promise<Product> {
     try {
       const product = await ProductModel.create(productData);
 
@@ -70,23 +62,7 @@ export class ProductRepository {
   // PUT update a single product by ID
   async update(
     id: number,
-    updates: Partial<{
-      name: string;
-      brand: string;
-      category: ProductCategory;
-      labels: string[];
-      skinType: SkinType[];
-      country: string;
-      capacity: string;
-      price: number;
-      instructions: string[];
-      activeIngredient: string;
-      ingredients?: string;
-      averageRating: number;
-      reviewCount: number;
-      imageUrls: string[];
-      tags: string[];
-    }>,
+    updates: UpdateProductInput,
   ): Promise<Product | null> {
     const [rows, [updatedProduct]] = await ProductModel.update(updates, {
       where: { id },
@@ -101,7 +77,7 @@ export class ProductRepository {
     return deleted > 0;
   }
 
-  // SEARCH products by query (searches name, brand, tags, activeIngredient)
+  // GET / SEARCH products by query (searches name, brand, tags, activeIngredient)
   async search(
     query: string,
     limit: number = PAGINATION.LIMIT,
@@ -126,6 +102,16 @@ export class ProductRepository {
     });
 
     return products.map((product: any) => this.mapToProductType(product));
+  }
+
+  // GET / SEARCH product by name and brand
+  async findModelByNameAndBrand(name: string, brand: string): Promise<any | null> {
+    return ProductModel.findOne({
+      where: {
+        name: { [Op.iLike]: name },
+        brand: { [Op.iLike]: brand },
+      },
+    });
   }
 
   private mapToProductType(dbProduct: any): Product {

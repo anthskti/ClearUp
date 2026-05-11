@@ -1,15 +1,43 @@
-// src/associations.ts
 import sequelize from "./db";
 import Routine from "./models/Routine";
 import Product from "./models/Product";
 import RoutineProduct from "./models/RoutineProduct";
-
 import Merchant from "./models/Merchant";
 import ProductMerchant from "./models/ProductMerchant";
 
-// You might need to adjust import paths based on your structure
+// BetterAuth
+import User from "./models/User";
+import Session from "./models/Session";
+import Account from "./models/Account";
+import Verification from "./models/Verification";
 
 const defineAssociations = () => {
+  User.hasMany(Session, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+    as: "sessions",
+  });
+  Session.belongsTo(User, { foreignKey: "userId" });
+
+  User.hasMany(Account, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+    as: "accounts",
+  });
+  Account.belongsTo(User, { foreignKey: "userId" });
+
+  // If a user delete their account, all their routines will be deleted along with it
+  User.hasMany(Routine, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+    as: "routines",
+  });
+
+  Routine.belongsTo(User, {
+    foreignKey: "userId",
+    as: "user",
+  });
+
   Routine.belongsToMany(Product, {
     through: RoutineProduct,
     foreignKey: "routineId",
@@ -27,12 +55,11 @@ const defineAssociations = () => {
   Routine.hasMany(RoutineProduct, {
     foreignKey: "routineId",
     as: "routineProducts",
+    onDelete: "CASCADE",
   });
 
   RoutineProduct.belongsTo(Routine, { foreignKey: "routineId" });
-  RoutineProduct.belongsTo(Product, { foreignKey: "productId", 
-    as: "product" 
-  });
+  RoutineProduct.belongsTo(Product, { foreignKey: "productId", as: "product" });
 
   Merchant.belongsToMany(Product, {
     through: ProductMerchant,
@@ -53,10 +80,12 @@ const defineAssociations = () => {
     as: "productMerchants",
   });
   ProductMerchant.belongsTo(Product, { foreignKey: "productId" });
-  ProductMerchant.belongsTo(Merchant, { 
+  ProductMerchant.belongsTo(Merchant, {
     foreignKey: "merchantId",
-    as: "merchant"
+    as: "merchant",
   });
+
+  Verification.name;
 
   // For testing
   console.log("Database associations defined.");

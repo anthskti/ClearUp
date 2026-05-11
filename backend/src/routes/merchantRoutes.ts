@@ -4,6 +4,8 @@ import { MerchantController } from "../controllers/MerchantController";
 const router = express.Router();
 const merchantController = new MerchantController();
 
+// MERCHANT
+
 router.get("/", (req, res) => merchantController.getAllMerchants(req, res));
 router.post("/", (req, res) => merchantController.createMerchant(req, res));
 router.put("/:id", (req, res) =>

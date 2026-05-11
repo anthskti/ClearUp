@@ -1,6 +1,9 @@
 import RoutineProductModel from "../models/RoutineProduct";
-import { RoutineProduct } from "../types/routine";
-import { ProductCategory } from "../types/product";
+import {
+  CreateRoutineProductInput,
+  RoutineProduct,
+  UpdateRoutineProductInput,
+} from "../types/routine";
 
 export class RoutineProductRepository {
   // GET all products for a specific Routine
@@ -18,11 +21,7 @@ export class RoutineProductRepository {
   }
 
   // POST a routine with data
-  async create(routineProductData: {
-    routineId: number;
-    productId: number;
-    category: ProductCategory;
-  }): Promise<RoutineProduct> {
+  async create(routineProductData: CreateRoutineProductInput): Promise<RoutineProduct> {
     try {
       const routineProduct = await RoutineProductModel.create(
         routineProductData
@@ -42,9 +41,7 @@ export class RoutineProductRepository {
   // PUT updates by routineproduct id
   async update(
     id: number,
-    updates: Partial<{
-      category: ProductCategory;
-    }>
+    updates: UpdateRoutineProductInput,
   ): Promise<RoutineProduct | null> {
     const [rows, [updatedRoutineProduct]] = await RoutineProductModel.update(
       updates,

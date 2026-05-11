@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { MerchantService } from "../services/MerchantService";
+import { handleInternalError } from "../lib/httpError";
 
 export class MerchantController {
   private merchantService: MerchantService;
@@ -13,8 +14,8 @@ export class MerchantController {
     try {
       const merchants = await this.merchantService.getAllMerchants();
       res.json(merchants);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "MerchantController.getAllMerchants", error);
     }
   }
 
@@ -23,8 +24,8 @@ export class MerchantController {
     try {
       const merchant = await this.merchantService.createMerchant(req.body);
       res.status(201).json(merchant);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "MerchantController.createMerchant", error);
     }
   }
   // PUT /api/merchants/:id
@@ -39,8 +40,8 @@ export class MerchantController {
       }
 
       res.json(merchant);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "MerchantController.updateMerchantById", error);
     }
   }
 
@@ -54,8 +55,8 @@ export class MerchantController {
         res.status(404).json({ error: "Merchant not found" });
       }
       res.status(204).send();
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "MerchantController.deleteMerchant", error);
     }
   }
 }

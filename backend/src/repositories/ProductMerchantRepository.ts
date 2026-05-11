@@ -1,6 +1,12 @@
+import { Op } from "sequelize";
 import ProductMerchantModel from "../models/ProductMerchant";
 import MerchantModel from "../models/Merchant";
-import { ProductMerchant, ProductMerchantWithDetails } from "../types/merchant";
+import {
+  CreateProductMerchantInput,
+  ProductMerchant,
+  ProductMerchantWithDetails,
+  UpdateProductMerchantInput,
+} from "../types/merchant";
 
 export class ProductMerchantRepository {
   // GET all merchants for a product
@@ -18,15 +24,32 @@ export class ProductMerchantRepository {
     return productMerchants.map((pm: any) => this.mapToProductMerchantWithDetailsType(pm));
   }
 
+  // GET all merchant rows for many products (single query).
+  async findByProductIds(
+    productIds: number[],
+  ): Promise<ProductMerchantWithDetails[]> {
+    if (!productIds.length) {
+      return [];
+    }
+    const productMerchants = await ProductMerchantModel.findAll({
+      where: { productId: { [Op.in]: productIds } },
+      include: [
+        {
+          model: MerchantModel,
+          as: "merchant",
+          attributes: ["id", "name", "logo"],
+        },
+      ],
+    });
+    return productMerchants.map((pm: any) =>
+      this.mapToProductMerchantWithDetailsType(pm),
+    );
+  }
+
   // POST new merchant on product list
-  async create(productMerchantData: {
-    productId: number;
-    merchantId: number;
-    website: string;
-    price: number;
-    stock: boolean;
-    shipping: string;
-  }): Promise<ProductMerchant> {
+  async create(
+    productMerchantData: CreateProductMerchantInput,
+  ): Promise<ProductMerchant> {
     try {
       const productMerchant = await ProductMerchantModel.create(
         productMerchantData
@@ -43,12 +66,7 @@ export class ProductMerchantRepository {
   // PUT update a product-merchant info (ex. price, stock)
   async update(
     id: number,
-    updates: Partial<{
-      website?: string;
-      price?: number;
-      stock?: boolean;
-      shipping?: string;
-    }>
+    updates: UpdateProductMerchantInput,
   ): Promise<ProductMerchant | null> {
     const [rows, [updatedProductMerchant]] = await ProductMerchantModel.update(
       updates,

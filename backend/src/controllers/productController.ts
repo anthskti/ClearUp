@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ProductService } from "../services/ProductService";
 import PAGINATION from "../config/pagination";
+import { handleInternalError } from "../lib/httpError";
 
 export class ProductController {
   private productService: ProductService;
@@ -30,8 +31,8 @@ export class ProductController {
         );
         res.json(products);
       }
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getAllProducts", error);
     }
   }
 
@@ -59,8 +60,8 @@ export class ProductController {
         );
       }
       res.json(products);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getProductsByCategory", error);
     }
   }
   // GET /api/product/:id
@@ -72,8 +73,8 @@ export class ProductController {
         return;
       }
       res.json(product);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getProductById", error);
     }
   }
 
@@ -82,8 +83,8 @@ export class ProductController {
     try {
       const product = await this.productService.createProduct(req.body);
       res.status(201).json(product);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.createProduct", error);
     }
   }
 
@@ -99,8 +100,8 @@ export class ProductController {
       }
 
       res.json(product);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.updateProductById", error);
     }
   }
 
@@ -114,8 +115,33 @@ export class ProductController {
         res.status(404).json({ error: "Product not found" });
       }
       res.status(204).send();
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.deleteProductById", error);
+    }
+  }
+
+  // GET /api/products/merchants/batch?ids=1,2,3
+  async getMerchantsBatch(req: Request, res: Response): Promise<void> {
+    try {
+      const raw = req.query.ids;
+      if (typeof raw !== "string" || !raw.trim()) {
+        res.json({});
+        return;
+      }
+      const ids = raw
+        .split(",")
+        .map((s) => parseInt(s.trim(), 10))
+        .filter((n) => !Number.isNaN(n) && n > 0);
+      const MAX_IDS = 25; // Max 25 products per request. This is to prevent abuse of the API.
+      if (ids.length > MAX_IDS) {
+        res.status(400).json({ error: `At most ${MAX_IDS} product ids` });
+        return;
+      }
+      const grouped =
+        await this.productService.getMerchantsGroupedByProductId(ids);
+      res.json(grouped);
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getMerchantsBatch", error);
     }
   }
 
@@ -125,8 +151,8 @@ export class ProductController {
       const productId = parseInt(req.params.id);
       const pm = await this.productService.getMerchantsByProductId(productId);
       res.json(pm);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getMerchantsById", error);
     }
   }
   // POST /api/id/:id/merchants
@@ -139,8 +165,8 @@ export class ProductController {
       );
 
       res.status(201).json(pm);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.addMerchantByProductId", error);
     }
   }
 
@@ -158,8 +184,8 @@ export class ProductController {
       }
 
       res.json(pm);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.updateProductMerchant", error);
     }
   }
   // DELETE /api/product-merchant/:id
@@ -173,8 +199,37 @@ export class ProductController {
         res.status(404).json({ error: "Product not found" });
       }
       res.status(204).send();
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.removeMerchantFromProduct", error);
+    }
+  }
+  // POST /api/products/admin/import/csv
+  async importProductsCsv(req: Request, res: Response): Promise<void> {
+    try {
+      const csv = String(req.body?.csv || "");
+      if (!csv.trim()) {
+        res.status(400).json({ error: "Missing csv body content" });
+        return;
+      }
+      const result = await this.productService.importProductsCsv(csv);
+      res.status(200).json(result);
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.importProductsCsv", error);
+    }
+  }
+
+  // POST /api/products/admin/import/prices
+  async importPriceUpdatesCsv(req: Request, res: Response): Promise<void> {
+    try {
+      const csv = String(req.body?.csv || "");
+      if (!csv.trim()) {
+        res.status(400).json({ error: "Missing csv body content" });
+        return;
+      }
+      const result = await this.productService.importPriceUpdatesCsv(csv);
+      res.status(200).json(result);
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.importPriceUpdatesCsv", error);
     }
   }
 }

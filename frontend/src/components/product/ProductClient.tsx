@@ -1,30 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import {
-  ExternalLink,
-  Plus,
-  Check,
-  Info,
-  Droplets,
-  MapPin,
-  FlaskConical,
-} from "lucide-react";
+import { ExternalLink, Check } from "lucide-react";
 
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ProductImageGallery from "@/components/ui/ProductGallery";
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import getProductData from "@/components/product/details";
 import { DETAIL_CONFIG, CategoryKey } from "@/components/product/details";
 import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
+import { useEffectiveRole } from "@/hooks/useEffectiveRole";
 
 import { Product } from "@/types/product";
 import { ProductMerchantWithDetails } from "@/types/merchant";
-
-// import AddMerchantModal from "./AddMerchantModal";
 
 const AddMerchantModal = dynamic(() => import("./AddMerchantModal"), {
   ssr: false, // It's a modal, it doesn't need to be on the server
@@ -43,6 +33,7 @@ export default function ProductClient({
     DETAIL_CONFIG[product.category as CategoryKey] || DETAIL_CONFIG.default;
 
   const [isMerchantModalOpen, setIsMerchantModalOpen] = useState(false);
+  const { isAdmin } = useEffectiveRole();
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8] pt-20">
@@ -107,7 +98,7 @@ export default function ProductClient({
               </h3>
             </div>
 
-            {/* Grid Layout for Datails*/}
+            {/* Grid Layout for Details*/}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
               {config.sheet.map((col, index) => {
                 const displayValue = getProductData(product, col.dataKey);
@@ -146,16 +137,17 @@ export default function ProductClient({
               <h3 className="text-sm font-bold uppercase text-zinc-400">
                 Marketplace Data
               </h3>
-              <span>
-                {/* Unhide when Users are available */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsMerchantModalOpen(true)}
-                >
-                  Add Merchant Info
-                </Button>
-              </span>
+              {isAdmin ? (
+                <span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsMerchantModalOpen(true)}
+                  >
+                    Add Merchant Info
+                  </Button>
+                </span>
+              ) : null}
             </div>
 
             <div className="overflow-hidden rounded-lg">
@@ -251,7 +243,7 @@ export default function ProductClient({
 
         {/* Comment Section */}
         <div className="col-span-1 lg:col-span-12 mt-4 py-10 border-t border-zinc-200">
-          <div className="flex items-center justify-between mb-8">
+          {/*   <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xl font-bold text-zinc-900">
                 Community Comments
@@ -260,9 +252,9 @@ export default function ProductClient({
             <Button variant="outline">Add a Comment</Button>
           </div>
 
-          <div className="space-y-8">
-            {/* Comment 1 */}
-            <div className="flex gap-4">
+          <div className="space-y-8"> */}
+          {/* Comment 1 */}
+          {/* <div className="flex gap-4">
               <div className="shrink-0 w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold text-sm">
                 T1
               </div>
@@ -272,10 +264,10 @@ export default function ProductClient({
                     TestUser1
                   </span>
                   <span className="text-xs text-zinc-400">2 days ago</span>
-                </div>
+                </div> */}
 
-                {/* User "Metadata" Tags - Crucial for a Database feel */}
-                <div className="flex flex-wrap gap-2 my-2">
+          {/* User "Metadata" Tags - Crucial for a Database feel */}
+          {/* <div className="flex flex-wrap gap-2 my-2">
                   <span className="px-2 py-0.5 bg-zinc-100 text-zinc-600 text-[10px] uppercase tracking-wide font-bold rounded">
                     Oily Skin
                   </span>
@@ -295,10 +287,10 @@ export default function ProductClient({
                   <span className="hover:text-zinc-600">Reply</span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
-            {/* Comment 2 */}
-            <div className="flex gap-4">
+          {/* Comment 2 */}
+          {/* <div className="flex gap-4">
               <div className="shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-700 font-bold text-sm">
                 T2
               </div>
@@ -336,7 +328,7 @@ export default function ProductClient({
             <button className="text-sm text-zinc-500 hover:text-zinc-900 font-medium border-b border-transparent hover:border-zinc-900 pb-0.5 transition-all">
               Load more comments
             </button>
-          </div>
+          </div>*/}
         </div>
       </main>
     </div>

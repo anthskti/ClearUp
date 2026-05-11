@@ -1,5 +1,9 @@
 import { MerchantRepository } from "../repositories/MerchantRepository";
-import { Merchant } from "../types/merchant";
+import {
+  CreateMerchantInput,
+  Merchant,
+  UpdateMerchantInput,
+} from "../types/merchant";
 
 export class MerchantService {
   private merchantRepository: MerchantRepository;
@@ -16,17 +20,14 @@ export class MerchantService {
   }
 
   // POST a Merchant
-  async createMerchant(data: {
-    name: string;
-    logo: string;
-  }): Promise<Merchant> {
+  async createMerchant(data: CreateMerchantInput): Promise<Merchant> {
     return this.merchantRepository.create(data);
   }
 
   // PUT update a merchant
   async updateMerchant(
     id: number,
-    updates: Partial<{ name: string; logo: string }>,
+    updates: UpdateMerchantInput,
   ): Promise<Merchant | null> {
     return this.merchantRepository.update(id, updates);
   }

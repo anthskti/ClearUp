@@ -1,8 +1,19 @@
 import express, { Router } from "express";
 import { ProductController } from "../controllers/productController";
+import { requireAdmin } from "../middleware/requireAuth";
 
 const router = express.Router();
 const productController = new ProductController();
+
+// PRODUCT
+
+// ADMIN endpoints
+router.post("/admin/import/csv", requireAdmin, (req, res) =>
+  productController.importProductsCsv(req, res)
+);
+router.post("/admin/import/prices", requireAdmin, (req, res) =>
+  productController.importPriceUpdatesCsv(req, res)
+);
 
 router.put("/product-merchant/:id", (req, res) =>
   productController.updateProductMerchant(req, res)
@@ -14,6 +25,11 @@ router.delete("/product-merchant/:id", (req, res) =>
 // GET for filtering with ?filters=greentea etc
 router.get("/", (req, res) => productController.getAllProducts(req, res));
 router.post("/", (req, res) => productController.createProduct(req, res));
+
+// GET product merchants in batches
+router.get("/merchants/batch", (req, res) =>
+  productController.getMerchantsBatch(req, res),
+);
 
 // GET /api/products/category/
 router.get("/category/:category", (req, res) =>
@@ -32,7 +48,7 @@ router.delete("/id/:id", (req, res) =>
 router.get("/id/:id/merchants", (req, res) =>
   productController.getMerchantsById(req, res)
 );
-router.post("/id/:id/merchants", (req, res) =>
+router.post("/id/:id/merchants", requireAdmin, (req, res) =>
   productController.addMerchantByProductId(req, res)
 );
 

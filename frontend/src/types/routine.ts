@@ -1,12 +1,21 @@
 // Routine DTO for application communication
 
-import { Product, ProductCategory } from "./product";
+import { Product, ProductCategory, SkinType } from "./product";
+
+export interface RoutineAuthor {
+  id: string;
+  name: string;
+  email: string;
+}
 
 export interface Routine {
   id: number;
   name: string;
   description?: string;
-  userId: number;
+  userId: string;
+  // Routine-level skin type tags (same enum as product `skinType`).
+  skinTypeTags: SkinType[];
+  author?: RoutineAuthor;
 }
 
 export interface RoutineProduct {
@@ -26,3 +35,26 @@ export type RoutineProductWithDetails = RoutineProduct & {
 export interface RoutineWithProducts extends Routine {
   products?: RoutineProductWithDetails[];
 }
+
+export type FeaturedRoutine = {
+  routineId: number;
+  name: string;
+  description?: string;
+  userId: string;
+  pinnedBy: string; // Diff
+  author?: RoutineAuthor;
+  skinTypeTags: SkinType[];
+  previewImageUrls: string[];
+  estimatedTotalPrice: number;
+};
+
+export type GuideRoutine = {
+  routineId: number;
+  name: string;
+  description?: string;
+  userId: string;
+  author?: RoutineAuthor;
+  skinTypeTags: SkinType[];
+  previewImageUrls: string[];
+  estimatedTotalPrice: number;
+};

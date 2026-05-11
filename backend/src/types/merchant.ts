@@ -4,6 +4,10 @@ export interface Merchant {
   name: string;
   logo: string;
 }
+
+export type CreateMerchantInput = Pick<Merchant, "name" | "logo">;
+export type UpdateMerchantInput = Partial<CreateMerchantInput>;
+
 export interface ProductMerchant {
   id: number;
   productId: number;
@@ -14,6 +18,15 @@ export interface ProductMerchant {
   shipping: string;
   lastUpdated: Date;
 }
+
+export type ProductMerchantWriteFields = Pick<
+  ProductMerchant,
+  "productId" | "merchantId" | "website" | "price" | "stock" | "shipping"
+>;
+export type CreateProductMerchantInput = ProductMerchantWriteFields;
+export type UpdateProductMerchantInput = Partial<
+  Pick<ProductMerchant, "website" | "price" | "stock" | "shipping">
+>;
 
 export type ProductMerchantWithDetails = ProductMerchant & {
   merchant?: Pick<Merchant, "id" | "name" | "logo">;

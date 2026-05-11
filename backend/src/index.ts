@@ -2,18 +2,40 @@ import express from "express";
 import productRoutes from "./routes/productRoutes";
 import routineRoutes from "./routes/routineRoutes";
 import merchantRoutes from "./routes/merchantRoutes";
+import userRoutes from "./routes/userRoutes";
 import defineAssociations from "./associations";
 import sequelize from "./db";
 import rateLimit from "express-rate-limit";
 import compression from "compression";
 
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./config/auth";
+import {
+  authAuditLogger,
+  authBruteForceLimiter,
+  authRouteLimiter,
+} from "./middleware/security";
+import { requireAuth } from "./middleware/requireAuth";
+import { validateSecurityConfig } from "./lib/security";
+import { runMigrations } from "./migrations";
+
 const app = express();
 const port = process.env.PORT || 5000;
 const cors = require("cors");
+const trustedOrigins =
+  process.env.TRUSTED_ORIGINS?.split(",")
+    .map((s: string) => s.trim())
+    .filter(Boolean) ?? ["http://localhost:3000"];
 
 // Security and Handshakes First
-app.use(cors());
+app.use(
+  cors({
+    origin: trustedOrigins,
+    credentials: true,
+  }),
+);
 app.set("trust proxy", 1);
+app.use(express.json()); // parse JSON before auth/rate-limit middlewares
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -42,10 +64,25 @@ app.use(
     },
   }),
 );
+// Audits all auth routes (sign-in, sign-up, sign-out, etc.)
+app.use("/api/auth", authRouteLimiter, authBruteForceLimiter, authAuditLogger);
 
-app.use(express.json()); // parsing JSON bodies
+// Authorizes user and returns their effective role (user or admin)
+app.get("/api/auth/me", requireAuth, (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  return res.json({
+    id: req.user.id,
+    email: req.user.email ?? null,
+    role: req.user.role ?? "user",
+  });
+});
+// Handles all auth routes (sign-in, sign-up, sign-out, etc.)
+app.all("/api/auth/*path", toNodeHandler(auth));
 
 // Routes
+app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use(
   "/api/routines",
@@ -69,13 +106,28 @@ app.use(
 );
 
 // Health
-app.get("/health", (req, res) => {
-  res.json({ status: "OK", message: "Server is running!" });
+app.get("/health", async (_req, res) => {
+  try {
+    await sequelize.authenticate();
+    res.status(200).json({
+      ok: true,
+      status: "OK",
+      message: "Server and database are reachable.",
+    });
+  } catch (error: unknown) {
+    console.error("[health] database check failed:", error);
+    res.status(503).json({
+      ok: false,
+      status: "DEGRADED",
+      message: "Database unavailable.",
+    });
+  }
 });
 
 // Initialize database and start server
 const startServer = async () => {
   try {
+    validateSecurityConfig();
     // Test database connection
     console.log("Testing database connection...");
     await sequelize.authenticate();
@@ -84,25 +136,9 @@ const startServer = async () => {
     // Define associations between models
     defineAssociations();
 
-    // FIXED SYNC LOGIC
-    // 1. If we are running the Seed Script, we use force: true (handled in seed.ts, not here).
-    // 2. If we are running the Server, we generally just want to connect.
-    // 3. We avoid 'alter: true' because it crashes on Enum Arrays in Postgres.
-
-    const shouldForce = process.env.FORCE_SYNC === "true";
-
-    // If NOT forcing, we use empty options {}.
-    // This tells Sequelize: "Create tables if they don't exist, otherwise do nothing."
-    const syncOptions = shouldForce ? { force: true } : { alter: false };
-
-    console.log(`Syncing database models... (Force: ${shouldForce})`);
-
-    if (shouldForce) {
-      console.warn("WARNING: Using force sync - data will be wiped!");
-    }
-
-    await sequelize.sync(syncOptions);
-    console.log("Database models synced successfully.");
+    console.log("Running DB migrations...");
+    await runMigrations();
+    console.log("Database migrations complete.");
 
     // Start the server
     app.listen(port, () => {

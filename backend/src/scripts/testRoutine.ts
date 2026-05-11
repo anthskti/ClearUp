@@ -16,7 +16,7 @@ import defineAssociations from "../associations";
     brand: "Skin1004",
 
     category: "serum",
-    labels: ["Watery"], // Textre
+    labels: ["Watery"], // Texture
     skinType: ["combination", "oily", "dry"],
     country: "South Korea",
     capacity: "55ml",
@@ -72,7 +72,7 @@ import defineAssociations from "../associations";
   console.log(
     "Created merchants:",
     merchantOliveYoung.name,
-    merchantYesStyle.name
+    merchantYesStyle.name,
   );
 
   // Link products to merchants
@@ -108,7 +108,7 @@ import defineAssociations from "../associations";
   listings.forEach((listing) => {
     // Note: listing.lastUpdated should appear automatically now
     console.log(
-      `- Price: $${listing.price} | Stock: ${listing.stock} | Updated: ${listing.lastUpdated}`
+      `- Price: $${listing.price} | Stock: ${listing.stock} | Updated: ${listing.lastUpdated}`,
     );
   });
 
@@ -141,7 +141,7 @@ import defineAssociations from "../associations";
   console.log(
     "Added products to routine:",
     routineProduct1.toJSON(),
-    routineProduct2.toJSON()
+    routineProduct2.toJSON(),
   );
 
   // Fetch routine with products using associations
@@ -156,14 +156,14 @@ import defineAssociations from "../associations";
 
   console.log(
     "Routine with products:",
-    JSON.stringify(routineWithProducts?.toJSON(), null, 2)
+    JSON.stringify(routineWithProducts?.toJSON(), null, 2),
   );
 
   // Fetch all routines
   const allRoutines = await Routine.findAll();
   console.log(
     "All routines:",
-    allRoutines.map((r) => r.toJSON())
+    allRoutines.map((r) => r.toJSON()),
   );
 
   process.exit(0);

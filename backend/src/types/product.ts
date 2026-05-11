@@ -21,6 +21,30 @@ export interface Product {
   tags?: string[];
 }
 
+export type ProductWriteFields = Pick<
+  Product,
+  | "name"
+  | "brand"
+  | "category"
+  | "labels"
+  | "skinType"
+  | "country"
+  | "capacity"
+  | "price"
+  | "instructions"
+  | "activeIngredient"
+  | "ingredients"
+  | "imageUrls"
+  | "tags"
+>;
+
+export type CreateProductInput = ProductWriteFields &
+  Pick<Product, "averageRating" | "reviewCount">;
+
+export type UpdateProductInput = Partial<
+  ProductWriteFields & Pick<Product, "averageRating" | "reviewCount">
+>;
+
 export type ProductCategory =
   | "cleanser"
   | "toner"

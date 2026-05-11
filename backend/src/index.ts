@@ -22,10 +22,9 @@ import { runMigrations } from "./migrations";
 const app = express();
 const port = process.env.PORT || 5000;
 const cors = require("cors");
-const trustedOrigins =
-  process.env.TRUSTED_ORIGINS?.split(",")
-    .map((s: string) => s.trim())
-    .filter(Boolean) ?? ["http://localhost:3000"];
+const trustedOrigins = process.env.TRUSTED_ORIGINS?.split(",")
+  .map((s: string) => s.trim())
+  .filter(Boolean) ?? ["http://localhost:3000"];
 
 // Security and Handshakes First
 app.use(

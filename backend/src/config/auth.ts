@@ -2,12 +2,20 @@ import { betterAuth } from "better-auth";
 import { admin } from "better-auth/plugins";
 import { Pool } from "pg";
 import { sendSesEmail } from "../lib/sesEmail";
+import fs from "fs";
+import path from "path";
 
 const trustedOrigins = process.env.TRUSTED_ORIGINS?.split(",")
   .map((s) => s.trim())
   .filter(Boolean) ?? ["http://localhost:3000"];
 
-const caCert = process.env.DB_SSL_CERT?.replace(/\\n/g, "\n");
+const certPath = path.join(process.cwd(), "certs", "prod-ca-2021.crt");
+let caCert;
+try {
+  caCert = fs.readFileSync(certPath).toString();
+} catch (err) {
+  console.error("[auth] Failed to read Supabase SSL certificate:", err);
+}
 
 export const auth = betterAuth({
   // Connect directly to your existing PostgreSQL database

@@ -2,9 +2,9 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-// import { useSearchParams, useRouter } from "next/navigation";
-import { Minus, Plus, SlidersHorizontal, Search } from "lucide-react";
+import { Minus, Plus, Search } from "lucide-react";
 import { useInView } from "react-intersection-observer";
+import { CountryMapping } from "../../constants/CountryMapping";
 
 import {
   ColumnConfig,
@@ -13,19 +13,17 @@ import {
 } from "@/constants/filters"; // The config from above
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import { Product } from "@/types/product";
-// import { ProductCategory } from "@/types/product";
 import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
 import { SkinTypeTags } from "./SkinTypeTags";
+import {
+  getProductsByCategory,
+  searchProductsByCategory,
+} from "@/lib/products";
 
 interface ProductListClientProps {
   category: string;
   initialProducts: Product[];
 }
-
-import {
-  getProductsByCategory,
-  searchProductsByCategory,
-} from "@/lib/products";
 
 export default function ProductListClient({
   category,
@@ -163,10 +161,28 @@ export default function ProductListClient({
             </div>
           </div>
         );
-      case "country":
-        return (
-          <div className="flex items-center justify-between h-10 w-10 bg-gray-200 rounded-md shrink-0" />
+      case "country": {
+        const flagUrl = CountryMapping[product.country];
+        const flagBox =
+          "relative box-border flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-zinc-200 bg-white";
+        return flagUrl != null ? (
+          <div className="flex justify-center">
+            <div className={flagBox} title={product.country}>
+              {/* Local SVG flags vary in aspect ratio; fixed square + object-contain */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={flagUrl}
+                alt={product.country}
+                className="h-full w-full object-cover p-1"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center" aria-hidden>
+            <div className="h-10 w-10 shrink-0 rounded-md border border-zinc-200 bg-zinc-100" />
+          </div>
         );
+      }
       case "price":
         return (
           <span className="font-bold text-zinc-900 block">

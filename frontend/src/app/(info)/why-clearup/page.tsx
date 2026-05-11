@@ -5,10 +5,7 @@ export default function WhyClearUpPage() {
   return (
     <div>
       <ProceduralWave seed={6} height={190} />
-      <InfoArticle
-        title="Why ClearUp?"
-        description="Why this product exists and who it is for."
-      >
+      <InfoArticle title="Why ClearUp?" description="Why does ClearUp.">
         <h2>My Story</h2>
         <p>
           During my teenage years, I faced moments where my acne was terrible,

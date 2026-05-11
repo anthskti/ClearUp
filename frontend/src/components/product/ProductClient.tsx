@@ -1,19 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import {
-  ExternalLink,
-  Plus,
-  Check,
-  Info,
-  Droplets,
-  MapPin,
-  FlaskConical,
-} from "lucide-react";
+import { ExternalLink, Check } from "lucide-react";
 
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ProductImageGallery from "@/components/ui/ProductGallery";
 import ProceduralWave from "@/components/themes/ProceduralWave";
@@ -24,8 +15,6 @@ import { useEffectiveRole } from "@/hooks/useEffectiveRole";
 
 import { Product } from "@/types/product";
 import { ProductMerchantWithDetails } from "@/types/merchant";
-
-// import AddMerchantModal from "./AddMerchantModal";
 
 const AddMerchantModal = dynamic(() => import("./AddMerchantModal"), {
   ssr: false, // It's a modal, it doesn't need to be on the server
@@ -109,7 +98,7 @@ export default function ProductClient({
               </h3>
             </div>
 
-            {/* Grid Layout for Datails*/}
+            {/* Grid Layout for Details*/}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
               {config.sheet.map((col, index) => {
                 const displayValue = getProductData(product, col.dataKey);

@@ -19,13 +19,15 @@ const authBaseURL =
   normalizePublicOrigin(process.env.BETTER_AUTH_URL) ||
   normalizePublicOrigin(process.env.RENDER_EXTERNAL_URL);
 
-if (process.env.NODE_ENV === "production") {
-  console.info(
-    "[auth] effective baseURL:",
-    authBaseURL ??
-      "(unset — set BETTER_AUTH_URL or rely on RENDER_EXTERNAL_URL)",
-  );
-}
+// Always log once (Render may not set NODE_ENV=production; see deploy docs).
+console.info(
+  "[auth] bootstrap",
+  JSON.stringify({
+    nodeEnv: process.env.NODE_ENV ?? "(unset)",
+    baseURL: authBaseURL ?? null,
+    crossSiteCookies: process.env.BETTER_AUTH_CROSS_SITE_COOKIES === "1",
+  }),
+);
 
 const certPath = path.join(process.cwd(), "certs", "prod-ca-2021.crt");
 let caCert;
@@ -35,8 +37,38 @@ try {
   console.error("[auth] Failed to read Supabase SSL certificate:", err);
 }
 
+/**
+ * OAuth uses a short-lived signed cookie + DB verification. If the browser loads
+ * the app on origin A but `authClient` talks to the API on origin B, `SameSite=Lax`
+ * can block that cookie on the cross-site fetch → `state_security_mismatch`.
+ * Set BETTER_AUTH_CROSS_SITE_COOKIES=1 on the API when frontend and API hosts differ (HTTPS only).
+ *
+ * Last resort (weakens CSRF layer): BETTER_AUTH_SKIP_STATE_COOKIE_CHECK=1
+ * @see https://www.better-auth.com/docs/reference/errors/state_mismatch
+ */
+const crossSiteCookies = process.env.BETTER_AUTH_CROSS_SITE_COOKIES === "1";
+const skipStateCookieCheck =
+  process.env.BETTER_AUTH_SKIP_STATE_COOKIE_CHECK === "1";
+
 export const auth = betterAuth({
   ...(authBaseURL ? { baseURL: authBaseURL } : {}),
+  ...(crossSiteCookies
+    ? {
+        advanced: {
+          defaultCookieAttributes: {
+            sameSite: "none" as const,
+            secure: true,
+          },
+        },
+      }
+    : {}),
+  ...(skipStateCookieCheck
+    ? {
+        account: {
+          skipStateCookieCheck: true,
+        },
+      }
+    : {}),
   // Connect directly to your existing PostgreSQL database
   database: new Pool({
     connectionString: process.env.DATABASE_URL,

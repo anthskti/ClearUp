@@ -22,18 +22,24 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    try {
+      const { error } = await authClient.signIn.email({
+        email,
+        password,
+      });
 
-    const { data, error } = await authClient.signIn.email({
-      email,
-      password,
-    });
-
-    if (error) {
-      alert(error.message);
-    } else {
+      if (error) {
+        alert(error.message);
+        return;
+      }
       router.push("/");
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : "Sign-in failed");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleGoogleSignIn = async () => {

@@ -3,11 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 const UPSTREAM =
-  process.env.AUTH_UPSTREAM_URL?.trim().replace(/\/$/, "") ||
   process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, "") ||
   "http://localhost:5050";
 
-/** Remove Domain= so the browser stores cookies for the current host (e.g. clearup.skin). */
+// Remove Domain= so the browser stores cookies for the current host (e.g. clearup.skin). 
 function rewriteSetCookieForAppHost(cookie: string): string {
   return cookie.replace(/;\s*Domain=[^;]*/gi, "");
 }
@@ -26,6 +25,8 @@ function forwardRequestHeaders(req: NextRequest): Headers {
     "content-length",
     "transfer-encoding",
     "keep-alive",
+    // Node fetch decompresses gzip; if we forward Content-Encoding: gzip with a decoded body, clients break.
+    "accept-encoding",
   ]);
   const out = new Headers();
   req.headers.forEach((value, key) => {
@@ -72,8 +73,15 @@ async function proxyAuth(
     if (single) setCookieList = [single];
   }
 
+  const skipResponse = new Set([
+    "set-cookie",
+    "content-encoding",
+    "content-length",
+    "transfer-encoding",
+    "connection",
+  ]);
   upstream.headers.forEach((value, key) => {
-    if (key.toLowerCase() === "set-cookie") return;
+    if (skipResponse.has(key.toLowerCase())) return;
     res.headers.append(key, value);
   });
 

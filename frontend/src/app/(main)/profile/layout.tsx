@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { getEffectiveUser } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 
 export default async function ProfileLayout({
   children,
@@ -9,9 +9,13 @@ export default async function ProfileLayout({
 }) {
   const headersList = await headers();
   const cookieString = headersList.get("cookie") || "";
-  const user = await getEffectiveUser(cookieString).catch(() => null);
 
-  if (!user?.id) {
+  try {
+    const session = await getSession(cookieString);
+    if (!session?.user?.id) {
+      redirect("/login");
+    }
+  } catch {
     redirect("/login");
   }
 

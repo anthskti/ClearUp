@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
+
 type EffectiveRole = "user" | "admin";
 
 type EffectiveUser = {
@@ -29,7 +31,7 @@ export function useEffectiveRole() {
 
     const run = async () => {
       try {
-        const res = await fetch(`${window.location.origin}/api/auth/me`, {
+        const res = await fetch(`${API_URL}/api/auth/me`, {
           credentials: "include",
           cache: "no-store",
         });

@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { hasBetterAuthSessionCookie } from "@/lib/better-auth-cookies";
+
+function hasBetterAuthSessionCookie(request: NextRequest): boolean {
+  return request.cookies.getAll().some(({ name }) => {
+    if (name === "better-auth.session_token") return true;
+    if (name.startsWith("better-auth.session_token.")) return true;
+    return false;
+  });
+}
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const sessionCookie = hasBetterAuthSessionCookie(request);
 
   const isAuthPage =
     pathname.startsWith("/login") ||
@@ -12,18 +18,8 @@ export function proxy(request: NextRequest) {
     pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/verify-email");
 
-  if (isAuthPage && sessionCookie) {
+  if (isAuthPage && hasBetterAuthSessionCookie(request)) {
     return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  const isProfilePage = pathname.startsWith("/profile");
-  if (isProfilePage && !sessionCookie) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  const isAdminPage = pathname.startsWith("/admin");
-  if (isAdminPage && !sessionCookie) {
-    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();

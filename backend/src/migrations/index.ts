@@ -5,7 +5,7 @@ import sequelize from "../db";
 export function createMigrator() {
   return new Umzug({
     migrations: {
-      glob: path.join(__dirname, "[0-9]*.{js,ts}"),
+      glob: ["[0-9]*.{js,ts}", { cwd: __dirname, ignore: ["*.d.ts", "*.map"] }],
     },
     context: {
       sequelize,

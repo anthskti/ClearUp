@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { hasBetterAuthSessionCookie } from "@/lib/better-auth-cookies";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const sessionCookie = request.cookies.get("better-auth.session_token");
+  const sessionCookie = hasBetterAuthSessionCookie(request);
 
   const isAuthPage =
     pathname.startsWith("/login") ||

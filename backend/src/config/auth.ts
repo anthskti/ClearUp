@@ -9,6 +9,16 @@ const trustedOrigins = process.env.TRUSTED_ORIGINS?.split(",")
   .map((s) => s.trim())
   .filter(Boolean) ?? ["http://localhost:3000"];
 
+/** Public origin where `/api/auth/*` is served (required for OAuth redirect + state cookies in production). */
+function normalizePublicOrigin(raw: string | undefined): string | undefined {
+  const s = raw?.trim().replace(/\/$/, "");
+  return s || undefined;
+}
+
+const authBaseURL =
+  normalizePublicOrigin(process.env.BETTER_AUTH_URL) ||
+  normalizePublicOrigin(process.env.RENDER_EXTERNAL_URL);
+
 const certPath = path.join(process.cwd(), "certs", "prod-ca-2021.crt");
 let caCert;
 try {
@@ -18,6 +28,7 @@ try {
 }
 
 export const auth = betterAuth({
+  ...(authBaseURL ? { baseURL: authBaseURL } : {}),
   // Connect directly to your existing PostgreSQL database
   database: new Pool({
     connectionString: process.env.DATABASE_URL,

@@ -65,6 +65,16 @@ export function validateSecurityConfig(): void {
       .filter(Boolean) ?? ["http://localhost:3000"];
 
   if (nodeEnv === "production") {
+    const authUrl =
+      process.env.BETTER_AUTH_URL?.trim().replace(/\/$/, "") ||
+      process.env.RENDER_EXTERNAL_URL?.trim().replace(/\/$/, "") ||
+      "";
+    if (!authUrl) {
+      console.warn(
+        "[security] Production: set BETTER_AUTH_URL (e.g. https://your-app.onrender.com) so OAuth state and redirects match the public host. RENDER_EXTERNAL_URL is used as a fallback on Render.",
+      );
+    }
+
     const hasWildcardOrigin = trustedOrigins.some((origin) => origin === "*");
     if (hasWildcardOrigin) {
       console.warn(

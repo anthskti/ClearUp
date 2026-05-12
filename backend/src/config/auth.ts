@@ -19,6 +19,14 @@ const authBaseURL =
   normalizePublicOrigin(process.env.BETTER_AUTH_URL) ||
   normalizePublicOrigin(process.env.RENDER_EXTERNAL_URL);
 
+if (process.env.NODE_ENV === "production") {
+  console.info(
+    "[auth] effective baseURL:",
+    authBaseURL ??
+      "(unset — set BETTER_AUTH_URL or rely on RENDER_EXTERNAL_URL)",
+  );
+}
+
 const certPath = path.join(process.cwd(), "certs", "prod-ca-2021.crt");
 let caCert;
 try {

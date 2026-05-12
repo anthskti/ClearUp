@@ -1,7 +1,9 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
+import { getAppOrigin } from "./app-origin";
+
+const appOrigin = () => getAppOrigin();
 
 export const getSession = async (cookieString: string): Promise<any> => {
-  const res = await fetch(`${API_URL}/api/auth/get-session`, {
+  const res = await fetch(`${appOrigin()}/api/auth/get-session`, {
     headers: { cookie: cookieString },
     cache: "no-store",
   });
@@ -12,7 +14,7 @@ export const getSession = async (cookieString: string): Promise<any> => {
 export const getEffectiveUser = async (
   cookieString: string,
 ): Promise<{ id: string; email: string | null; role: "user" | "admin" } | null> => {
-  const res = await fetch(`${API_URL}/api/auth/me`, {
+  const res = await fetch(`${appOrigin()}/api/auth/me`, {
     headers: { cookie: cookieString },
     cache: "no-store",
   });

@@ -16,8 +16,7 @@ function normalizePublicOrigin(raw: string | undefined): string | undefined {
 }
 
 const authBaseURL =
-  normalizePublicOrigin(process.env.BETTER_AUTH_URL) ||
-  normalizePublicOrigin(process.env.RENDER_EXTERNAL_URL);
+  normalizePublicOrigin(process.env.BETTER_AUTH_URL);
 
 // Always log once (Render may not set NODE_ENV=production; see deploy docs).
 console.info(
@@ -47,8 +46,9 @@ try {
  * @see https://www.better-auth.com/docs/reference/errors/state_mismatch
  */
 const crossSiteCookies = process.env.BETTER_AUTH_CROSS_SITE_COOKIES === "1";
-const skipStateCookieCheck =
-  process.env.BETTER_AUTH_SKIP_STATE_COOKIE_CHECK === "1";
+const skipStateCookieCheck = process.env.BETTER_AUTH_SKIP_STATE_COOKIE_CHECK === "1";
+
+const cookieDomain = process.env.NODE_ENV === "production" ? ".clearup.skin" : undefined; // Set cookie domain for production
 
 export const auth = betterAuth({
   ...(authBaseURL ? { baseURL: authBaseURL } : {}),
@@ -58,6 +58,7 @@ export const auth = betterAuth({
           defaultCookieAttributes: {
             sameSite: "none" as const,
             secure: true,
+            domain: cookieDomain,
           },
         },
       }

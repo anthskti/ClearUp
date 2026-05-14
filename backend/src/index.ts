@@ -3,6 +3,7 @@ import productRoutes from "./routes/productRoutes";
 import routineRoutes from "./routes/routineRoutes";
 import merchantRoutes from "./routes/merchantRoutes";
 import userRoutes from "./routes/userRoutes";
+import webhookRoutes from "./routes/webhookRoutes";
 import defineAssociations from "./associations";
 import sequelize from "./db";
 import rateLimit from "express-rate-limit";
@@ -34,6 +35,14 @@ app.use(
   }),
 );
 app.set("trust proxy", 1);
+
+// SNS → SES bounce/complaint events are posted as text/plain JSON; keep outside global rate limit.
+app.use(
+  "/api/webhooks",
+  express.text({ type: "*/*", limit: "512kb" }),
+  webhookRoutes,
+);
+
 app.use(express.json()); // parse JSON before auth/rate-limit middlewares
 
 const globalLimiter = rateLimit({

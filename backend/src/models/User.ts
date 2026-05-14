@@ -6,8 +6,9 @@ class User extends Model {
   public name!: string;
   public email!: string;
   public emailVerified!: boolean;
+  public emailStatus!: string;
   public image!: string | null;
-  public role!: string; 
+  public role!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -31,6 +32,11 @@ User.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+    },
+    emailStatus: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "active",
     },
     image: {
       type: DataTypes.STRING,

@@ -1,5 +1,6 @@
 // SES TEST Email
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
+import User from "../models/User";
 
 export type SendEmailInput = {
   to: string;
@@ -17,6 +18,7 @@ export type SendEmailInput = {
  * Env:
  * - AWS_REGION
  * - SES_FROM_EMAIL (must be verified in SES)
+ * - SES_CONFIGURATION_SET (optional; SES config set with SNS bounce/complaint destination)
  * - AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (or use instance role / default chain)
  */
 
@@ -30,12 +32,23 @@ export async function sendSesEmail({
 }: SendEmailInput): Promise<void> {
   const region = process.env.AWS_REGION;
   const from = process.env.SES_FROM_EMAIL;
+  const configurationSet = process.env.SES_CONFIGURATION_SET?.trim();
 
-  // For development
   if (!region || !from) {
     throw new Error(
       "SES not configured: set AWS_REGION and SES_FROM_EMAIL in the backend environment.",
     );
+  }
+
+  const row = await User.findOne({
+    where: { email: to },
+    attributes: ["emailStatus"],
+  });
+  if (row && row.emailStatus !== "active") {
+    console.log(
+      `[ses] skip send to ${to} (emailStatus=${row.emailStatus})`,
+    );
+    return;
   }
 
   const client = new SESv2Client({ region });
@@ -46,6 +59,9 @@ export async function sendSesEmail({
   await client.send(
     new SendEmailCommand({
       FromEmailAddress: from,
+      ...(configurationSet
+        ? { ConfigurationSetName: configurationSet }
+        : {}),
       Destination: {
         ToAddresses: [to],
       },

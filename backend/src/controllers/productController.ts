@@ -61,13 +61,19 @@ export class ProductController {
       }
       res.json(products);
     } catch (error: unknown) {
-      handleInternalError(res, "ProductController.getProductsByCategory", error);
+      handleInternalError(
+        res,
+        "ProductController.getProductsByCategory",
+        error,
+      );
     }
   }
   // GET /api/product/:id
   async getProductById(req: Request, res: Response): Promise<void> {
     try {
-      const product = await this.productService.getProductById(req.params.id);
+      const product = await this.productService.getProductById(
+        req.params.id as string,
+      );
       if (!product) {
         res.status(404).json({ error: "Product not found." });
         return;
@@ -91,7 +97,7 @@ export class ProductController {
   // PUT /api/product/:id
   async updateProductbyId(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const product = await this.productService.updateProduct(id, req.body);
 
       if (!product) {
@@ -108,7 +114,7 @@ export class ProductController {
   // DELETE /api/product/:id
   async DeleteProductbyId(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const success = await this.productService.deleteProduct(id);
 
       if (!success) {
@@ -148,7 +154,7 @@ export class ProductController {
   // GET /api/id/:id/merchants
   async getMerchantsById(req: Request, res: Response): Promise<void> {
     try {
-      const productId = parseInt(req.params.id);
+      const productId = parseInt(req.params.id as string);
       const pm = await this.productService.getMerchantsByProductId(productId);
       res.json(pm);
     } catch (error: unknown) {
@@ -158,7 +164,7 @@ export class ProductController {
   // POST /api/id/:id/merchants
   async addMerchantByProductId(req: Request, res: Response): Promise<void> {
     try {
-      const productId = parseInt(req.params.id);
+      const productId = parseInt(req.params.id as string);
       const pm = await this.productService.addMerchantByProductId(
         productId,
         req.body,
@@ -166,14 +172,18 @@ export class ProductController {
 
       res.status(201).json(pm);
     } catch (error: unknown) {
-      handleInternalError(res, "ProductController.addMerchantByProductId", error);
+      handleInternalError(
+        res,
+        "ProductController.addMerchantByProductId",
+        error,
+      );
     }
   }
 
   // PUT /api/product-merchant/:id
   async updateProductMerchant(req: Request, res: Response): Promise<void> {
     try {
-      const productMerchantId = parseInt(req.params.id);
+      const productMerchantId = parseInt(req.params.id as string);
       const pm = await this.productService.updateProductMerchant(
         productMerchantId,
         req.body,
@@ -185,13 +195,17 @@ export class ProductController {
 
       res.json(pm);
     } catch (error: unknown) {
-      handleInternalError(res, "ProductController.updateProductMerchant", error);
+      handleInternalError(
+        res,
+        "ProductController.updateProductMerchant",
+        error,
+      );
     }
   }
   // DELETE /api/product-merchant/:id
   async removeMerchantFromProduct(req: Request, res: Response): Promise<void> {
     try {
-      const productMerchantId = parseInt(req.params.id);
+      const productMerchantId = parseInt(req.params.id as string);
       const success =
         await this.productService.removeMerchantFromProduct(productMerchantId);
 
@@ -200,7 +214,11 @@ export class ProductController {
       }
       res.status(204).send();
     } catch (error: unknown) {
-      handleInternalError(res, "ProductController.removeMerchantFromProduct", error);
+      handleInternalError(
+        res,
+        "ProductController.removeMerchantFromProduct",
+        error,
+      );
     }
   }
   // POST /api/products/admin/import/csv
@@ -229,7 +247,11 @@ export class ProductController {
       const result = await this.productService.importPriceUpdatesCsv(csv);
       res.status(200).json(result);
     } catch (error: unknown) {
-      handleInternalError(res, "ProductController.importPriceUpdatesCsv", error);
+      handleInternalError(
+        res,
+        "ProductController.importPriceUpdatesCsv",
+        error,
+      );
     }
   }
 }

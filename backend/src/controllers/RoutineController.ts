@@ -70,15 +70,21 @@ export class RoutineController {
       const featuredRoutines = await this.routineService.getFeaturedRoutines();
       res.json(featuredRoutines);
     } catch (error: unknown) {
-      handleInternalError(res, "RoutineController.getPublicFeaturedRoutines", error);
+      handleInternalError(
+        res,
+        "RoutineController.getPublicFeaturedRoutines",
+        error,
+      );
     }
   }
 
   // GET /api/routines/guides (public — community guides, server-filtered)
   async getPublicGuides(req: Request, res: Response): Promise<void> {
     try {
-      const limitParsed = parseInt(req.query.limit as string) || PAGINATION.LIMIT;
-      const offsetParsed = parseInt(req.query.offset as string) || PAGINATION.OFFSET;
+      const limitParsed =
+        parseInt(req.query.limit as string) || PAGINATION.LIMIT;
+      const offsetParsed =
+        parseInt(req.query.offset as string) || PAGINATION.OFFSET;
       const limit = Math.min(
         Math.max(Number.isFinite(limitParsed) ? limitParsed : 24, 1),
         50,
@@ -119,7 +125,7 @@ export class RoutineController {
   // POST /api/routines/admin/featured/:id
   async addFeaturedRoutine(req: Request, res: Response): Promise<void> {
     try {
-      const routineId = parseInt(req.params.id, 10);
+      const routineId = parseInt(req.params.id as string, 10);
       const userId = req.user?.id;
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
@@ -130,9 +136,14 @@ export class RoutineController {
         return;
       }
 
-      const result = await this.routineService.addFeaturedRoutine(routineId, userId);
+      const result = await this.routineService.addFeaturedRoutine(
+        routineId,
+        userId,
+      );
       if (result.status === "already_featured") {
-        res.status(200).json({ ok: true, message: "Routine is already featured" });
+        res
+          .status(200)
+          .json({ ok: true, message: "Routine is already featured" });
         return;
       }
       res.status(201).json({ ok: true });
@@ -153,19 +164,24 @@ export class RoutineController {
   // DELETE /api/routines/admin/featured/:id
   async removeFeaturedRoutine(req: Request, res: Response): Promise<void> {
     try {
-      const routineId = parseInt(req.params.id, 10);
+      const routineId = parseInt(req.params.id as string, 10);
       if (Number.isNaN(routineId)) {
         res.status(400).json({ error: "Invalid routine id" });
         return;
       }
-      const deleted = await this.routineService.removeFeaturedRoutine(routineId);
+      const deleted =
+        await this.routineService.removeFeaturedRoutine(routineId);
       if (!deleted) {
         res.status(404).json({ error: "Routine was not featured" });
         return;
       }
       res.status(204).send();
     } catch (error: unknown) {
-      handleInternalError(res, "RoutineController.removeFeaturedRoutine", error);
+      handleInternalError(
+        res,
+        "RoutineController.removeFeaturedRoutine",
+        error,
+      );
     }
   }
 
@@ -178,7 +194,7 @@ export class RoutineController {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
-      const requestedUserId = req.params.userId;
+      const requestedUserId = req.params.userId as string;
       if (
         requestedUserId &&
         !this.canAccessUserScopedResource(authedUserId, requestedUserId, role)
@@ -197,7 +213,9 @@ export class RoutineController {
   // GET /api/routines/id/:id
   async getRoutineById(req: Request, res: Response): Promise<void> {
     try {
-      const routine = await this.routineService.getRoutineById(req.params.id);
+      const routine = await this.routineService.getRoutineById(
+        req.params.id as string,
+      );
       if (!routine) {
         res.status(404).json({ error: "Routine not found." });
         return;
@@ -212,7 +230,7 @@ export class RoutineController {
   async getRoutineWithProducts(req: Request, res: Response): Promise<void> {
     try {
       const routine = await this.routineService.getRoutineWithProducts(
-        req.params.id,
+        req.params.id as string,
       );
       if (!routine) {
         res.status(404).json({ error: "Routine not found." });
@@ -220,7 +238,11 @@ export class RoutineController {
       }
       res.json(routine);
     } catch (error: unknown) {
-      handleInternalError(res, "RoutineController.getRoutineWithProducts", error);
+      handleInternalError(
+        res,
+        "RoutineController.getRoutineWithProducts",
+        error,
+      );
     }
   }
 
@@ -245,14 +267,16 @@ export class RoutineController {
   // PUT /api/routines/id/:id
   async updateRoutineById(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const userId = req.user?.id;
       const role = req.user?.role;
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
-      const existingRoutine = await this.routineService.getRoutineById(String(id));
+      const existingRoutine = await this.routineService.getRoutineById(
+        String(id),
+      );
       if (!existingRoutine) {
         res.status(404).json({ error: "Routine not found" });
         return;
@@ -292,7 +316,7 @@ export class RoutineController {
   // DELETE /api/routines/id/:id
   async deleteRoutineById(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       if (isNaN(id)) {
         res.status(404).json({ error: "Invalid Routine Id" });
       }
@@ -302,7 +326,9 @@ export class RoutineController {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
-      const existingRoutine = await this.routineService.getRoutineById(String(id));
+      const existingRoutine = await this.routineService.getRoutineById(
+        String(id),
+      );
       if (!existingRoutine) {
         res.status(404).json({ error: "Routine not found" });
         return;
@@ -311,7 +337,10 @@ export class RoutineController {
         res.status(403).json({ error: "Forbidden" });
         return;
       }
-      const success = await this.routineService.deleteRoutine(id, existingRoutine.userId);
+      const success = await this.routineService.deleteRoutine(
+        id,
+        existingRoutine.userId,
+      );
       if (!success) {
         res
           .status(404)
@@ -327,14 +356,16 @@ export class RoutineController {
   // POST /api/routines/:id
   async addProductToRoutine(req: Request, res: Response): Promise<void> {
     try {
-      const routineId = parseInt(req.params.id);
+      const routineId = parseInt(req.params.id as string);
       const userId = req.user?.id;
       const role = req.user?.role;
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
-      const routine = await this.routineService.getRoutineById(String(routineId));
+      const routine = await this.routineService.getRoutineById(
+        String(routineId),
+      );
       if (!routine) {
         res.status(404).json({ error: "Routine not found" });
         return;
@@ -361,7 +392,7 @@ export class RoutineController {
   // DELETE /api/routines/:id/product
   async removeProductFromRoutine(req: Request, res: Response): Promise<void> {
     try {
-      const routineProductId = parseInt(req.params.id);
+      const routineProductId = parseInt(req.params.id as string);
       const userId = req.user?.id;
       const role = req.user?.role;
       if (!userId) {
@@ -383,9 +414,8 @@ export class RoutineController {
         return;
       }
 
-      const success = await this.routineService.removeProductFromRoutine(
-        routineProductId,
-      );
+      const success =
+        await this.routineService.removeProductFromRoutine(routineProductId);
 
       if (!success) {
         res.status(404).json({ error: "Item not found" });
@@ -393,14 +423,18 @@ export class RoutineController {
       }
       res.status(204).send();
     } catch (error: unknown) {
-      handleInternalError(res, "RoutineController.removeProductFromRoutine", error);
+      handleInternalError(
+        res,
+        "RoutineController.removeProductFromRoutine",
+        error,
+      );
     }
   }
 
   // PUT /api/routines/:id/product
   async updateProductInRoutine(req: Request, res: Response): Promise<void> {
     try {
-      const routineProductId = parseInt(req.params.id);
+      const routineProductId = parseInt(req.params.id as string);
       const userId = req.user?.id;
       const role = req.user?.role;
       if (!userId) {
@@ -424,8 +458,8 @@ export class RoutineController {
 
       const updatedRoutineProduct =
         await this.routineService.updateProductInRoutine(
-        routineProductId,
-        req.body,
+          routineProductId,
+          req.body,
         );
 
       if (!updatedRoutineProduct) {
@@ -435,7 +469,11 @@ export class RoutineController {
 
       res.json(updatedRoutineProduct);
     } catch (error: unknown) {
-      handleInternalError(res, "RoutineController.updateProductInRoutine", error);
+      handleInternalError(
+        res,
+        "RoutineController.updateProductInRoutine",
+        error,
+      );
     }
   }
 

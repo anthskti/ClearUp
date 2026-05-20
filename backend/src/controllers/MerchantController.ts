@@ -31,7 +31,7 @@ export class MerchantController {
   // PUT /api/merchants/:id
   async updateMerchantbyId(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const merchant = await this.merchantService.updateMerchant(id, req.body);
 
       if (!merchant) {
@@ -48,7 +48,7 @@ export class MerchantController {
   // DELETE /api/merchants/:id
   async deleteMerchant(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const success = await this.merchantService.deleteMerchant(id);
 
       if (!success) {

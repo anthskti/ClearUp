@@ -159,10 +159,16 @@ export const addMerchantByProductId = async (
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify(merchantData),
   });
   if (!res.ok) {
-    throw new Error(`Failed to add merchant to id: ${id}`);
+    const errorData = await res
+      .json()
+      .catch(() => ({ error: `Failed to add merchant to product ${id}` }));
+    throw new Error(
+      errorData.error || `Failed to add merchant to product ${id}`,
+    );
   }
   return res.json();
 };

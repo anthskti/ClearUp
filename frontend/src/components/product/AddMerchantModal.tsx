@@ -72,7 +72,10 @@ export default function AddMerchantModal({
       setPrice("");
       setWebsite("");
     } catch (error) {
-      alert("Failed to add merchant link");
+      const message =
+        error instanceof Error ? error.message : "Failed to add merchant link";
+      console.error("[AddMerchantModal]", error);
+      alert(message);
     } finally {
       setIsSubmitting(false);
     }

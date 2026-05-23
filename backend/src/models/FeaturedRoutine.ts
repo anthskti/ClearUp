@@ -14,9 +14,9 @@ class FeaturedRoutine
   extends Model<FeaturedRoutineAttributes, FeaturedRoutineCreationAttributes>
   implements FeaturedRoutineAttributes
 {
-  public id!: number;
-  public routineId!: number;
-  public pinnedBy!: string;
+  declare id: number;
+  declare routineId: number;
+  declare pinnedBy: string;
 }
 
 FeaturedRoutine.init(

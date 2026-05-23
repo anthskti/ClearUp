@@ -8,10 +8,10 @@ interface CommentAttribute {
 }
 
 class Comment {
-  public id!: number;
-  public productId!: number;
-  public userId!: string;
-  public content!: string;
-  public helpfulCount!: number;
-  public createdAt!: Date;
+  declare id: number;
+  declare productId: number;
+  declare userId: string;
+  declare content: string;
+  declare likesCount: number;
+  declare createdAt: Date;
 }

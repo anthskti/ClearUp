@@ -89,7 +89,7 @@ export function ImportsAdminClient() {
           className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-4 font-mono text-xs text-zinc-900 shadow-sm outline-none focus:border-zinc-400"
           placeholder={
             tab === "products"
-              ? "Paste product CSV (see backend ProductService import format)…"
+              ? "Paste scraper CSV: name, brand, category, labels, skinType, country, capacity, price, instructions, ingredients, imageUrls, averageRating, url, status"
               : "Paste columns: name, brand, merchant, price…"
           }
         />

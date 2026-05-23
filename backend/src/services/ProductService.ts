@@ -3,11 +3,20 @@ import {
   CreateProductInput,
   Product,
   ProductCategory,
-  SkinType,
   UpdateProductInput,
 } from "../types/product";
 import { ProductMerchantRepository } from "../repositories/ProductMerchantRepository";
-import parseCsvText from "../scripts/parseCsvText";
+import {
+  parseCsvText,
+  parseCategory,
+  parseImageUrls,
+  parseInstructions,
+  parseLabels,
+  parseScraperPrice,
+  parseSkinTypes,
+  isScraperRowSuccessful,
+  SCRAPER_DEFAULT_MERCHANT_NAME,
+} from "../lib/csvProductImport";
 import ProductModel from "../models/Product";
 import ProductMerchantModel from "../models/ProductMerchant";
 import {
@@ -168,8 +177,43 @@ export class ProductService {
     return filtered.slice(offset, offset + limit);
   }
 
-  // POST batch post products via csv
-  // name, brand, category, price, skintype, country, capacity, instructions, activeIngredient, ingredients, imageurls, averageRating
+  /** Link scraper `url` + `price` to the default merchant (YesStyle) when present in DB. */
+  private async upsertScraperMerchantOffer(
+    productId: number,
+    website: string,
+    price: number,
+  ): Promise<void> {
+    const merchant = await this.merchantRepository.findModelByName(
+      SCRAPER_DEFAULT_MERCHANT_NAME,
+    );
+    if (!merchant) return;
+
+    const merchantId = Number(merchant.getDataValue("id"));
+    const [offer, wasCreated] = await ProductMerchantModel.findOrCreate({
+      where: { productId, merchantId },
+      defaults: {
+        productId,
+        merchantId,
+        website,
+        price,
+        stock: true,
+        shipping: "",
+        lastUpdated: new Date(),
+      },
+    });
+
+    if (!wasCreated) {
+      await offer.update({
+        website,
+        price,
+        lastUpdated: new Date(),
+      });
+    }
+  }
+
+  // POST batch import from datascraper CSV:
+  // name, brand, category, labels, skinType, country, capacity, price, instructions,
+  // ingredients, imageUrls, averageRating, url, status
   async importProductsCsv(csv: string): Promise<CsvImportResult> {
     const startedAt = Date.now();
     const rows = parseCsvText(csv);
@@ -183,11 +227,20 @@ export class ProductService {
     for (let i = 0; i < rows.length; i += 1) {
       const rowNumber = i + 2; // include header line
       const row = rows[i];
-      const name = (row.name).trim();
-      const brand = (row.brand).trim();
+      const name = row.name?.trim() ?? "";
+      const brand = row.brand?.trim() ?? "";
 
-       // Key fields validity checks
-       if (!name) {
+      if (!isScraperRowSuccessful(row.status)) {
+        skipped += 1;
+        errors.push({
+          row: rowNumber,
+          code: "SCRAPER_STATUS",
+          message: `Row skipped (status=${row.status || "unknown"}).`,
+        });
+        continue;
+      }
+
+      if (!name) {
         skipped += 1;
         errors.push({
           row: rowNumber,
@@ -205,23 +258,28 @@ export class ProductService {
         });
         continue;
       }
-      // TODO: Figure out skintype enum situation
-      const skinType = row.skintype
-        ? (row.skintype.split("|").map((v) => v.trim()) as SkinType[])
-        : [];
-      const country = row.country;
-      const category = row.category;
-      const capacity = row.capacity;
-      const price = Number(row.price || 0);
 
-      const instructions = row.instructions
-        ? row.instructions.split("|").map((v) => v.trim())
-        : [];
-      const ingredients = row.ingredients; // String
-      const imageUrls = row.imageurls
-        ? row.imageurls.split("|").map((v) => v.trim())
-        : [];
+      const category = parseCategory(row.category);
+      if (!category) {
+        skipped += 1;
+        errors.push({
+          row: rowNumber,
+          code: "INVALID_CATEGORY",
+          message: `Row skipped because category "${row.category || ""}" is invalid.`,
+        });
+        continue;
+      }
+
+      const labels = parseLabels(row.labels);
+      const skinType = parseSkinTypes(row.skintype);
+      const country = row.country?.trim() || "";
+      const capacity = row.capacity?.trim() || "0ml";
+      const price = parseScraperPrice(row.price);
+      const instructions = parseInstructions(row.instructions);
+      const ingredients = row.ingredients?.trim() || undefined;
+      const imageUrls = parseImageUrls(row.imageurls);
       const averageRating = Number(row.averagerating || 0);
+      const storeUrl = row.url?.trim() || "";
 
       processed += 1;
 
@@ -231,31 +289,39 @@ export class ProductService {
           brand,
         );
 
+        let productId: number;
+
         if (existing) {
           await existing.update({
-            category, // Usually not changed, however might need to be if i add eye cream etc.
+            category,
+            labels: labels.length ? labels : existing.getDataValue("labels"),
             skinType: skinType.length
               ? skinType
               : existing.getDataValue("skinType"),
             capacity: capacity || existing.getDataValue("capacity"),
-            country: row.country || existing.getDataValue("country"),
-            price: price || existing.getDataValue("price"),
+            country: country || existing.getDataValue("country"),
+            price: price > 0 ? price : existing.getDataValue("price"),
             instructions: instructions.length
               ? instructions
               : existing.getDataValue("instructions"),
-            ingredients: row.ingredients || existing.getDataValue("ingredients"),
+            ingredients:
+              ingredients || existing.getDataValue("ingredients"),
             imageUrls: imageUrls.length
               ? imageUrls
               : existing.getDataValue("imageUrls"),
-            activeIngredient: row.activeingredient || existing.getDataValue("activeIngredient"),
-            averageRating: averageRating || existing.getDataValue("averageRating"),
+            averageRating:
+              averageRating > 0
+                ? averageRating
+                : existing.getDataValue("averageRating"),
           } as any);
+          productId = Number(existing.getDataValue("id"));
           updated += 1;
         } else {
-          await ProductModel.create({
+          const createdProduct = await ProductModel.create({
             name,
             brand,
             category,
+            labels,
             skinType,
             country,
             capacity,
@@ -264,8 +330,14 @@ export class ProductService {
             ingredients,
             imageUrls,
             averageRating,
+            reviewCount: 0,
           } as any);
+          productId = Number(createdProduct.getDataValue("id"));
           created += 1;
+        }
+
+        if (storeUrl && price > 0) {
+          await this.upsertScraperMerchantOffer(productId, storeUrl, price);
         }
       } catch (error: any) {
         failed += 1;

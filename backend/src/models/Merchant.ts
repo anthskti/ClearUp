@@ -5,7 +5,6 @@ interface MerchantAttributes {
   id: number;
   name: string;
   logo?: string;
-  website: string;
 }
 
 interface MerchantCreationAttributes
@@ -18,7 +17,6 @@ class Merchant
   declare id: number;
   declare name: string;
   declare logo?: string;
-  declare website: string;
 }
 
 Merchant.init(
@@ -30,7 +28,6 @@ Merchant.init(
     },
     name: { type: DataTypes.STRING, allowNull: false },
     logo: { type: DataTypes.STRING, allowNull: true },
-    website: { type: DataTypes.STRING, allowNull: false },
   },
   {
     sequelize,

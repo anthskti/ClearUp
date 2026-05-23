@@ -139,10 +139,15 @@ const startServer = async () => {
     // Test database connection
     console.log("Testing database connection...");
     await sequelize.authenticate();
+    // Define associations between models 
     console.log("Database connection established successfully.");
 
-    // Define associations between models
+    // Define associations between models (restarting local dev needs)
     defineAssociations();
+
+    // Create tables from models if they don't exist
+    console.log("Syncing database models...");
+    await sequelize.sync();
 
     console.log("Running DB migrations...");
     await runMigrations();

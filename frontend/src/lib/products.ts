@@ -71,17 +71,18 @@ export const getProductsByCategory = async (
   const res = await fetch(
     `${API_URL}/api/products/category/${category}?limit=${limit}&offset=${offset}`,
     {
-      next: { revalidate: 21600 },
+      cache: "no-store",
     },
   );
 
   if (!res.ok) {
-    throw new Error(
-      `Failed to fetch products category ${category}, with limit ${limit} and offset ${offset}`,
+    console.error(
+      `getProductsByCategory failed: ${category} limit=${limit} offset=${offset}`,
     );
     return [];
   }
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
 };
 
 export const searchProducts = async (
@@ -123,7 +124,7 @@ export const searchProductsByCategory = async (
 
 export const getProductById = async (id: string): Promise<Product> => {
   const res = await fetch(`${API_URL}/api/products/id/${id}`, {
-    next: { revalidate: 21600 },
+    cache: "no-store",
   });
   if (!res.ok) {
     throw new Error(`Failed to fetch product ${id}`);

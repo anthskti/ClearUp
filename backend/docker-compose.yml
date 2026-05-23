@@ -1,3 +1,8 @@
+# Local Postgres only. Run the API on the host with `npm run dev` (not in this file).
+# Start:  docker compose up -d
+# Stop:   docker compose down
+# Shell:  docker exec -it skincare-db psql -U postgres -d skincare
+
 services:
   postgres:
     image: postgres:15
@@ -10,5 +15,11 @@ services:
       POSTGRES_DB: skincare
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d skincare"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 volumes:
   pgdata:

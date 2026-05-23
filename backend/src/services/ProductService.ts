@@ -87,10 +87,13 @@ export class ProductService {
   async getMerchantsByProductId(
     productId: number,
   ): Promise<ProductMerchantWithDetails[]> {
-    // Check if product exists first?
-    const product = await this.productRepository.findById(productId.toString());
+    if (!Number.isFinite(productId) || productId <= 0) {
+      return [];
+    }
+
+    const product = await this.productRepository.findById(String(productId));
     if (!product) {
-      throw new Error("Product not found");
+      return [];
     }
 
     return this.productMerchantRepository.findByProductId(productId);

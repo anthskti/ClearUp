@@ -1,4 +1,20 @@
 {
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "ClearUp API",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "packageManager": "bun@1.2.0",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "tsc",
+    "start": "bun dist/index.js",
+    "watch": "tsc --watch",
+    "migrate:up": "bun scripts/migrateUp.ts",
+    "migrate:down": "bun scripts/migrateDown.ts",
+    "seed": "bun src/scripts/seed.ts",
+    "test:ses": "bun scripts/testSesEmail.ts"
+  },
   "dependencies": {
     "@aws-sdk/client-sesv2": "^3.1014.0",
     "better-auth": "^1.4.19",
@@ -13,29 +29,12 @@
     "sequelize": "^6.37.7",
     "umzug": "^3.8.3"
   },
-  "name": "backend",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts",
-    "test:ses": "ts-node scripts/testSesEmail.ts",
-    "watch": "tsc --watch",
-    "migrate:up": "ts-node scripts/migrateUp.ts",
-    "migrate:down": "ts-node scripts/migrateDown.ts"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^24.3.0",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "eslint": "^8.57.1",
-    "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
-  },
-  "description": ""
+  }
 }

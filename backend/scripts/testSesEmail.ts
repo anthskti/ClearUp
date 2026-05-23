@@ -32,8 +32,8 @@ async function main() {
   if (!to) {
     console.error(
       "Missing recipient. Set TEST_SES_TO_EMAIL or pass an email:\n" +
-        "  TEST_SES_TO_EMAIL=you@verified.com npm run test:ses\n" +
-        "  npm run test:ses -- you@verified.com",
+        "  TEST_SES_TO_EMAIL=you@verified.com bun run test:ses\n" +
+        "  bun run test:ses -- you@verified.com",
     );
     process.exit(1);
   }

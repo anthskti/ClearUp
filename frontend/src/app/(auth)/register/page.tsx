@@ -45,19 +45,6 @@ export default function RegisterPage() {
     setLoading(false);
   };
 
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    const { error } = await authClient.signIn.social({
-      provider: "google",
-      // Force it back to the frontend port. Issue with redirecting to 5050. Change for prod
-      callbackURL: `${window.location.origin}/`,
-    });
-    if (error) {
-      alert(error.message);
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <ProceduralWave seed={4} height={190} />

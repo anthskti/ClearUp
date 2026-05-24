@@ -72,7 +72,7 @@ export function parseLabels(raw: string | undefined): string[] {
   return raw
     .split(/[,;|]/)
     .map((s) => s.trim())
-    .filter((s) => s.length > 0 && s !== "-" && s !== "—");
+    .filter((s) => s.length > 0);
 }
 
 export function parseSkinTypes(raw: string | undefined): SkinType[] {
@@ -102,16 +102,18 @@ export function parseScraperPrice(raw: string | undefined): number {
 }
 
 export function parseInstructions(raw: string | undefined): string[] {
-  const t = raw?.trim();
-  if (!t || t.toLowerCase() === "n/a") return [];
+  const trimmed = raw?.trim();
+  if (!trimmed || trimmed.toLowerCase() === "n/a") return [];
 
-  const numbered = t
-    .split(/(?=\s*\d+\.\s+)/)
+  const segments = trimmed
+    .split(/\.\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
-  if (numbered.length > 1) return numbered;
+  if (segments.length <= 1) {
+    return [trimmed];
+  }
 
-  return [t];
+  return segments.map((seg) => (seg.endsWith(".") ? seg : `${seg}.`));
 }
 
 export function parseImageUrls(raw: string | undefined): string[] {

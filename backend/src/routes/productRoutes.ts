@@ -15,16 +15,17 @@ router.post("/admin/import/prices", requireAdmin, (req, res) =>
   productController.importPriceUpdatesCsv(req, res)
 );
 
-router.put("/product-merchant/:id", (req, res) =>
+router.put("/product-merchant/:id", requireAdmin, (req, res) =>
   productController.updateProductMerchant(req, res)
 );
-router.delete("/product-merchant/:id", (req, res) =>
+router.delete("/product-merchant/:id", requireAdmin,(req, res) =>
   productController.removeMerchantFromProduct(req, res)
 );
 
 // GET for filtering with ?filters=greentea etc
 router.get("/", (req, res) => productController.getAllProducts(req, res));
-router.post("/", (req, res) => productController.createProduct(req, res));
+
+router.post("/", requireAdmin, (req, res) => productController.createProduct(req, res));
 
 // GET product merchants in batches
 router.get("/merchants/batch", (req, res) =>
@@ -38,10 +39,10 @@ router.get("/category/:category", (req, res) =>
 
 // Standard Product CRUD
 router.get("/id/:id", (req, res) => productController.getProductById(req, res));
-router.put("/id/:id", (req, res) =>
+router.put("/id/:id", requireAdmin, (req, res) =>
   productController.updateProductbyId(req, res)
 );
-router.delete("/id/:id", (req, res) =>
+router.delete("/id/:id", requireAdmin, (req, res) =>
   productController.DeleteProductbyId(req, res)
 );
 

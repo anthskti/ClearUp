@@ -22,7 +22,7 @@ export interface DetailSheet {
 const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
 const getProductData = (product: Product, dataKey: string) => {
-  // Handle Array Access (mainly for "labels" and active ingredients)
+  // Handle Array Access (mainly for "labels" and "skinTypes")
   if (dataKey.includes("[")) {
     const [key, indexPart] = dataKey.split("["); // ["labels", "0]"]
     const index = parseInt(indexPart.replace("]", ""), 10); // 0
@@ -39,9 +39,11 @@ const getProductData = (product: Product, dataKey: string) => {
   // 2. Handle Direct Access (e.g., "capacity", "country")
   const value = product[dataKey as keyof Product];
 
-  // 3. Handle specific arrays like activeIngredient
+  // 3. Handle arrays like skinType (joined list)
   if (Array.isArray(value)) {
-    return value.length > 0 ? value.join(", ") : "-";
+    return value.length > 0
+      ? value.map((item) => capitalize(String(item))).join(", ")
+      : "-";
   }
   return value || "-";
 };
@@ -66,8 +68,8 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Droplets size={16} />,
       },
       {
-        label: "Active Ingredients",
-        dataKey: "activeIngredient",
+        label: "SkinType",
+        dataKey: "skinType",
         icon: <Info size={16} />,
       },
     ],
@@ -90,8 +92,8 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Droplets size={16} />,
       },
       {
-        label: "Active Ingredients",
-        dataKey: "activeIngredient",
+        label: "SkinType",
+        dataKey: "skinType",
         icon: <Info size={16} />,
       },
     ],
@@ -114,9 +116,9 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Droplets size={16} />,
       },
       {
-        label: "Active Ingredients",
-        dataKey: "activeIngredient",
-        icon: <Info size={16} />,
+        label: "SkinType",
+        dataKey: "skinType",
+        icon: <Droplets size={16} />,
       },
     ],
   },
@@ -143,8 +145,8 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <TestTubeDiagonal size={16} />,
       },
       {
-        label: "Active Ingredients",
-        dataKey: "activeIngredient",
+        label: "SkinType",
+        dataKey: "skinType",
         icon: <Info size={16} />,
       },
     ],
@@ -172,8 +174,8 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Bubbles size={16} />,
       },
       {
-        label: "Active Ingredients",
-        dataKey: "activeIngredient",
+        label: "SkinType",
+        dataKey: "skinType",
         icon: <Info size={16} />,
       },
     ],
@@ -206,8 +208,8 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         icon: <Info size={16} />,
       },
       {
-        label: "Active Ingredients",
-        dataKey: "activeIngredient",
+        label: "SkinType",
+        dataKey: "skinType",
         icon: <Info size={16} />,
       },
     ],

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { ExternalLink, Check } from "lucide-react";
+import { ChevronDown, ExternalLink, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import ProductImageGallery from "@/components/ui/ProductGallery";
@@ -15,6 +15,7 @@ import { useEffectiveRole } from "@/hooks/useEffectiveRole";
 
 import { Product } from "@/types/product";
 import { ProductMerchantWithDetails } from "@/types/merchant";
+import { cn } from "@/lib/utils";
 
 const AddMerchantModal = dynamic(() => import("./AddMerchantModal"), {
   ssr: false, // It's a modal, it doesn't need to be on the server
@@ -33,7 +34,9 @@ export default function ProductClient({
     DETAIL_CONFIG[product.category as CategoryKey] || DETAIL_CONFIG.default;
 
   const [isMerchantModalOpen, setIsMerchantModalOpen] = useState(false);
+  const [ingredientsOpen, setIngredientsOpen] = useState(false);
   const { isAdmin } = useEffectiveRole();
+  const hasIngredients = Boolean(product.ingredients);
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8] pt-20">
@@ -119,9 +122,9 @@ export default function ProductClient({
               })}
             </div>
 
-            <div className="pt-4">
+            <div className="pt-4 border-t border-zinc-200">
               <span className="block text-xs text-zinc-500 uppercase font-medium mb-2">
-                How to Use:
+                How to Use
               </span>
               <ul className="list-disc list-inside text-zinc-600 space-y-1">
                 {product.instructions.map((step, i) => (
@@ -129,6 +132,33 @@ export default function ProductClient({
                 ))}
               </ul>
             </div>
+
+            {hasIngredients && (
+              <div className="pt-4 border-t border-zinc-200">
+                <button
+                  type="button"
+                  onClick={() => setIngredientsOpen((open) => !open)}
+                  aria-expanded={ingredientsOpen}
+                  className="flex w-full items-center justify-between gap-2 text-left"
+                >
+                  <span className="text-xs text-zinc-500 uppercase font-medium">
+                    Ingredients
+                  </span>
+                  <ChevronDown
+                    size={16}
+                    className={cn(
+                      "shrink-0 text-zinc-400 transition-transform duration-200",
+                      ingredientsOpen && "rotate-180",
+                    )}
+                  />
+                </button>
+                {ingredientsOpen && (
+                  <p className="mt-3 text-sm text-zinc-600 leading-relaxed">
+                    {product.ingredients}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Merchant Tracker, Implement through admin. Might Add Datascrapper in future.  */}

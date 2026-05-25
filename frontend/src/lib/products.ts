@@ -174,46 +174,84 @@ export const addMerchantByProductId = async (
   return res.json();
 };
 
-export const importProductsCsv = async (csv: string): Promise<{
+export type CsvImportResponse = {
   ok: boolean;
   processed: number;
   created: number;
   updated: number;
+  skipped?: number;
   message: string;
-}> => {
-  const res = await fetch(`${API_URL}/api/products/admin/import/csv`, {
+  totals?: {
+    received: number;
+    processed: number;
+    created: number;
+    updated: number;
+    skipped: number;
+    failed: number;
+  };
+  errors?: { row: number; code: string; message: string }[];
+};
+
+async function readImportError(res: Response): Promise<string> {
+  const fallback = `Import failed (HTTP ${res.status})`;
+  try {
+    const data = (await res.json()) as { error?: string; message?: string };
+    if (res.status === 413) {
+      return (
+        data.error ||
+        "CSV file is too large for the server limit. Try a smaller batch."
+      );
+    }
+    return data.error || data.message || fallback;
+  } catch {
+    if (res.status === 413) {
+      return "CSV payload too large (HTTP 413). Try importing in smaller batches.";
+    }
+    return fallback;
+  }
+}
+
+async function postCsvImport(
+  path: string,
+  csvOrFile: string | File,
+): Promise<Response> {
+  const init: RequestInit = {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ csv }),
-  });
+    body: csvOrFile,
+  };
+  if (typeof csvOrFile === "string") {
+    init.headers = { "Content-Type": "text/csv; charset=utf-8" };
+  }
+  return fetch(`${API_URL}${path}`, init);
+}
+
+/** Import via raw CSV body (paste or File) — avoids JSON size overhead/limit. */
+export const importProductsCsv = async (
+  csvOrFile: string | File,
+): Promise<CsvImportResponse> => {
+  const res = await postCsvImport("/api/products/admin/import/csv", csvOrFile);
   if (!res.ok) {
-    const errorData = await res
-      .json()
-      .catch(() => ({ error: "Failed product CSV import" }));
-    throw new Error(errorData.error || "Failed product CSV import");
+    throw new Error(await readImportError(res));
   }
   return res.json();
 };
 
-export const importPriceUpdatesCsv = async (csv: string): Promise<{
+export const importPriceUpdatesCsv = async (
+  csvOrFile: string | File,
+): Promise<{
   ok: boolean;
   processed: number;
   updatedOffers: number;
   skipped: number;
   message: string;
 }> => {
-  const res = await fetch(`${API_URL}/api/products/admin/import/prices`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ csv }),
-  });
+  const res = await postCsvImport(
+    "/api/products/admin/import/prices",
+    csvOrFile,
+  );
   if (!res.ok) {
-    const errorData = await res
-      .json()
-      .catch(() => ({ error: "Failed price CSV import" }));
-    throw new Error(errorData.error || "Failed price CSV import");
+    throw new Error(await readImportError(res));
   }
   return res.json();
 };

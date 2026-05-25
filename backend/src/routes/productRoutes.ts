@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 import { ProductController } from "../controllers/productController";
 import { requireAdmin } from "../middleware/requireAuth";
+import { parseImportCsvBody } from "../middleware/parseCsvBody";
 
 const router = express.Router();
 const productController = new ProductController();
@@ -8,11 +9,17 @@ const productController = new ProductController();
 // PRODUCT
 
 // ADMIN endpoints
-router.post("/admin/import/csv", requireAdmin, (req, res) =>
-  productController.importProductsCsv(req, res)
+router.post(
+  "/admin/import/csv",
+  requireAdmin,
+  parseImportCsvBody,
+  (req, res) => productController.importProductsCsv(req, res),
 );
-router.post("/admin/import/prices", requireAdmin, (req, res) =>
-  productController.importPriceUpdatesCsv(req, res)
+router.post(
+  "/admin/import/prices",
+  requireAdmin,
+  parseImportCsvBody,
+  (req, res) => productController.importPriceUpdatesCsv(req, res),
 );
 
 router.put("/product-merchant/:id", requireAdmin, (req, res) =>

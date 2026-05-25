@@ -43,7 +43,7 @@ app.use(
   webhookRoutes,
 );
 
-app.use(express.json()); // parse JSON before auth/rate-limit middlewares
+app.use(express.json());
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

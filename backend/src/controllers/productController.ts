@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ProductService } from "../services/ProductService";
 import PAGINATION from "../config/pagination";
 import { handleInternalError } from "../lib/httpError";
+import { csvFromRequestBody } from "../middleware/parseCsvBody";
 
 export class ProductController {
   private productService: ProductService;
@@ -224,9 +225,12 @@ export class ProductController {
   // POST /api/products/admin/import/csv
   async importProductsCsv(req: Request, res: Response): Promise<void> {
     try {
-      const csv = String(req.body?.csv || "");
-      if (!csv.trim()) {
-        res.status(400).json({ error: "Missing csv body content" });
+      const csv = csvFromRequestBody(req.body);
+      if (!csv) {
+        res.status(400).json({
+          error:
+            "Missing CSV body. Send raw text/csv or application/json { csv }.",
+        });
         return;
       }
       const result = await this.productService.importProductsCsv(csv);
@@ -239,9 +243,12 @@ export class ProductController {
   // POST /api/products/admin/import/prices
   async importPriceUpdatesCsv(req: Request, res: Response): Promise<void> {
     try {
-      const csv = String(req.body?.csv || "");
-      if (!csv.trim()) {
-        res.status(400).json({ error: "Missing csv body content" });
+      const csv = csvFromRequestBody(req.body);
+      if (!csv) {
+        res.status(400).json({
+          error:
+            "Missing CSV body. Send raw text/csv or application/json { csv }.",
+        });
         return;
       }
       const result = await this.productService.importPriceUpdatesCsv(csv);

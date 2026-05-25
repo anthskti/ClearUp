@@ -94,8 +94,9 @@ function Footer() {
             &copy; Clear Up {new Date().getFullYear()}
           </p>
 
-          <div className="flex gap-6 text-xs text-white show-menu-item-divider">
-            {/* <Link href="/privacy">Privacy Policy</Link> */}
+          <div className="flex gap-6 text-xs text-white">
+            <Link href="/privacy">Privacy Policy</Link>
+            <span>|</span>
             <Link href="/tos">Terms of Service</Link>
             {/* <Link href="/accessibility">Accessibility</Link> */}
           </div>

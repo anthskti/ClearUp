@@ -71,6 +71,16 @@ export class ProductRepository {
     return rows > 0 ? this.mapToProductType(updatedProduct) : null;
   }
 
+  async updatePrice(id: number, price: number): Promise<boolean> {
+    const [rows] = await ProductModel.update(
+      { price },
+      {
+        where: { id },
+      },
+    );
+    return rows > 0;
+  }
+
   // DELETE product by ID
   async delete(id: number): Promise<boolean> {
     const deleted = await ProductModel.destroy({ where: { id } });

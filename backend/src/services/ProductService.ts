@@ -87,11 +87,8 @@ export class ProductService {
   async getMerchantsByProductId(
     productId: number,
   ): Promise<ProductMerchantWithDetails[]> {
-    if (!Number.isFinite(productId) || productId <= 0) {
-      return [];
-    }
-
-    const product = await this.productRepository.findById(String(productId));
+    // Check if product exists first?
+    const product = await this.productRepository.findById(productId.toString());
     if (!product) {
       return [];
     }
@@ -134,10 +131,12 @@ export class ProductService {
     if (!product) {
       throw new Error("Product not found");
     }
-    return this.productMerchantRepository.create({
+    const createdMerchant = await this.productMerchantRepository.create({
       productId: productId,
       ...merchantData,
     });
+    await this.syncProductPriceFromLowestOffer(productId);
+    return createdMerchant;
   }
 
   // PUT update a product-merchant info
@@ -145,12 +144,30 @@ export class ProductService {
     productMerchantId: number,
     updates: UpdateProductMerchantInput,
   ): Promise<ProductMerchant | null> {
-    return this.productMerchantRepository.update(productMerchantId, updates);
+    const updatedMerchant = await this.productMerchantRepository.update(
+      productMerchantId,
+      updates,
+    );
+    if (updatedMerchant) {
+      await this.syncProductPriceFromLowestOffer(updatedMerchant.productId);
+    }
+    return updatedMerchant;
   }
 
   // DELETE a Products Merchant
   async removeMerchantFromProduct(productMerchantId: number): Promise<boolean> {
-    return this.productMerchantRepository.delete(productMerchantId);
+    const existingMerchant =
+      await this.productMerchantRepository.findById(productMerchantId);
+    if (!existingMerchant) {
+      return false;
+    }
+
+    const productId = Number(existingMerchant.productId);
+    const deleted = await this.productMerchantRepository.delete(productMerchantId);
+    if (deleted) {
+      await this.syncProductPriceFromLowestOffer(productId);
+    }
+    return deleted;
   }
 
   // GET /SEARCH products by query
@@ -211,6 +228,16 @@ export class ProductService {
         price,
         lastUpdated: new Date(),
       });
+    }
+
+    await this.syncProductPriceFromLowestOffer(productId);
+  }
+
+  private async syncProductPriceFromLowestOffer(productId: number): Promise<void> {
+    const lowestPrice =
+      await this.productMerchantRepository.getLowestPriceByProductId(productId);
+    if (lowestPrice != null) {
+      await this.productRepository.updatePrice(productId, lowestPrice);
     }
   }
 
@@ -456,18 +483,7 @@ export class ProductService {
           updated += 1;
         }
 
-        const productOffers = await ProductMerchantModel.findAll({
-          where: { productId: productId },
-          raw: true,
-        });
-
-        const lowestPrice = productOffers.reduce((lowest: number, offer: any) => {
-          return Math.min(lowest, Number(offer.price) || Number.MAX_SAFE_INTEGER);
-        }, Number.MAX_SAFE_INTEGER);
-
-        if (lowestPrice !== Number.MAX_SAFE_INTEGER) {
-          await product.update({ price: lowestPrice });
-        }
+        await this.syncProductPriceFromLowestOffer(productId);
       } catch (error: any) {
         failed += 1;
         errors.push({

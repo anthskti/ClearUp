@@ -100,11 +100,10 @@ export const useBuilderRoutine = () => {
                       p.id === product.id
                         ? {
                             ...p,
-                            // price: bestOffer.price, // Uncomment to override price with best offer
+                            price: bestOffer.price,
                             merchant: bestOffer.merchant?.name || "Unknown",
                             merchantLogo: bestOffer.merchant?.logo || "-",
                             merchantLink: bestOffer.website,
-                            // keep the original price unless you want to override
                           }
                         : p,
                     ),

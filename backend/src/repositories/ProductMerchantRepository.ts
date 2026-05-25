@@ -46,6 +46,22 @@ export class ProductMerchantRepository {
     );
   }
 
+  async findById(id: number): Promise<ProductMerchant | null> {
+    const productMerchant = await ProductMerchantModel.findByPk(id);
+    return productMerchant
+      ? this.mapToProductMerchantType(productMerchant)
+      : null;
+  }
+
+  async getLowestPriceByProductId(productId: number): Promise<number | null> {
+    const lowestPrice = await ProductMerchantModel.min("price", {
+      where: { productId },
+    });
+    return typeof lowestPrice === "number" && Number.isFinite(lowestPrice)
+      ? lowestPrice
+      : null;
+  }
+
   // POST new merchant on product list
   async create(
     productMerchantData: CreateProductMerchantInput,

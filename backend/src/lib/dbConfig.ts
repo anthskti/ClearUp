@@ -12,6 +12,7 @@ export function resolveDatabaseUrl(): string {
   const fromEnv = process.env.DATABASE_URL?.trim();
   if (fromEnv) return fromEnv;
 
+  // backup variables
   const host = process.env.DB_HOST || "localhost";
   const port = process.env.DB_PORT || "5432";
   const database = process.env.DB_NAME || "skincare";
@@ -32,7 +33,7 @@ function readSupabaseCa(): string | undefined {
   }
 }
 
-/** SSL options for `pg` / Sequelize — keep auth and ORM aligned. */
+// SSL options for `pg` / Sequelize — keep auth and ORM aligned.
 export function getPgSslConfig():
   | false
   | { require?: boolean; rejectUnauthorized: boolean; ca?: string } {

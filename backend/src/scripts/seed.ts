@@ -30,43 +30,43 @@ async function seedDatabase() {
     defineAssociations();
 
     // Loading CSV
-    const productsPath = path.join(__dirname, "../data/product_table.csv");
+    // const productsPath = path.join(__dirname, "../data/product_table.csv");
     const merchantsPath = path.join(__dirname, "../data/merchant_table.csv");
 
-    const rawProducts = await readCSV(productsPath);
+    // const rawProducts = await readCSV(productsPath);
     const rawMerchants = await readCSV(merchantsPath);
 
-    console.log(
-      `Found ${rawProducts.length} products and ${rawMerchants.length} merchant links.`
-    );
+    // console.log(
+    //   `Found ${rawProducts.length} products and ${rawMerchants.length} merchant links.`
+    // );
 
     // Create Product Table
-    console.log("\nCREATING PRODUCTS ");
-    for (const row of rawProducts) {
-      // Helper to split string by ";" and clean whitespace
-      const split = (str: string) =>
-        str ? str.split(";").map((s) => s.trim()) : [];
+    // console.log("\nCREATING PRODUCTS ");
+    // for (const row of rawProducts) {
+    //   // Helper to split string by ";" and clean whitespace
+    //   const split = (str: string) =>
+    //     str ? str.split(";").map((s) => s.trim()) : [];
 
-      await productService.createProduct({
-        name: row.name,
-        brand: row.brand,
-        category: row.category as any,
-        labels: split(row.labels),
-        skinType: split(row.skinType) as any[],
-        country: row.country,
-        capacity: row.capacity,
-        price: parseFloat(row.price),
-        instructions: split(row.instructions),
-        activeIngredient: row.activeIngredient,
-        ingredients: row.ingredients,
-        imageUrls: split(row.imageUrls),
-        averageRating: row.averageRating ? parseFloat(row.averageRating) : 0,
-        reviewCount: row.reviewCount ? parseInt(row.reviewCount) : 0,
-        tags: split(row.tags),
-      });
-      process.stdout.write(".");
-    }
-    console.log("\nProducts Created.");
+    //   await productService.createProduct({
+    //     name: row.name,
+    //     brand: row.brand,
+    //     category: row.category as any,
+    //     labels: split(row.labels),
+    //     skinType: split(row.skinType) as any[],
+    //     country: row.country,
+    //     capacity: row.capacity,
+    //     price: parseFloat(row.price),
+    //     instructions: split(row.instructions),
+    //     activeIngredient: row.activeIngredient,
+    //     ingredients: row.ingredients,
+    //     imageUrls: split(row.imageUrls),
+    //     averageRating: row.averageRating ? parseFloat(row.averageRating) : 0,
+    //     reviewCount: row.reviewCount ? parseInt(row.reviewCount) : 0,
+    //     tags: split(row.tags),
+    //   });
+    //   process.stdout.write(".");
+    // }
+    // console.log("\nProducts Created.");
 
     console.log("\nCREATING MERCHANTS");
     for (const row of rawMerchants) {

@@ -35,4 +35,9 @@ export class MerchantService {
   async deleteMerchant(id: number): Promise<boolean> {
     return this.merchantRepository.delete(id);
   }
+
+  // UPSERT a merchant
+  async upsertMerchant(data: CreateMerchantInput): Promise<Merchant> {
+    return this.merchantRepository.upsertByName(data);
+  }
 }

@@ -65,9 +65,15 @@ export default async function ViewRoutine({ params }: RoutineProps) {
     };
   }).filter((step) => step.products.length > 0);
 
+  const getDisplayPrice = (productId: number, fallbackPrice: number) => {
+    const best = pickLowestPriceOffer(offersByProductId[productId] ?? []);
+    return best?.price ?? fallbackPrice ?? 0;
+  };
+
   const totalPrice = finalRoutine.reduce(
     (acc, step) =>
-      acc + step.products.reduce((sum, p) => sum + (p.price || 0), 0),
+      acc +
+      step.products.reduce((sum, p) => sum + getDisplayPrice(p.id, p.price), 0),
     0,
   );
   const totalItems = finalRoutine.reduce(
@@ -122,7 +128,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                   <span className="md:hidden font-bold text-zinc-900">
                     $
                     {step.products
-                      .reduce((s, p) => s + p.price || 0, 0)
+                      .reduce((s, p) => s + getDisplayPrice(p.id, p.price), 0)
                       .toFixed(2)}
                   </span>
                 )}
@@ -151,6 +157,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                                 width={64}
                                 height={64}
                                 className="w-full h-full object-cover"
+                                sizes="(max-width: 1200px) 50vw, 33vw"
                               />
                             ) : (
                               <div className="w-full h-full bg-zinc-200" />
@@ -242,7 +249,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                         key={p.id}
                         className="text-lg font-bold text-zinc-900"
                       >
-                        ${(p.price || 0).toFixed(2)}
+                        ${getDisplayPrice(p.id, p.price).toFixed(2)}
                       </div>
                     ))}
                   </div>

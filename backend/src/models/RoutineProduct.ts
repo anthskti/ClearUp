@@ -15,11 +15,11 @@ class RoutineProduct
   extends Model<RoutineProductAttributes, RoutineProductCreationAttributes>
   implements RoutineProductAttributes
 {
-  public id!: number;
-  public routineId!: number;
-  public productId!: number;
-  public category!: string;
-  public product?: Product;
+  declare id: number;
+  declare routineId: number;
+  declare productId: number;
+  declare category: string;
+  declare product?: Product;
 }
 
 RoutineProduct.init(

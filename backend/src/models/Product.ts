@@ -17,7 +17,7 @@ interface ProductAttributes {
 
   instructions: string[];
   activeIngredient?: string;
-  ingredients?: string; // Not added in frontend yet
+  ingredients?: string; 
   imageUrls?: string[];
   averageRating?: number;
   reviewCount?: number;
@@ -30,24 +30,24 @@ class Product
   extends Model<ProductAttributes, ProductCreationAttributes>
   implements ProductAttributes
 {
-  public id!: number;
-  public name!: string;
-  public brand!: string;
+  declare id: number;
+  declare name: string;
+  declare brand: string;
 
-  public category!: string;
-  public labels!: string[]; // hold filter information (ex. texture, active ingredients, spf on main page too)
-  public skinType!: string[];
-  public country!: string;
-  public capacity!: string;
-  public price!: number;
+  declare category: string;
+  declare labels: string[];
+  declare skinType: string[];
+  declare country: string;
+  declare capacity: string;
+  declare price: number;
 
-  public instructions!: string[];
-  public activeIngredient?: string;
-  public ingredients?: string; // All ingredents
-  public imageUrls!: string[];
-  public averageRating?: number;
-  public reviewCount?: number;
-  public tags?: string[];
+  declare instructions: string[];
+  declare activeIngredient?: string;
+  declare ingredients?: string;
+  declare imageUrls: string[];
+  declare averageRating?: number;
+  declare reviewCount?: number;
+  declare tags?: string[];
 }
 
 Product.init(
@@ -93,10 +93,10 @@ Product.init(
     capacity: { type: DataTypes.STRING, defaultValue: "0ml" },
     price: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0 },
 
-    instructions: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: false },
+    instructions: { type: DataTypes.ARRAY(DataTypes.TEXT), allowNull: false },
     activeIngredient: { type: DataTypes.STRING },
     ingredients: { type: DataTypes.TEXT },
-    imageUrls: DataTypes.ARRAY(DataTypes.TEXT), // Can revert back to STRING. but for safety measure keeping as text
+    imageUrls: DataTypes.ARRAY(DataTypes.TEXT), 
     averageRating: { type: DataTypes.FLOAT, defaultValue: 0 },
     reviewCount: { type: DataTypes.INTEGER, defaultValue: 0 },
     tags: DataTypes.ARRAY(DataTypes.STRING),
@@ -118,12 +118,8 @@ Product.init(
         name: "idx_product_category",
       },
       {
-        fields: ["activeIngredient"],
-        name: "idx_product_active_ingredient",
-      },
-      {
-        fields: ["tags"],
-        name: "idx_product_tags",
+        fields: ["skinType"],
+        name: "idx_product_skintype_tags",
         using: "GIN",
       },
     ],

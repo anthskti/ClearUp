@@ -2,14 +2,14 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "../db";
 
 class Session extends Model {
-  public id!: string;
-  public expiresAt!: Date;
-  public token!: string;
-  public ipAddress!: string | null;
-  public userAgent!: string | null;
-  public userId!: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare expiresAt: Date;
+  declare token: string;
+  declare ipAddress: string | null;
+  declare userAgent: string | null;
+  declare userId: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 Session.init(

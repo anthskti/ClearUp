@@ -51,6 +51,21 @@ export class MerchantRepository {
     });
   }
 
+  // 
+  async upsertByName(data: CreateMerchantInput): Promise<Merchant> {
+    const existing = await MerchantModel.findOne({
+      where: { name: { [Op.iLike]: data.name } },
+    });
+    if (existing) {
+      await existing.update({
+        logo: data.logo || existing.getDataValue("logo"),
+      });
+      return this.mapToMerchantType(existing);
+    }
+    const created = await MerchantModel.create(data);
+    return this.mapToMerchantType(created);
+  }
+
   private mapToMerchantType(dbMerchant: any): Merchant {
     return {
       id: dbMerchant.id,

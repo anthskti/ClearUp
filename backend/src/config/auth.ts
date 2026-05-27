@@ -2,8 +2,11 @@ import { betterAuth } from "better-auth";
 import { admin } from "better-auth/plugins";
 import { Pool } from "pg";
 import { sendSesEmail } from "../lib/sesEmail";
-import fs from "fs";
-import path from "path";
+import {
+  getPgSslConfig,
+  resolveDatabaseUrl,
+  usesCloudDatabase,
+} from "../lib/dbConfig";
 
 const trustedOrigins = process.env.TRUSTED_ORIGINS?.split(",")
   .map((s) => s.trim())
@@ -25,16 +28,12 @@ console.info(
     nodeEnv: process.env.NODE_ENV ?? "(unset)",
     baseURL: authBaseURL ?? null,
     crossSiteCookies: process.env.BETTER_AUTH_CROSS_SITE_COOKIES === "1",
+    database: usesCloudDatabase() ? "cloud(DATABASE_URL)" : "local(DB_*)",
   }),
 );
 
-const certPath = path.join(process.cwd(), "certs", "prod-ca-2021.crt");
-let caCert;
-try {
-  caCert = fs.readFileSync(certPath).toString();
-} catch (err) {
-  console.error("[auth] Failed to read Supabase SSL certificate:", err);
-}
+const authDatabaseUrl = resolveDatabaseUrl();
+const authSsl = getPgSslConfig();
 
 /**
  * OAuth uses a short-lived signed cookie + DB verification. If the browser loads
@@ -70,21 +69,24 @@ export const auth = betterAuth({
         },
       }
     : {}),
-  // Connect directly to your existing PostgreSQL database
+  // Same DB URL + SSL rules as Sequelize (src/db.ts)
   database: new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl:
-      process.env.NODE_ENV === "production"
-        ? {
-            rejectUnauthorized: true, //
-            ca: caCert,
-          }
-        : false,
+    connectionString: authDatabaseUrl,
+    ssl: authSsl === false ? undefined : authSsl,
   }),
 
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true, // enable after SES + sendVerificationEmail are stable
+    customSyntheticUser: ({ coreFields, additionalFields, id }) => ({
+      ...coreFields,
+      role: "user",
+      banned: false,
+      banReason: null,
+      banExpires: null,
+      ...additionalFields,
+      id,
+    }),
     sendResetPassword: async ({ user, url }) => {
       // Fire-and-forget avoids timing side-channels; still log failures.
       void sendSesEmail({
@@ -121,5 +123,7 @@ export const auth = betterAuth({
     },
   },
   trustedOrigins,
-  plugin: [admin()],
+  plugins: [
+    admin()
+  ],
 });

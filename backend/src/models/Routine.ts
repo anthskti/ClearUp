@@ -17,11 +17,11 @@ class Routine
   extends Model<RoutineAttributes, RoutineCreationAttributes>
   implements RoutineAttributes
 {
-  public id!: number;
-  public name!: string;
-  public description?: string; // Routine Description "Anti-ance proofing"
-  public userId!: string;
-  public skinTypeTags!: SkinType[];
+  declare id: number;
+  declare name: string;
+  declare description?: string; // User Notes 
+  declare userId: string;
+  declare skinTypeTags: SkinType[];
 }
 
 Routine.init(

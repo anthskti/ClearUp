@@ -12,6 +12,7 @@ import { useBuilderRoutine } from "@/hooks/useBuilderRoutine";
 import { useBuilderNotes } from "@/hooks/useBuilderNotes";
 import type { SkinType } from "@/types/product";
 import RoutineSkinTypeTagPicker from "@/components/routine/RoutineSkinTypeTagPicker";
+import BuilderSkeleton from "@/components/routine/BuilderSkeleton";
 
 import SaveRoutineModal from "@/components/routine/SaveRoutineModal";
 
@@ -77,11 +78,7 @@ export default function Builder() {
 
   // Don't render until hooks are loaded
   if (!routineLoaded || !notesLoaded) {
-    return (
-      <div className="relative min-h-screen w-full bg-[#F8F8F8] flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    );
+    return <BuilderSkeleton />;
   }
 
   return (
@@ -169,6 +166,7 @@ export default function Builder() {
                               width={64}
                               height={64}
                               className="w-full h-full object-cover"
+                              sizes="(max-width: 1200px) 50vw, 33vw"
                             />
                           ) : (
                             <div className="w-full h-full bg-zinc-200" />
@@ -235,6 +233,7 @@ export default function Builder() {
                             width={20}
                             height={20}
                             className="object-cover rounded-sm"
+                            sizes="(max-width: 1200px) 50vw, 33vw"
                           />
                         ) : (
                           <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">

@@ -12,6 +12,7 @@ type Tab = "products" | "prices";
 export function ImportsAdminClient() {
   const [tab, setTab] = useState<Tab>("products");
   const [csv, setCsv] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [detail, setDetail] = useState<string | null>(null);
@@ -19,20 +20,40 @@ export function ImportsAdminClient() {
   const runImport = async () => {
     setMessage(null);
     setDetail(null);
-    if (!csv.trim()) {
-      setMessage("Paste CSV content first.");
+    const payload = file ?? (csv.trim() ? csv : null);
+    if (!payload) {
+      setMessage("Paste CSV content or choose a .csv file.");
       return;
     }
     setBusy(true);
     try {
       if (tab === "products") {
-        const r = await importProductsCsv(csv);
-        setMessage(r.message || "Import finished");
+        const r = await importProductsCsv(payload);
+        const totals = r.totals;
+        const failed = totals?.failed ?? 0;
+        const skipped = totals?.skipped ?? r.skipped ?? 0;
+        setMessage(
+          r.ok
+            ? r.message || "Import finished"
+            : r.message || "Import finished with errors",
+        );
         setDetail(
-          `Processed ${r.processed}, created ${r.created}, updated ${r.updated}.`,
+          [
+            `Received ${totals?.received ?? "?"}, processed ${r.processed}, created ${r.created}, updated ${r.updated}.`,
+            skipped ? `Skipped ${skipped}.` : null,
+            failed ? `Failed ${failed}.` : null,
+            r.errors?.length
+              ? `First errors: ${r.errors
+                  .slice(0, 3)
+                  .map((e) => `row ${e.row} (${e.code})`)
+                  .join("; ")}`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(" "),
         );
       } else {
-        const r = await importPriceUpdatesCsv(csv);
+        const r = await importPriceUpdatesCsv(payload);
         setMessage(r.message || "Price update finished");
         const extra =
           "updatedOffers" in r && r.updatedOffers != null
@@ -80,16 +101,46 @@ export function ImportsAdminClient() {
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-zinc-700">
-          CSV Contents:
+          Upload CSV file
+        </label>
+        <input
+          type="file"
+          accept=".csv,text/csv,text/plain"
+          disabled={busy}
+          onChange={(e) => {
+            const picked = e.target.files?.[0] ?? null;
+            setFile(picked);
+            if (picked) {
+              setCsv("");
+            }
+          }}
+          className="block w-full text-sm text-zinc-600 file:mr-4 file:rounded-md file:border-0 file:bg-zinc-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-zinc-800 hover:file:bg-zinc-200"
+        />
+        {file && (
+          <p className="text-xs text-zinc-500">
+            Selected: {file.name} ({(file.size / 1024).toFixed(1)} KB)
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-zinc-700">
+          Or paste CSV
         </label>
         <textarea
           value={csv}
-          onChange={(e) => setCsv(e.target.value)}
+          disabled={Boolean(file)}
+          onChange={(e) => {
+            setCsv(e.target.value);
+            if (e.target.value.trim()) {
+              setFile(null);
+            }
+          }}
           rows={14}
-          className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-4 font-mono text-xs text-zinc-900 shadow-sm outline-none focus:border-zinc-400"
+          className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-4 font-mono text-xs text-zinc-900 shadow-sm outline-none focus:border-zinc-400 disabled:bg-zinc-50 disabled:text-zinc-400"
           placeholder={
             tab === "products"
-              ? "Paste product CSV (see backend ProductService import format)…"
+              ? "Paste scraper CSV: name, brand, category, labels, skinType, country, capacity, price, instructions, ingredients, imageUrls, averageRating, url, status"
               : "Paste columns: name, brand, merchant, price…"
           }
         />

@@ -2,15 +2,18 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "../db";
 
 class User extends Model {
-  public id!: string;
-  public name!: string;
-  public email!: string;
-  public emailVerified!: boolean;
-  public emailStatus!: string;
-  public image!: string | null;
-  public role!: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare name: string;
+  declare email: string;
+  declare emailVerified: boolean;
+  declare emailStatus: string;
+  declare image: string | null;
+  declare role: string;
+  declare banned: boolean;
+  declare banReason: string | null;
+  declare banExpires: Date | null;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 User.init(
@@ -45,7 +48,20 @@ User.init(
     role: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: "user", 
+      defaultValue: "user",
+    },
+    banned: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    banReason: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    banExpires: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
   },
   {

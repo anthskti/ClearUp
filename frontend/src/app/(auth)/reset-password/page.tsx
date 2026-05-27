@@ -7,6 +7,7 @@ import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import { Eye, EyeOff } from "lucide-react";
+import BrandedLoadingScreen from "@/components/BrandedLoadingScreen";
 
 type UiState = "idle" | "loading" | "success" | "invalid" | "expired" | "error";
 
@@ -197,7 +198,15 @@ function ResetPasswordForm() {
 
 export default function PasswordResetPage() {
   return (
-    <Suspense fallback={<p className="p-8 text-center text-sm">Loading…</p>}>
+    <Suspense
+      fallback={
+        <BrandedLoadingScreen
+          fullScreen
+          title="Loading reset flow"
+          subtitle="Preparing your password reset."
+        />
+      }
+    >
       <ResetPasswordForm />
     </Suspense>
   );

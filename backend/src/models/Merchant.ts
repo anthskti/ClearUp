@@ -14,10 +14,9 @@ class Merchant
   extends Model<MerchantAttributes, MerchantCreationAttributes>
   implements MerchantAttributes
 {
-  public id!: number;
-  public name!: string;
-  public logo?: string;
-  public website!: string;
+  declare id: number;
+  declare name: string;
+  declare logo?: string;
 }
 
 Merchant.init(

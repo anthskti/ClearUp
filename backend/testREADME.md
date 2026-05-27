@@ -6,61 +6,84 @@
 
 ## SETUP
 
-### DOCKER RELATED
+### Local Development: Docker Database
 
-To start all Docker containers:
+`docker-compose.yml` only runs **Postgres**. The backend is **not** containerized for day-to-day dev.
+
+1. **Environment** — Copy `backend/.env.example` → `backend/.env`:
+   - `NODE_ENV=development`
+   - Use `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` 
+   - **Comment out or remove `DATABASE_URL`** — if it is set, the app connects to Supabase instead of Docker
+2. **Start Postgres**:
 
 ```bash
 cd backend
-docker-compose up --build
+docker compose up -d
 ```
 
-Background when everything is already built:
+Wait until healthy (`docker compose ps`). First run creates the `skincare` database automatically.
+
+3. **Start API** (migrations run on boot):
 
 ```bash
-docker-compose up -d
+cd backend
+bun run dev
 ```
 
-Stop all Docker containers:
+4. **Frontend** — `frontend/.env.local`:
+
+```
+NEXT_PUBLIC_API_URL=http://localhost:5050
+```
+
+5. **Optional seed data**:
 
 ```bash
-docker-compose down
+bun run seed
 ```
 
-Look at Local Postgre Table via Docker
-on windows:
+Or paste scraper CSV on the admin import page (requires `ADMIN_EMAILS` + logged-in admin).
 
-````bash
+**Stop Postgres:** `docker compose down` (add `-v` only if you want to wipe all local data).
+
+### Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|--------|----------------|-----|
+| Better Auth / sign-in DB errors | `DATABASE_URL` empty but auth only read that before; or SSL mismatch with Supabase in dev | Leave `DATABASE_URL` unset for local Docker; use `DB_*`. Pull latest — auth now uses `src/lib/dbConfig.ts` (same URL + SSL as Sequelize). |
+| `relation "featured_routines" does not exist` | Migration `003-create-featured-routines.ts` never ran | `docker compose up -d` then `bun run migrate:up` or restart `bun run dev` (migrations on boot). |
+| Bun vs npm issues | Mixed lockfiles / `ts-node` | Use only `bun install` and `bun run dev` (see `package.json`). |
+| Google OAuth alert `undefined` | API returns 500; `verification.value` was `varchar(255)` but OAuth state is longer | Run `bun run migrate:up` (migration `004-verification-value-text`). In Google Cloud, redirect URI must be `http://localhost:5050/api/auth/callback/google` (API host, not `:3000`). |
+| `unable_to_create_user` / missing `banned` | `plugins: [admin()]` expects extra `user` columns | Run `bun run migrate:up` (migration `005-add-better-auth-admin-columns`). |
+
+**Inspect tables:**
+
+```bash
 docker exec -it skincare-db psql -U postgres -d skincare
-``
-on mac:
-```bash
-docker exec -it skincare-postgres psql -U postgres -d skincare
-````
-
-cmds
-do \dt to see all tables
-do \q to quit
-
-### TERMINAL RELATED
-
-To run backend Server in cd backend:
-
-```bash
-npm run dev
 ```
 
-notes:
-Development/testing: npm run dev
-Production deployment: npm run build then npm start
-Docker/AWS deployment: Use npm run build + npm start
+In `psql`: `\dt` lists tables, `\q` quits.
 
-## POSTMAN TESTING
+### Dockerfile note
+
+`Dockerfile` builds the API image with **Bun** (`bun install`, `bun run build`, `bun run start`). It is **not** used by `docker compose` today (compose only starts Postgres). You do not need to build it for local DB testing.
+
+### Commands cheat sheet
+
+| Goal | Command |
+|------|---------|
+| DB in background | `docker compose up -d` |
+| DB logs | `docker compose logs -f postgres` |
+| Stop DB | `docker compose down` |
+| API dev server | `bun run dev` |
+| Production build | `bun run build` then `bun run start` |
+
+## POSTMAN TESTING (highkey all invalidated after updating so much)
 
 ### Testing All Features Script:
 
 ```bash
-npx ts-node src/scripts/testRoutine.ts
+bunx ts-node src/scripts/testRoutine.ts
 ```
 
 ### Testing _product and productmerchants_ REST commands using Postman:
@@ -351,5 +374,5 @@ Click the menu on the left --> Identity. add Domain when domain is purchase.
 Current utilizing email instead of domain name though.
 
 ```bash
-npm run test:ses
+bun run test:ses
 ```

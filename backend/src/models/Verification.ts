@@ -2,12 +2,12 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "../db";
 
 class Verification extends Model {
-  public id!: string;
-  public identifier!: string;
-  public value!: string;
-  public expiresAt!: Date;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare identifier: string;
+  declare value: string;
+  declare expiresAt: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 Verification.init(
@@ -21,7 +21,7 @@ Verification.init(
       allowNull: false,
     },
     value: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     expiresAt: {

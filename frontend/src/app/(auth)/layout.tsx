@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 import { usePathname, useRouter } from "next/navigation";
+import BrandedLoadingScreen from "@/components/BrandedLoadingScreen";
 
 export default function AuthLayout({
   children,
@@ -23,9 +24,11 @@ export default function AuthLayout({
 
   if (isPending) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        Loading...
-      </div>
+      <BrandedLoadingScreen
+        fullScreen
+        title="Loading session"
+        subtitle="Checking your ClearUp account."
+      />
     );
   }
 

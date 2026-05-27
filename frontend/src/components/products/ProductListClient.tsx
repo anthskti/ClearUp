@@ -25,13 +25,24 @@ interface ProductListClientProps {
   initialProducts: Product[];
 }
 
+// Safety checks for products to NOT brick the system
+function isValidProduct(p: Product): boolean {
+  return Number.isFinite(p?.id) && p.id > 0 && Boolean(p?.name?.trim());
+}
+
+function getProductThumbUrl(product: Product): string | null {
+  const url = product.imageUrls?.[0]?.trim();
+  return url ? url : null;
+}
+
 export default function ProductListClient({
   category,
   initialProducts,
 }: ProductListClientProps) {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [offset, setOffset] = useState(initialProducts.length);
-  const [hasMore, setHasMore] = useState(initialProducts.length === 20);
+  const safeInitial = (initialProducts ?? []).filter(isValidProduct);
+  const [products, setProducts] = useState<Product[]>(safeInitial);
+  const [offset, setOffset] = useState(safeInitial.length);
+  const [hasMore, setHasMore] = useState(safeInitial.length === 20);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
@@ -40,7 +51,18 @@ export default function ProductListClient({
   const { ref, inView } = useInView({
     threshold: 0,
     rootMargin: "400px", // Starts loading when 400px from the bottom.
+    skip: products.length === 0 && !isLoading,
   });
+
+  useEffect(() => {
+    const next = (initialProducts ?? []).filter(isValidProduct);
+    setProducts(next);
+    setOffset(next.length);
+    setHasMore(next.length === 20);
+    setSearchQuery("");
+    setInputValue("");
+    setIsSearching(false);
+  }, [category, initialProducts]);
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
@@ -50,16 +72,19 @@ export default function ProductListClient({
 
     if (query.trim().length === 0) {
       // Reset to initial products if search is cleared
-      setProducts(initialProducts);
-      setOffset(initialProducts.length);
-      setHasMore(initialProducts.length === 20);
+      const next = (initialProducts ?? []).filter(isValidProduct);
+      setProducts(next);
+      setOffset(next.length);
+      setHasMore(next.length === 20);
       setIsSearching(false);
       return;
     }
 
     setIsLoading(true);
     try {
-      const results = await searchProductsByCategory(category, query, 20, 0);
+      const results = (await searchProductsByCategory(category, query, 20, 0)).filter(
+        isValidProduct,
+      );
       setProducts(results);
       setOffset(results.length);
       setHasMore(results.length === 20);
@@ -90,7 +115,17 @@ export default function ProductListClient({
       if (newProducts.length === 0) {
         setHasMore(false);
       } else {
-        setProducts((prev) => [...prev, ...newProducts]);
+        setProducts((prev) => {
+          const seen = new Set(prev.map((p) => p.id));
+          const merged = [...prev];
+          for (const p of newProducts.filter(isValidProduct)) {
+            if (!seen.has(p.id)) {
+              seen.add(p.id);
+              merged.push(p);
+            }
+          }
+          return merged;
+        });
         setOffset((prev) => prev + newProducts.length);
       }
     } catch (error) {
@@ -101,10 +136,10 @@ export default function ProductListClient({
   };
 
   useEffect(() => {
-    if (inView && hasMore) {
+    if (inView && hasMore && !isLoading) {
       loadMore();
     }
-  }, [inView, hasMore]);
+  }, [inView, hasMore, isLoading]);
   // Client-side Hooks are safe here
   const categorySlug = category;
   const config =
@@ -141,16 +176,24 @@ export default function ProductListClient({
     }
 
     switch (col.id) {
-      case "name":
+      case "name": {
+        const thumb = getProductThumbUrl(product);
         return (
           <div className="flex items-center gap-3">
-            <Image
-              src={product.imageUrls[0]}
-              alt={product.name}
-              width={44} // Forcing size to fit the sizing of the website. Not ideal but its ok
-              height={44}
-              className="h-11 w-11 bg-gray-200 rounded-md shrink-0"
-            />
+            {thumb ? (
+              <Image
+                src={thumb}
+                alt={product.name}
+                width={44}
+                height={44}
+                className="h-11 w-11 bg-gray-200 rounded-md shrink-0 object-cover"
+              />
+            ) : (
+              <div
+                className="h-11 w-11 shrink-0 rounded-md border border-zinc-200 bg-zinc-100"
+                aria-hidden
+              />
+            )}
             <div>
               <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
                 {product.brand}
@@ -161,11 +204,12 @@ export default function ProductListClient({
             </div>
           </div>
         );
+      }
       case "country": {
-        const flagUrl = CountryMapping[product.country];
+        const flagUrl = CountryMapping[product.country]?.trim();
         const flagBox =
           "relative box-border flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-zinc-200 bg-white";
-        return flagUrl != null ? (
+        return flagUrl ? (
           <div className="flex justify-center">
             <div className={flagBox} title={product.country}>
               {/* Local SVG flags vary in aspect ratio; fixed square + object-contain */}
@@ -331,9 +375,9 @@ export default function ProductListClient({
                 {/* Collapsible; leave auto closed at startup*/}
                 {isOpen && (
                   <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
-                    {filter.options.map((opt) => (
+                    {filter.options.map((opt, optIndex) => (
                       <label
-                        key={opt}
+                        key={`${filter.id}-${optIndex}-${opt}`}
                         className="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer hover:text-blue-600"
                       >
                         <input
@@ -386,6 +430,16 @@ export default function ProductListClient({
 
             {/* Product Rows */}
             <div className="divide-y divide-zinc-100">
+              {products.length === 0 && !isLoading && (
+                <div className="p-12 text-center text-sm text-zinc-500">
+                  <p className="font-medium text-zinc-700">No products yet</p>
+                  <p className="mt-1">
+                    {isSearching
+                      ? "No matches for your search in this category."
+                      : "No products here :/ Admin needs to do their job."}
+                  </p>
+                </div>
+              )}
               {products.map((product) => (
                 <div
                   key={product.id}

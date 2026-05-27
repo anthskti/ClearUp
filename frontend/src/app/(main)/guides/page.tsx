@@ -26,7 +26,8 @@ export default async function GuidesPage({ searchParams }: Props) {
   const offset = (page - 1) * limit;
 
   const initialTags = parseSkinTypeTagsFromParam(tagsParam);
-
+  // to view loading
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
   let guides: GuideRoutine[] = [];
   try {
     guides = await getPublicGuides({

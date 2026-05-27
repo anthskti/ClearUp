@@ -2,19 +2,19 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "../db";
 
 class Account extends Model {
-  public id!: string;
-  public accountId!: string;
-  public providerId!: string;
-  public userId!: string;
-  public accessToken!: string | null;
-  public refreshToken!: string | null;
-  public idToken!: string | null;
-  public accessTokenExpiresAt!: Date | null;
-  public refreshTokenExpiresAt!: Date | null;
-  public scope!: string | null;
-  public password!: string | null;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare accountId: string;
+  declare providerId: string;
+  declare userId: string;
+  declare accessToken: string | null;
+  declare refreshToken: string | null;
+  declare idToken: string | null;
+  declare accessTokenExpiresAt: Date | null;
+  declare refreshTokenExpiresAt: Date | null;
+  declare scope: string | null;
+  declare password: string | null;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 Account.init(

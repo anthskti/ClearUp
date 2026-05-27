@@ -44,13 +44,24 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    const { data, error } = await authClient.signIn.social({
-      provider: "google",
-      // Force it back to the frontend port. Issue with redirecting to 5050. Change for prod
-      callbackURL: `${window.location.origin}/`,
-    });
-    if (error) {
-      alert(error.message);
+    try {
+      const { data, error } = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: `${window.location.origin}/`,
+        errorCallbackURL: `${window.location.origin}/login`,
+      });
+      if (error) {
+        alert(error.message || "Google sign-in failed. Check the API is running.");
+        return;
+      }
+      if (data?.url) {
+        window.location.href = data.url;
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : "Google sign-in failed");
+    } finally {
       setLoading(false);
     }
   };

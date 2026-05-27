@@ -19,15 +19,15 @@ class ProductMerchant
   extends Model<ProductMerchantCreationAttributes>
   implements ProductMerchantAttributes
 {
-  public id!: number;
-  public productId!: number;
-  public merchantId!: number;
-  public website!: string;
-  public price!: number;
-  public stock!: boolean;
-  public shipping?: string;
-  public lastUpdated!: Date;
-  public merchant?: Merchant;
+  declare id: number;
+  declare productId: number;
+  declare merchantId: number;
+  declare website: string;
+  declare price: number;
+  declare stock: boolean;
+  declare shipping?: string;
+  declare lastUpdated: Date;
+  declare merchant?: Merchant;
 }
 
 ProductMerchant.init(

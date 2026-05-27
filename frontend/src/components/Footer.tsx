@@ -11,16 +11,16 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
           {/* Column 1: Logo */}
           <div className="md:col-span-5 lg:col-span-4">
-            <div className="relative flex items-start h-22 w-[220px] md:h-30 md:w-[250px] -mt-8">
+            <div className="-mt-8 shrink-0">
               <Image
                 src="/assets/clearuplogo-white.png"
                 alt="ClearUp"
-                fill
+                width={2048}
+                height={663}
                 priority
                 draggable={false}
                 onContextMenu={(e) => e.preventDefault()}
-                className="object-contain"
-                sizes="(max-width: 1200px) 280px, 280px"
+                className="h-[22px] w-auto max-w-[220px] md:h-[30px] md:max-w-[250px]"
               />
             </div>
           </div>

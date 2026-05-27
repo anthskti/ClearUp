@@ -83,18 +83,16 @@ function Header() {
       {/* <div className="w-full"> */}
       <nav className="container mx-auto py-4 grid grid-cols-3 items-center">
         <div className="flex items-center justify-start">
-          <Link href="/" className="block">
-            <div className="relative h-8 w-[200px] md:h-10 md:w-[150px]">
-              <Image
-                src="/assets/clearuplogov11.png"
-                alt="ClearUp"
-                fill
-                priority
-                draggable={false}
-                className="object-contain"
-                sizes="(max-width: 768px) 120px, 150px"
-              />
-            </div>
+          <Link href="/" className="inline-flex shrink-0">
+            <Image
+              src="/assets/clearuplogov11.png"
+              alt="ClearUp"
+              width={2048}
+              height={663}
+              priority
+              draggable={false}
+              className="h-8 w-auto max-w-[min(100vw-2rem,180px)] md:h-10 md:max-w-[150px]"
+            />
           </Link>
           {/* <p className="font-bold tracking-widest text-lg">CLEARUP</p> */}
         </div>

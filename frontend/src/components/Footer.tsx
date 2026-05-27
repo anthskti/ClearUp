@@ -20,7 +20,7 @@ function Footer() {
                 priority
                 draggable={false}
                 onContextMenu={(e) => e.preventDefault()}
-                className="h-[22px] w-auto max-w-[220px] md:h-[30px] md:max-w-[250px]"
+                className="h-22px w-auto max-w-[220px] md:h-30px md:max-w-[250px]"
               />
             </div>
           </div>

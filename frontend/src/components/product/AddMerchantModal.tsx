@@ -130,6 +130,7 @@ export default function AddMerchantModal({
                             alt={merchant.name}
                             width={32}
                             height={32}
+                            sizes="(max-width: 1200px) 50vw, 33vw"
                           />
                         ) : (
                           <span className="text-xs font-bold text-zinc-400">

@@ -12,6 +12,7 @@ const HeroSection = () => {
         alt="Home Background"
         fill
         className="object-cover"
+        sizes="(max-width: 768px) 100vw"
         priority
       /> */}
       {/* Blobs */}
@@ -66,12 +67,14 @@ const HeroSection = () => {
               src="/assets/home.jpg"
               alt="ClearUp Interface"
               fill
+              draggable={false}
               className="object-cover opacity-90"
+              sizes="(max-width: 768px) 100vw"
               priority
             />
           </div>
           {/* Floating Element 1 (e.g., A scraped target category) */}
-          <div className="absolute -right-20 -top-10 bg-white p-4 rounded-xl shadow-xl border border-zinc-100 flex items-center gap-4 rotate-1 transition-transform duration-500 cursor-default">
+          {/* <div className="absolute -right-20 -top-10 bg-white p-4 rounded-xl shadow-xl border border-zinc-100 flex items-center gap-4 rotate-1 transition-transform duration-500 cursor-default">
             <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-500">
               <Droplets className="w-5 h-5" />
             </div>
@@ -81,7 +84,7 @@ const HeroSection = () => {
                 You will level up your skin.
               </p>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

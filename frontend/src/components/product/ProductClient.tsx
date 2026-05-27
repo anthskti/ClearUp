@@ -204,6 +204,7 @@ export default function ProductClient({
                             width={20}
                             height={20}
                             className="object-cover"
+                            sizes="(max-width: 1200px) 50vw, 33vw"
                           />
                           <span className="text-xs text-zinc-500">
                             {merchant.merchant?.name || "Unknown Merchant"}

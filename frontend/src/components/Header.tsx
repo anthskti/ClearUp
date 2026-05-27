@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import {
@@ -82,8 +83,20 @@ function Header() {
       {/* <div className="w-full"> */}
       <nav className="container mx-auto py-4 grid grid-cols-3 items-center">
         <div className="flex items-center justify-start">
-          {/* Add Icon or change next line to custom image*/}
-          <p className="font-bold tracking-widest text-lg">CLEARUP</p>
+          <Link href="/" className="block">
+            <div className="relative h-8 w-[200px] md:h-10 md:w-[150px]">
+              <Image
+                src="/assets/clearuplogov11.png"
+                alt="ClearUp"
+                fill
+                priority
+                draggable={false}
+                className="object-contain"
+                sizes="(max-width: 768px) 120px, 150px"
+              />
+            </div>
+          </Link>
+          {/* <p className="font-bold tracking-widest text-lg">CLEARUP</p> */}
         </div>
 
         <div className="flex items-center justify-center space-x-6 text-xs uppercase">

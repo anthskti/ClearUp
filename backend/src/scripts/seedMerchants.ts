@@ -28,7 +28,7 @@ async function main() {
   try {
     await sequelize.authenticate();
 
-    const merchantsPath = path.join(__dirname, "../data/merchant_table.csv");
+    const merchantsPath = path.join(__dirname, "../../../data/merchant_table.csv");
     const rows = await readCSV(merchantsPath);
 
     let createdOrUpdated = 0;

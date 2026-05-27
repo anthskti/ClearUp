@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import BrandedLoadingScreen from "@/components/BrandedLoadingScreen";
 
 type UiState = "loading" | "success" | "invalid" | "expired" | "error" | "idle";
 
@@ -208,7 +209,15 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<p className="p-8 text-center text-sm">Loading…</p>}>
+    <Suspense
+      fallback={
+        <BrandedLoadingScreen
+          fullScreen
+          title="Verifying email"
+          subtitle="Checking your verification link."
+        />
+      }
+    >
       <VerifyEmailContent />
     </Suspense>
   );

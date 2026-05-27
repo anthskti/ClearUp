@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { notFound } from "next/navigation";
 import { Product } from "@/types/product";
 import { getProductById, getMerchantsByProductId } from "@/lib/products";
@@ -30,9 +30,5 @@ export default async function ProductListPage({ params }: ProductProps) {
 
   const merchantList = await getMerchantsByProductId(String(productId));
 
-  return (
-    <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Loading...</div>}>
-      <ProductClient product={product} merchantList={merchantList} />
-    </Suspense>
-  );
+  return <ProductClient product={product} merchantList={merchantList} />;
 }

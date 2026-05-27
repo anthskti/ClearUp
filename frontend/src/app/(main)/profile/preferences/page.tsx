@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, ChevronDown } from "lucide-react";
+import BrandedLoadingScreen from "@/components/BrandedLoadingScreen";
 
 import { getRoutinesByUserId } from "@/lib/routines";
 
@@ -81,7 +82,10 @@ export default function ProfilePage() {
 
   if (isPending)
     return (
-      <div className="min-h-screen p-40 text-center">Loading session...</div>
+      <BrandedLoadingScreen
+        title="Loading session"
+        subtitle="Checking your preferences."
+      />
     ); // TODO: PROCEDURAL WAVE LOAD
   if (!session) return <div className="p-10 text-center">Please log in.</div>; // TODO: REDIRECT
 

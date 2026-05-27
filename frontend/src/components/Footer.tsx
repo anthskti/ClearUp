@@ -1,35 +1,28 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 function Footer() {
   return (
-    <footer className="bg-[#0F4A82] text-white pt-15 pb-8">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        {/* Top Section: Grid Layout */}
+    // 1. Added overflow-hidden to prevent the blur from causing horizontal scrolling
+    <footer className="relative bg-[#0e4983] text-white pt-15 pb-8 overflow-hidden">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
-          {/* Column 1: Newsletter (Takes up 4 columns) */}
+          {/* Column 1: Logo */}
           <div className="md:col-span-5 lg:col-span-4">
-            <h3 className="text-lg font-bold mb-4 tracking-wide uppercase">
-              Clear Up
-            </h3>
-            {/* <p className="text-sm mb-6 leading-relaxed">
-              Get exclusive updates on your favorite products.
-            </p>
-
-            <form className="flex">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="bg-white/15 border border-white/50 text-white placeholder-slate-400 text-sm rounded-l-md px-4 py-2 w-full focus:outline-none focus:border-white transition-colors"
+            <div className="relative flex items-start h-22 w-[220px] md:h-30 md:w-[250px] -mt-8">
+              <Image
+                src="/assets/clearuplogo-white.png"
+                alt="ClearUp"
+                fill
+                priority
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
+                className="object-contain"
+                sizes="(max-width: 1200px) 280px, 280px"
               />
-              <button
-                type="button"
-                className="bg-white text-[#0f2845] font-bold text-sm px-5 py-2.5 rounded-r-md hover:bg-slate-200 transition-colors duration-200"
-              >
-                Join
-              </button>
-            </form> */}
+            </div>
           </div>
 
           <div className="hidden md:block md:col-span-1" />
@@ -38,7 +31,7 @@ function Footer() {
           <div className="md:col-span-6 lg:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-8">
             {/* Group 1: Company */}
             <div>
-              <h4 className="font-bold text-sm uppercase tracking-wider mb-5 text-slate-200">
+              <h4 className="font-bold text-sm uppercase tracking-wider mb-5 text-slate-100">
                 Company
               </h4>
               <ul className="space-y-3 text-sm text-white">
@@ -53,7 +46,7 @@ function Footer() {
 
             {/* Group 2: Account */}
             <div>
-              <h4 className="font-bold text-sm uppercase tracking-wider mb-5 text-slate-200">
+              <h4 className="font-bold text-sm uppercase tracking-wider mb-5 text-slate-100">
                 Account
               </h4>
               <ul className="space-y-3 text-sm text-white">
@@ -74,7 +67,7 @@ function Footer() {
 
             {/* Group 3: Community */}
             <div>
-              <h4 className="font-bold text-sm uppercase tracking-wider mb-5 text-slate-200">
+              <h4 className="font-bold text-sm uppercase tracking-wider mb-5 text-slate-100">
                 Community
               </h4>
               <ul className="space-y-3 text-sm text-white">
@@ -91,14 +84,13 @@ function Footer() {
         {/* Bottom Section: Divider & Legal */}
         <div className="flex md:flex-row flex-col justify-between md:items-center items-start gap-2">
           <p className="text-white text-xs">
-            &copy; Clear Up {new Date().getFullYear()}
+            &copy; ClearUp {new Date().getFullYear()}
           </p>
 
           <div className="flex gap-6 text-xs text-white">
             <Link href="/privacy">Privacy Policy</Link>
             <span>|</span>
             <Link href="/tos">Terms of Service</Link>
-            {/* <Link href="/accessibility">Accessibility</Link> */}
           </div>
         </div>
       </div>

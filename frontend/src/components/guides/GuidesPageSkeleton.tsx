@@ -14,7 +14,7 @@ export default function GuidesPageSkeleton() {
           </div>
         </header>
 
-        <div className="mb-10 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        <div className="mb-10 rounded-2xl border border-zinc-200 bg-white px-5 py-20 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row">
             <Skeleton className="h-10 flex-1 rounded-md" />
             <Skeleton className="h-10 flex-1 rounded-md" />

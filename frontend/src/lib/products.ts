@@ -1,12 +1,20 @@
 import { Product } from "@/types/product";
 import { ProductMerchantWithDetails } from "@/types/merchant";
 
-// 21600 seconds = 6 hours
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
-// Batched merchant-offer reads for routine/product surfaces.
-export const MERCHANT_OFFERS_REVALIDATE_SEC = 86400;
+/** Category lists + PDP product body (server Data Cache). */
+export const CATALOG_REVALIDATE_SEC = 3600; // 1h
+
+/** Per-product merchant offers on PDP (server Data Cache). */
+export const PRODUCT_MERCHANTS_REVALIDATE_SEC = 1800; // 30m
+
+/** Batched offers on routine pages (server Data Cache). */
+export const BATCH_MERCHANT_OFFERS_REVALIDATE_SEC = 21600; // 6h
+
+/** @deprecated Use BATCH_MERCHANT_OFFERS_REVALIDATE_SEC */
+export const MERCHANT_OFFERS_REVALIDATE_SEC =
+  BATCH_MERCHANT_OFFERS_REVALIDATE_SEC;
 
 // Same rule as builder: lowest product_merchant.price gets shown.
 export function pickLowestPriceOffer(
@@ -29,7 +37,7 @@ export async function getMerchantOffersByProductIds(
   const qs = unique.sort((a, b) => a - b).join(",");
   const res = await fetch(
     `${API_URL}/api/products/merchants/batch?ids=${encodeURIComponent(qs)}`,
-    { next: { revalidate: MERCHANT_OFFERS_REVALIDATE_SEC } },
+    { next: { revalidate: BATCH_MERCHANT_OFFERS_REVALIDATE_SEC } },
   );
   if (!res.ok) {
     console.error("getMerchantOffersByProductIds: batch request failed");
@@ -53,9 +61,7 @@ export const getAllProducts = async (
 ): Promise<Product[]> => {
   const res = await fetch(
     `${API_URL}/api/products?limit=${limit}&offset=${offset}`,
-    {
-      next: { revalidate: 21600 },
-    },
+    { next: { revalidate: CATALOG_REVALIDATE_SEC } },
   );
   if (!res.ok) {
     throw new Error("Failed to fetch products");
@@ -70,9 +76,7 @@ export const getProductsByCategory = async (
 ): Promise<Product[]> => {
   const res = await fetch(
     `${API_URL}/api/products/category/${category}?limit=${limit}&offset=${offset}`,
-    {
-      cache: "no-store",
-    },
+    { next: { revalidate: CATALOG_REVALIDATE_SEC } },
   );
 
   if (!res.ok) {
@@ -124,7 +128,7 @@ export const searchProductsByCategory = async (
 
 export const getProductById = async (id: string): Promise<Product> => {
   const res = await fetch(`${API_URL}/api/products/id/${id}`, {
-    cache: "no-store",
+    next: { revalidate: CATALOG_REVALIDATE_SEC },
   });
   if (!res.ok) {
     throw new Error(`Failed to fetch product ${id}`);
@@ -136,7 +140,7 @@ export const getMerchantsByProductId = async (
   productId: string,
 ): Promise<ProductMerchantWithDetails[]> => {
   const res = await fetch(`${API_URL}/api/products/id/${productId}/merchants`, {
-    cache: "no-store",
+    next: { revalidate: PRODUCT_MERCHANTS_REVALIDATE_SEC },
   });
   if (!res.ok) {
     console.error(`Failed to fetch merchants for product: ${productId}`);

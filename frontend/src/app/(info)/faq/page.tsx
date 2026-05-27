@@ -62,7 +62,7 @@ export default function FAQPage() {
           attempt to sign up or log in, someone may have entered your email by
           mistake. You can safely ignore the email, as the links expire
           automatically. If you have concerns, please contact my email
-          personally: phamanthony47@gmail.com.
+          personally: support.clearup@gmail.com.
         </p>
       </InfoArticle>
     </div>

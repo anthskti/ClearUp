@@ -1,38 +1,16 @@
-In no order
+# Frontend Todo
 
-1. Profile button dropdown.
-   a. preferences, almost done, just need to implement password reset
-   b. system theme
-   c. DONE users routines, almost done, need image / product, need update backend.
-   c. saved products
-   d. DONE sign out, fixed error.
+1. System Appearance: Apply light and dark modes. going to take a long ahh time T-T
+   - within all the typescript, I need to implement a "dark:.." theme along with it. Maybe I can componentize.
 
-2. page routing: figure out what pages need headers and footers, side bars etc.
-   a. update auth to include clearup logo.
-   b. update auth to check if they're signed in, cannot access register or login page.
+2. Implement Toaster, instead of console alerts.
 
-3. System Appearance: apply light and dark modes. going to take a long ahh time T-T
+3. Fix general loading screen
 
-4. Verification via Oauth and Email verification, not needed rn ngl
-   a. Need email provider service
+4. Fix skeleton loading screen
 
-5. DONE Implement Delete Routine.
-
-6. DONE update builder to implement save modal and title
-
-7. Add reveal scrolls where worked well
-
-8. Fix Search bar for product list
-
-9. Guide Page for influences.
-
-10. Complete Guides is consumers.
-
-11. Implement Toaster, instead of alerts.
-
-12. Fix design for regular pages, implementing tags
-
-13. improve logo and landing page.
+5. Mobile View (Probably the most important for now since a whole species can't utilize)
+   - Create a new navigation bar + fix padding + fix other stuff jbsjbs.
 
 Notes:
 Auth required pages redirect to login. Need useEffect() as it causes race conditions.
@@ -42,4 +20,4 @@ Backend TODO
 
 1. Implement Logging with Morgan or Winston
 
-2. backend filtering with pagination regarding the filters on the left hand side of product page.
+2. Backend filtering with pagination for the accordian filters on the left hand side of product page.

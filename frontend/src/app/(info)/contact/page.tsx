@@ -8,7 +8,9 @@ export default function ContactPage() {
       <InfoArticle title="Contact Us" description="Reach the ClearUp team.">
         <p>
           For any issues or questions, feel free to contact the lead developer:{" "}
-          <a href="mailto:phamanthony47@gmail.com">phamanthony47@gmail.com</a>{" "}
+          <a href="mailto:support.clearup@gmail.com">
+            support.clearup@gmail.com
+          </a>{" "}
           😊
         </p>
       </InfoArticle>

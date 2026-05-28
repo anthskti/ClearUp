@@ -2,7 +2,7 @@ import ProceduralWave from "../themes/ProceduralWave";
 const HowItWorks = () => {
   return (
     <section>
-      <ProceduralWave className="top-0 w-full" flip={false} seed={2} responsiveStrength={0.85} />
+      <ProceduralWave className="top-0 w-full" flip={false} seed={2}  />
       <div className="bg-linear-to-b from-[#e8f6ff] to-[#4b89b8] w-full pt-5 pb-15 px-4 md:px-8 mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center max-w-7xl mx-auto">
           {/* Step 1 */}

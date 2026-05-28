@@ -292,14 +292,14 @@ function Header() {
 
       {mobileNavOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          className="fixed inset-0 z-30 bg-black/40 md:hidden"
           onClick={closeMobileNav}
           aria-hidden
         />
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-40 flex h-full w-[min(300px,88vw)] flex-col bg-[#F8F8F8] shadow-xl transition-transform duration-300 ease-out lg:hidden ${
+        className={`fixed top-0 left-0 z-40 flex h-full w-[min(300px,88vw)] flex-col bg-[#F8F8F8] shadow-xl transition-transform duration-300 ease-out md:hidden ${
           mobileNavOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         aria-hidden={!mobileNavOpen}

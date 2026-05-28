@@ -26,13 +26,13 @@ const HeroSection = () => {
             <Sparkles className="w-4 h-4" />
             <span>Your Skincare Organizer</span>
           </div>
-          <h1 className="text-5xl font-bold text-stone-900 mb-6 max-w-3xl">
+          <h1 className="text-4xl md:text-5xl font-bold text-stone-900 mb-6 max-w-3xl">
             Pick Products. <br />
             <span className="text-[#0E4B84]">Build Your Routine.</span> <br />
             Improve Your Skin.
           </h1>
 
-          <p className="text-lg text-stone-500 leading-relaxed max-w-lg mb-4 delay-150 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-backwards">
+          <p className="text-sm md:text-lg text-stone-500 leading-relaxed max-w-lg mb-4 delay-150 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-backwards">
             The organizer that helps you track your products, easily build
             routines, and figure out what actually works for your skin.
           </p>

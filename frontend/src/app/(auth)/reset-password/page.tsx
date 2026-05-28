@@ -129,7 +129,7 @@ function ResetPasswordForm() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <ProceduralWave seed={4} height={190} />
-      <div className="w-2/5">
+      <div className="w-full max-w-lg px-4 md:w-3/5 lg:w-2/5">
         <h1 className="text-2xl font-semibold mb-4">Set a New Password!</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative">

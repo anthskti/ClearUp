@@ -4,7 +4,7 @@ export const TrustBanner = () => {
       <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-70 transition-all duration-500">
         <div className="flex flex-col items-center">
           <div className="text-xl font-bold text-stone-950">
-            Product Intelligence
+            Product Intel
           </div>
           <div className="text-xs uppercase tracking-widest text-stone-500 mt-1">
             200+ Products

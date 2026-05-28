@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <ProceduralWave seed={4} height={190} />
-      <div className="w-2/5">
+      <div className="w-full max-w-md px-4 sm:max-w-lg md:w-2/5 md:max-w-none md:px-0">
         <h1 className="text-2xl font-semibold mb-4">Forgot your password?</h1>
         <p className="mb-6 text-sm text-zinc-500">
           Enter your email and you will get a reset link!

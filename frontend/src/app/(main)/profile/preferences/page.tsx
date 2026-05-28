@@ -91,7 +91,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen pt-20">
-      <div className="w-2/4">
+      <div className="w-full px-4 md:w-[80%] lg:w-[50%]">
         {/* Top */}
         <div>
           <div className="text-2xl font-semibold mb-4">Preferences</div>

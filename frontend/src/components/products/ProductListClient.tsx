@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Search } from "lucide-react";
+import { Minus, Plus, Search, Star } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { CountryMapping } from "../../constants/CountryMapping";
 
@@ -82,9 +82,9 @@ export default function ProductListClient({
 
     setIsLoading(true);
     try {
-      const results = (await searchProductsByCategory(category, query, 20, 0)).filter(
-        isValidProduct,
-      );
+      const results = (
+        await searchProductsByCategory(category, query, 20, 0)
+      ).filter(isValidProduct);
       setProducts(results);
       setOffset(results.length);
       setHasMore(results.length === 20);
@@ -153,7 +153,13 @@ export default function ProductListClient({
     setOpenFilters((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const renderCellContent = (col: ColumnConfig, product: Product) => {
+  type CellVariant = "desktop" | "mobile";
+
+  const renderCellContent = (
+    col: ColumnConfig,
+    product: Product,
+    variant: CellVariant = "desktop",
+  ) => {
     const labelIndexMap: Record<string, number> = {
       texture: 0, // Cleansers & Moisturizers
       benefits: 0, // Toners
@@ -206,13 +212,19 @@ export default function ProductListClient({
         );
       }
       case "country": {
+        if (variant === "mobile") {
+          return (
+            <span className="text-[12px] text-zinc-700">
+              {product.country?.trim() || "—"}
+            </span>
+          );
+        }
         const flagUrl = CountryMapping[product.country]?.trim();
         const flagBox =
           "relative box-border flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-zinc-200 bg-white";
         return flagUrl ? (
-          <div className="flex justify-center">
+          <div className="flex justify-start">
             <div className={flagBox} title={product.country}>
-              {/* Local SVG flags vary in aspect ratio; fixed square + object-contain */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={flagUrl}
@@ -222,7 +234,7 @@ export default function ProductListClient({
             </div>
           </div>
         ) : (
-          <div className="flex justify-center" aria-hidden>
+          <div className="flex justify-start" aria-hidden>
             <div className="h-10 w-10 shrink-0 rounded-md border border-zinc-200 bg-zinc-100" />
           </div>
         );
@@ -244,11 +256,11 @@ export default function ProductListClient({
         );
       case "rating":
         return (
-          <div>
-            <span className="flex text-yellow-600">★★★★★</span>{" "}
+          <div className="flex items-center justify-start gap-0.5 text-xs text-yellow-600">
+            <Star size={14} className="shrink-0 text-yellow-600" />
+            <span>{product.averageRating ?? "—"}</span>
           </div>
         );
-      // Default: Just render the default
       // Default: Just render the default
       default:
         const val = product[col.id as keyof Product];
@@ -293,10 +305,28 @@ export default function ProductListClient({
         );
     }
   };
+  const mobileAttrColumns = config.tableColumns.filter(
+    (col) => col.id !== "name" && col.id !== "add" && col.id !== "price",
+  );
+  const priceColumn = config.tableColumns.find((col) => col.id === "price");
+  const nameColumn = config.tableColumns.find((col) => col.id === "name");
+  const addColumn = config.tableColumns.find((col) => col.id === "add");
+
+  const emptyState = (
+    <div className="p-12 text-center text-sm text-zinc-500">
+      <p className="font-medium text-zinc-700">No products yet</p>
+      <p className="mt-1">
+        {isSearching
+          ? "No matches for your search in this category."
+          : "No products here :/ Admin needs to do their job."}
+      </p>
+    </div>
+  );
+
   return (
     <div className="relative min-h-screen bg-[#F8F8F8] pt-24">
       <ProceduralWave seed={6} offset={2} frequency={1.5} />
-      <div className="relative z-1 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 px-6">
+      <div className="relative z-1 mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 sm:px-6 lg:grid-cols-12 lg:gap-10">
         {/* --- LEFT SIDEBAR (FILTERS) --- */}
         <aside className="lg:col-span-2 space-y-6">
           <div>
@@ -405,7 +435,7 @@ export default function ProductListClient({
             </button>
           </div> */}
           {/* Search Bar */}
-          <div className="relative mb-8 w-[40%] ml-auto">
+          <div className="relative mb-8 w-full lg:ml-auto lg:w-[40%]">
             <Search className="absolute left-3 top-3 text-zinc-400" size={16} />
             <input
               type="text"
@@ -417,10 +447,56 @@ export default function ProductListClient({
             />
           </div>
 
-          {/* The Product Table / List Headers */}
-          <div className="bg-white border border-zinc-200 rounded-lg overflow-hidden shadow-sm mb-10">
-            {/* Dynamic Header */}
-            <div className="grid grid-cols-12 bg-zinc-50 text-xs font-bold uppercase text-zinc-500 border-b border-zinc-200 py-3 px-4">
+          {/* Mobile: card list */}
+          <div className="mb-10 space-y-3 lg:hidden">
+            {products.length === 0 && !isLoading ? (
+              <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
+                {emptyState}
+              </div>
+            ) : (
+              products.map((product) => (
+                <article
+                  key={product.id}
+                  className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      {nameColumn &&
+                        renderCellContent(nameColumn, product, "mobile")}
+                    </div>
+                    <div className="shrink-0">
+                      {addColumn &&
+                        renderCellContent(addColumn, product, "mobile")}
+                    </div>
+                  </div>
+                  <dl className="mt-4 grid grid-cols-3 gap-x-3 gap-y-4 border-t border-zinc-100 pt-4">
+                    {mobileAttrColumns.map((col) => (
+                      <div
+                        key={`${product.id}-mobile-${col.id}`}
+                        className="min-w-0"
+                      >
+                        <dt className="text-[10px] font-bold uppercase tracking-wide text-zinc-400">
+                          {col.labels || col.id}
+                        </dt>
+                        <dd className="mt-0.5 text-left [&>*]:justify-start">
+                          {renderCellContent(col, product, "mobile")}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                  {priceColumn && (
+                    <div className="mt-4 border-t border-zinc-100 pt-3">
+                      {renderCellContent(priceColumn, product, "mobile")}
+                    </div>
+                  )}
+                </article>
+              ))
+            )}
+          </div>
+
+          {/* Desktop: table */}
+          <div className="mb-10 hidden overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm lg:block">
+            <div className="grid grid-cols-12 border-b border-zinc-200 bg-zinc-50 px-4 py-3 text-xs font-bold uppercase text-zinc-500">
               {config.tableColumns.map((col) => (
                 <div key={col.id} className={`${col.width} px-1`}>
                   {col.labels}
@@ -428,49 +504,39 @@ export default function ProductListClient({
               ))}
             </div>
 
-            {/* Product Rows */}
             <div className="divide-y divide-zinc-100">
-              {products.length === 0 && !isLoading && (
-                <div className="p-12 text-center text-sm text-zinc-500">
-                  <p className="font-medium text-zinc-700">No products yet</p>
-                  <p className="mt-1">
-                    {isSearching
-                      ? "No matches for your search in this category."
-                      : "No products here :/ Admin needs to do their job."}
-                  </p>
-                </div>
-              )}
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className="grid grid-cols-12 items-center p-5 hover:bg-blue-50/30 transition-colors group"
-                >
-                  {/* COLUMN LOOP: This handles EVERY cell, including Name, Price, and Buttons */}
-                  {config.tableColumns.map((col) => (
+              {products.length === 0 && !isLoading
+                ? emptyState
+                : products.map((product) => (
                     <div
-                      key={`${product.id}-${col.id}`}
-                      className={`${col.width} px-1`}
+                      key={product.id}
+                      className="group grid grid-cols-12 items-center p-5 transition-colors hover:bg-blue-50/30"
                     >
-                      {renderCellContent(col, product)}
+                      {config.tableColumns.map((col) => (
+                        <div
+                          key={`${product.id}-${col.id}`}
+                          className={`${col.width} px-1`}
+                        >
+                          {renderCellContent(col, product, "desktop")}
+                        </div>
+                      ))}
                     </div>
                   ))}
-                </div>
-              ))}
-              {/* Fetching more, pagination  */}
-              <div ref={ref} className="p-8 flex justify-center w-full">
-                {isLoading && (
-                  <div className="flex gap-2 items-center text-zinc-400 text-sm">
-                    <div className="h-4 w-4 border-2 border-zinc-300 border-t-blue-600 rounded-full animate-spin" />
-                    Loading more products...
-                  </div>
-                )}
-                {!hasMore && products.length > 0 && (
-                  <p className="text-zinc-400 text-sm italic">
-                    You've reached the end of the shelf.
-                  </p>
-                )}
-              </div>
             </div>
+          </div>
+
+          <div ref={ref} className="flex w-full justify-center p-4 lg:p-8">
+            {isLoading && (
+              <div className="flex items-center gap-2 text-sm text-zinc-400">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-600" />
+                Loading more products...
+              </div>
+            )}
+            {!hasMore && products.length > 0 && (
+              <p className="text-sm italic text-zinc-400">
+                You've reached the end of the shelf.
+              </p>
+            )}
           </div>
         </main>
       </div>

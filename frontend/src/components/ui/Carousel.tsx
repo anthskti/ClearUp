@@ -25,8 +25,8 @@ const Carousel = ({ children, className = "" }: CarouselProps) => {
       {/* Left Arrow */}
       <button
         onClick={prevSlide}
-        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 p-2 
-                   bg-white rounded-full shadow-lg hover:bg-gray-100 transition-transform active:scale-95"
+        className="absolute left-0 top-1/2 z-10 -translate-x-4 -translate-y-1/2 p-2 
+                   rounded-full bg-white shadow-lg transition-transform hover:bg-gray-100 active:scale-95"
       >
         <ChevronLeft className="w-5 h-5 text-zinc-700" />
       </button>
@@ -41,8 +41,8 @@ const Carousel = ({ children, className = "" }: CarouselProps) => {
       {/* Right Arrow */}
       <button
         onClick={nextSlide}
-        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 p-2 
-                   bg-white rounded-full shadow-lg hover:bg-gray-100 transition-transform active:scale-95"
+        className="absolute right-0 top-1/2 z-10 translate-x-4 -translate-y-1/2 p-2 
+                   rounded-full bg-white shadow-lg transition-transform hover:bg-gray-100 active:scale-95"
       >
         <ChevronRight className="w-5 h-5 text-zinc-700" />
       </button>

@@ -84,6 +84,12 @@ const nextConfig = {
         hostname: "cosdebahaofficial.com",
         pathname: "/cdn/shop/files/**",
       },
+      // Sephorea
+      {
+        protocol: "https",
+        hostname: "sephora.com",
+        pathname: "/productimages/**",
+      },
     ],
   },
 };

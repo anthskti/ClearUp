@@ -152,6 +152,7 @@ export class RoutineService {
     limit: number;
     offset: number;
     tags: SkinType[];
+    minPrice?: number;
     maxPrice?: number;
   }): Promise<GuideRoutineView[]> {
     return this.routineRepository.findGuidesPublic(options);

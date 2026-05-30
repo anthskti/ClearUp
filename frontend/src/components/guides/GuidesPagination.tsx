@@ -1,9 +1,17 @@
 import Link from "next/link";
 
-function buildGuidesHref(page: number, tags: string, maxPrice: string): string {
+function buildGuidesHref(
+  page: number,
+  tags: string,
+  minPrice: string,
+  maxPrice: string,
+): string {
   const params = new URLSearchParams();
   if (tags.trim()) {
     params.set("tags", tags.trim());
+  }
+  if (minPrice.trim()) {
+    params.set("minPrice", minPrice.trim());
   }
   if (maxPrice.trim()) {
     params.set("maxPrice", maxPrice.trim());
@@ -19,15 +27,17 @@ export default function GuidesPagination({
   page,
   hasNext,
   tags,
+  minPrice,
   maxPrice,
 }: {
   page: number;
   hasNext: boolean;
   tags: string;
+  minPrice: string;
   maxPrice: string;
 }) {
-  const prevHref = buildGuidesHref(page - 1, tags, maxPrice);
-  const nextHref = buildGuidesHref(page + 1, tags, maxPrice);
+  const prevHref = buildGuidesHref(page - 1, tags, minPrice, maxPrice);
+  const nextHref = buildGuidesHref(page + 1, tags, minPrice, maxPrice);
   const linkClass =
     "rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50";
 

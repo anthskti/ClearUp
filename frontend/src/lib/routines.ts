@@ -87,6 +87,7 @@ export async function getPublicFeaturedRoutines(): Promise<FeaturedRoutine[]> {
 
 export async function getPublicGuides(params: {
   tags?: string;
+  minPrice?: string;
   maxPrice?: string;
   limit?: number;
   offset?: number;
@@ -94,6 +95,9 @@ export async function getPublicGuides(params: {
   const search = new URLSearchParams();
   if (params.tags?.trim()) {
     search.set("tags", params.tags.trim());
+  }
+  if (params.minPrice?.trim()) {
+    search.set("minPrice", params.minPrice.trim());
   }
   if (params.maxPrice?.trim()) {
     search.set("maxPrice", params.maxPrice.trim());

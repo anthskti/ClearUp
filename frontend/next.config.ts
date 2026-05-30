@@ -87,8 +87,8 @@ const nextConfig = {
       // Sephorea
       {
         protocol: "https",
-        hostname: "sephora.com",
-        pathname: "/productimages/**",
+        hostname: "www.sephora.com",
+        pathname: "/productimages/sku/**",
       },
     ],
   },

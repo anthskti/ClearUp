@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 import ProceduralWave from "@/components/themes/ProceduralWave";
-import { getRoutineWithProducts } from "@/lib/routines";
+import { getRoutineById, getRoutineWithProducts } from "@/lib/routines";
 import {
   getMerchantOffersByProductIds,
   pickLowestPriceOffer,
@@ -14,6 +14,7 @@ import RoutineSkinTypeTagsEditor from "@/components/routine/RoutineSkinTypeTagsE
 import RoutineShareLink from "@/components/routine/RoutineShareLink";
 import { getEffectiveUser } from "@/lib/auth";
 import { headers } from "next/headers";
+import { Metadata } from "next";
 
 interface RoutineProps {
   params: Promise<{ id: string }>;
@@ -27,6 +28,30 @@ const ROUTINE_SLOTS = [
   { id: "moisturizer", label: "Moisturizer" },
   { id: "sunscreen", label: "Sunscreen" },
 ];
+
+export async function generateMetadata({
+  params,
+}: RoutineProps): Promise<Metadata> {
+  const { id } = await params;
+
+  if (!id?.trim()) {
+    return { title: "Routine Not Found | ClearUp" };
+  }
+
+  try {
+    const routine = await getRoutineById(id);
+
+    if (routine?.name) {
+      return {
+        title: `${routine.name} | ClearUp`,
+        description: `View ${routine.name} and explore this skincare routine on ClearUp.`,
+      };
+    }
+  } catch {
+    return { title: "Routine | ClearUp" };
+  }
+  return { title: "Routine | ClearUp" };
+}
 
 export default async function ViewRoutine({ params }: RoutineProps) {
   const { id } = await params;

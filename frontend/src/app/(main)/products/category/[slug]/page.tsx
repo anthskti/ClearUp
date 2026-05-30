@@ -1,12 +1,16 @@
 import { getProductsByCategory } from "@/lib/products";
-// UI
 import ProductListClient from "@/components/products/ProductListClient";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
-
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
+
+export const metadata: Metadata = {
+  title: "Product Catalog | ClearUp",
+  description: "Browse products.",
+};
 
 export default async function ProductListPage({ params }: PageProps) {
   const { slug } = await params;

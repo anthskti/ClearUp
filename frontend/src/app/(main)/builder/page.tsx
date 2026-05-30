@@ -1,10 +1,9 @@
 "use client";
 import Link from "next/link";
-import React, { useState } from "react";
-import { Copy, Plus, ExternalLink, X, Book, Save } from "lucide-react";
+import { useState } from "react";
+import { Copy, Plus, ExternalLink, X, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProceduralWave from "@/components/themes/ProceduralWave";
-import { createRoutine } from "@/lib/routines";
 import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";

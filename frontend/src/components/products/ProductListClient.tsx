@@ -223,8 +223,9 @@ export default function ProductListClient({
         const flagBox =
           "relative box-border flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-zinc-200 bg-white";
         return flagUrl ? (
-          <div className="flex justify-start">
+          <div className="flex justify-center">
             <div className={flagBox} title={product.country}>
+              {/* Local SVG flags vary in aspect ratio; fixed square + object-contain */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={flagUrl}
@@ -234,7 +235,7 @@ export default function ProductListClient({
             </div>
           </div>
         ) : (
-          <div className="flex justify-start" aria-hidden>
+          <div className="flex justify-center" aria-hidden>
             <div className="h-10 w-10 shrink-0 rounded-md border border-zinc-200 bg-zinc-100" />
           </div>
         );
@@ -254,13 +255,16 @@ export default function ProductListClient({
             size="sm"
           />
         );
-      case "rating":
+      case "rating": {
         return (
-          <div className="flex items-center justify-start gap-0.5 text-xs text-yellow-600">
+          <div
+            className={`flex items-center gap-0.5 text-xs text-yellow-600 ${variant === "mobile" ? "justify-start" : "justify-center"}`}
+          >
             <Star size={14} className="shrink-0 text-yellow-600" />
             <span>{product.averageRating ?? "—"}</span>
           </div>
         );
+      }
       // Default: Just render the default
       default:
         const val = product[col.id as keyof Product];

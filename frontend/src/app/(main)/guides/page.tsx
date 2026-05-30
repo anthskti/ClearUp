@@ -8,9 +8,8 @@ import { getPublicGuides } from "@/lib/routines";
 import { parseSkinTypeTagsFromParam } from "@/lib/routineSkinTypeTags";
 
 export const metadata: Metadata = {
-  title: "Community guides",
-  description:
-    "Browse public skincare routines from the ClearUp community. Filter by skin type and budget.",
+  title: "Community Guides | Clearup",
+  description: "Browse public skincare routines from the ClearUp community.",
 };
 
 type Props = {

@@ -90,7 +90,7 @@ export default function Builder() {
           </h1>
 
           {/* External Link */}
-          <div className="flex items-center bg-white border border-zinc-200 rounded-md overflow-hidden shadow-sm max-w-md w-full md:w-auto">
+          <div className="flex items-center bg-white border border-zinc-200 rounded-md overflow-hidden shadow-sm max-w-2xl w-full md:w-auto">
             <div className="bg-zinc-50 px-3 py-2 border-r border-zinc-200 text-zinc-400">
               <ExternalLink size={16} />
             </div>
@@ -103,7 +103,7 @@ export default function Builder() {
                     : window.location.href
                   : ""
               }
-              className="px-3 py-2 text-sm text-zinc-600 outline-none w-full md:w-64 bg-transparent"
+              className="px-3 py-2 text-sm text-zinc-600 outline-none w-full md:w-72 bg-transparent"
             />
             <button
               onClick={copyLink}

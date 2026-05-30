@@ -1,9 +1,26 @@
-import type { Product, ProductListFilters, ProductCatalogFetchOptions, CsvImportResponse } from "@/types/product";
+import type { Product, ProductListFilters, ProductCatalogFetchOptions, ProductCatalogPage, CsvImportResponse } from "@/types/product";
 import { ProductMerchantWithDetails } from "@/types/merchant";
-import { appendProductListFiltersToQuery } from "@/types/productListFilters";
+import { appendProductListFiltersToQuery, productListFiltersNeedDynamicFetch } from "@/lib/productListFilters";
+import { PRODUCT_PRICE_SLIDER_MAX } from "@/constants/productFilters";
 import { parseSkinTypeTagsFromParam } from "@/lib/routineSkinTypeTags";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
+
+function parseProductCatalogResponse(data: unknown): ProductCatalogPage {
+  if (Array.isArray(data)) {
+    return { products: data, total: data.length };
+  }
+  if (data && typeof data === "object" && "products" in data) {
+    const payload = data as { products?: unknown; total?: unknown };
+    const products = Array.isArray(payload.products) ? payload.products : [];
+    const total =
+      typeof payload.total === "number" && Number.isFinite(payload.total)
+        ? payload.total
+        : products.length;
+    return { products, total };
+  }
+  return { products: [], total: 0 };
+}
 
 /** Category lists + PDP product body (server Data Cache). */
 export const CATALOG_REVALIDATE_SEC = 3600; // 1h
@@ -62,15 +79,16 @@ export const getAllProducts = async (
   offset: number = 0,
   options?: ProductCatalogFetchOptions,
 ): Promise<Product[]> => {
-  return fetchProducts(limit, offset, options);
+  const page = await fetchProducts(limit, offset, options);
+  return page.products;
 };
 
-/** Unified full-catalog fetch — search + skin type / brand filters. */
+// Unified full-catalog fetch — search + skin type / brand filters. 
 export async function fetchProducts(
   limit: number = 25,
   offset: number = 0,
   options?: ProductCatalogFetchOptions,
-): Promise<Product[]> {
+): Promise<ProductCatalogPage> {
   const qs = new URLSearchParams({
     limit: String(limit),
     offset: String(offset),
@@ -80,13 +98,10 @@ export async function fetchProducts(
   }
   appendProductListFiltersToQuery(qs, options?.filters);
 
-  const hasFilters =
-    Boolean(options?.search?.trim()) ||
-    Boolean(
-      options?.filters &&
-        (options.filters.skinTypes.length > 0 ||
-          options.filters.brands.length > 0),
-    );
+  const hasFilters = productListFiltersNeedDynamicFetch(
+    options?.filters,
+    options?.search,
+  );
 
   const res = await fetch(`${API_URL}/api/products?${qs.toString()}`, {
     ...(hasFilters
@@ -98,10 +113,10 @@ export async function fetchProducts(
     console.error(
       `fetchProducts failed: limit=${limit} offset=${offset}`,
     );
-    return [];
+    return { products: [], total: 0 };
   }
   const data = await res.json();
-  return Array.isArray(data) ? data : [];
+  return parseProductCatalogResponse(data);
 }
 
 export async function fetchAllBrands(): Promise<string[]> {
@@ -125,13 +140,20 @@ export const getProductsByCategory = async (
   const skinTypes = parseSkinTypeTagsFromParam(options?.skinType);
   const filters: ProductListFilters | undefined =
     skinTypes.length > 0
-      ? { skinTypes, brands: [], attributes: {} }
+      ? {
+          skinTypes,
+          brands: [],
+          attributes: {},
+          minPrice: 0,
+          maxPrice: PRODUCT_PRICE_SLIDER_MAX,
+        }
       : undefined;
 
-  return fetchProductsByCategory(category, limit, offset, {
+  const page = await fetchProductsByCategory(category, limit, offset, {
     search: options?.search,
     filters,
   });
+  return page.products;
 };
 
 // Unified category catalog fetch — search + sidebar filters. 
@@ -140,7 +162,7 @@ export async function fetchProductsByCategory(
   limit: number = 25,
   offset: number = 0,
   options?: ProductCatalogFetchOptions,
-): Promise<Product[]> {
+): Promise<ProductCatalogPage> {
   const qs = new URLSearchParams({
     limit: String(limit),
     offset: String(offset),
@@ -150,14 +172,10 @@ export async function fetchProductsByCategory(
   }
   appendProductListFiltersToQuery(qs, options?.filters);
 
-  const hasFilters =
-    Boolean(options?.search?.trim()) ||
-    Boolean(
-      options?.filters &&
-        (options.filters.skinTypes.length > 0 ||
-          options.filters.brands.length > 0 ||
-          Object.values(options.filters.attributes).some((v) => v.length > 0)),
-    );
+  const hasFilters = productListFiltersNeedDynamicFetch(
+    options?.filters,
+    options?.search,
+  );
 
   const res = await fetch(
     `${API_URL}/api/products/category/${category}?${qs.toString()}`,
@@ -168,10 +186,10 @@ export async function fetchProductsByCategory(
     console.error(
       `fetchProductsByCategory failed: ${category} limit=${limit} offset=${offset}`,
     );
-    return [];
+    return { products: [], total: 0 };
   }
   const data = await res.json();
-  return Array.isArray(data) ? data : [];
+  return parseProductCatalogResponse(data);
 }
 
 export async function fetchCategoryBrands(category: string): Promise<string[]> {
@@ -193,7 +211,8 @@ export const searchProducts = async (
   offset: number = 0,
   filters?: ProductListFilters,
 ): Promise<Product[]> => {
-  return fetchProducts(limit, offset, { search: query, filters });
+  const page = await fetchProducts(limit, offset, { search: query, filters });
+  return page.products;
 };
 
 export const searchProductsByCategory = async (
@@ -203,10 +222,11 @@ export const searchProductsByCategory = async (
   offset: number = 0,
   filters?: ProductListFilters,
 ): Promise<Product[]> => {
-  return fetchProductsByCategory(category, limit, offset, {
+  const page = await fetchProductsByCategory(category, limit, offset, {
     search: query,
     filters,
   });
+  return page.products;
 };
 
 export const getProductById = async (id: string): Promise<Product> => {

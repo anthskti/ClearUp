@@ -2,12 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PRODUCT_PRICE_SLIDER_MAX } from "@/constants/productFilters";
 import type { Product, ProductListFilters } from "@/types/product";
 import { fetchProducts, fetchProductsByCategory } from "@/lib/products";
 import {
+  EMPTY_PRODUCT_LIST_FILTERS,
   hasActiveProductListFilters,
   productListFiltersToSearchParams,
-} from "@/types/productListFilters";
+  setProductPriceRange,
+} from "@/lib/productListFilters";
 
 const PAGE_SIZE = 20;
 
@@ -25,12 +28,18 @@ function isValidProduct(p: Product): boolean {
   return Number.isFinite(p?.id) && p.id > 0 && Boolean(p?.name?.trim());
 }
 
+function priceRangeFromFilters(
+  filters: ProductListFilters,
+): [number, number] {
+  return [filters.minPrice, filters.maxPrice];
+}
+
 async function fetchCatalogPage(
   scope: CatalogScope,
   limit: number,
   offset: number,
   options: { search?: string; filters: ProductListFilters },
-): Promise<Product[]> {
+): Promise<{ products: Product[]; total: number }> {
   if (scope.type === "all") {
     return fetchProducts(limit, offset, options);
   }
@@ -40,6 +49,7 @@ async function fetchCatalogPage(
 export interface UseProductCatalogOptions {
   scope: CatalogScope;
   initialProducts: Product[];
+  initialTotal: number;
   initialFilters: ProductListFilters;
   initialSearch?: string;
 }
@@ -47,6 +57,7 @@ export interface UseProductCatalogOptions {
 export function useProductCatalog({
   scope,
   initialProducts,
+  initialTotal,
   initialFilters,
   initialSearch = "",
 }: UseProductCatalogOptions) {
@@ -55,11 +66,15 @@ export function useProductCatalog({
   const basePath = catalogBasePath(scope);
 
   const [filters, setFilters] = useState<ProductListFilters>(initialFilters);
+  const [draftPriceRange, setDraftPriceRange] = useState<[number, number]>(() =>
+    priceRangeFromFilters(initialFilters),
+  );
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [inputValue, setInputValue] = useState(initialSearch);
   const [products, setProducts] = useState<Product[]>(() =>
     (initialProducts ?? []).filter(isValidProduct),
   );
+  const [totalCount, setTotalCount] = useState(initialTotal);
   const [offset, setOffset] = useState(() =>
     (initialProducts ?? []).filter(isValidProduct).length,
   );
@@ -83,14 +98,14 @@ export function useProductCatalog({
     async (pageOffset: number, append: boolean) => {
       setIsLoading(true);
       try {
-        const rows = (
-          await fetchCatalogPage(scope, PAGE_SIZE, pageOffset, {
-            search: searchQuery.trim() || undefined,
-            filters,
-          })
-        ).filter(isValidProduct);
+        const page = await fetchCatalogPage(scope, PAGE_SIZE, pageOffset, {
+          search: searchQuery.trim() || undefined,
+          filters,
+        });
+        const rows = page.products.filter(isValidProduct);
 
-        setHasMore(rows.length === PAGE_SIZE);
+        setTotalCount(page.total);
+        setHasMore(pageOffset + rows.length < page.total);
         setOffset(pageOffset + rows.length);
 
         if (append) {
@@ -112,6 +127,7 @@ export function useProductCatalog({
         console.error("Failed to fetch products:", error);
         if (!append) {
           setProducts([]);
+          setTotalCount(0);
           setHasMore(false);
           setOffset(0);
         }
@@ -137,12 +153,14 @@ export function useProductCatalog({
     skipInitialFetch.current = true;
     const next = (initialProducts ?? []).filter(isValidProduct);
     setFilters(initialFilters);
+    setDraftPriceRange(priceRangeFromFilters(initialFilters));
     setSearchQuery(initialSearch);
     setInputValue(initialSearch);
     setProducts(next);
+    setTotalCount(initialTotal);
     setOffset(next.length);
-    setHasMore(next.length === PAGE_SIZE);
-  }, [scopeKey, initialProducts, initialFilters, initialSearch]);
+    setHasMore(next.length === PAGE_SIZE && next.length < initialTotal);
+  }, [scopeKey, initialProducts, initialTotal, initialFilters, initialSearch]);
 
   useEffect(() => {
     if (skipInitialFetch.current) {
@@ -160,6 +178,12 @@ export function useProductCatalog({
     [searchQuery, syncUrl],
   );
 
+  const applyPriceFilter = useCallback(() => {
+    const next = setProductPriceRange(filters, draftPriceRange);
+    setFilters(next);
+    syncUrl(next, searchQuery);
+  }, [draftPriceRange, filters, searchQuery, syncUrl]);
+
   const commitSearch = useCallback(
     (query: string) => {
       const trimmed = query.trim();
@@ -171,21 +195,29 @@ export function useProductCatalog({
   );
 
   const clearAll = useCallback(() => {
-    const empty = { skinTypes: [], brands: [], attributes: {} };
-    setFilters(empty);
+    setFilters(EMPTY_PRODUCT_LIST_FILTERS);
+    setDraftPriceRange([0, PRODUCT_PRICE_SLIDER_MAX]);
     setSearchQuery("");
     setInputValue("");
-    syncUrl(empty, "");
+    syncUrl(EMPTY_PRODUCT_LIST_FILTERS, "");
   }, [syncUrl]);
 
   const isFiltered =
     hasActiveProductListFilters(filters, searchQuery) ||
     searchQuery.trim().length > 0;
 
+  const hasPriceDraftChanges =
+    draftPriceRange[0] !== filters.minPrice ||
+    draftPriceRange[1] !== filters.maxPrice;
+
   return {
     products,
     filters,
     updateFilters,
+    draftPriceRange,
+    setDraftPriceRange,
+    applyPriceFilter,
+    hasPriceDraftChanges,
     searchQuery,
     inputValue,
     setInputValue,
@@ -195,5 +227,6 @@ export function useProductCatalog({
     hasMore,
     loadMore,
     isFiltered,
+    totalCount,
   };
 }

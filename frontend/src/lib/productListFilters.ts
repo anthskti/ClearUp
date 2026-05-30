@@ -33,6 +33,23 @@ function parseCsvParam(raw: string | undefined): string[] {
   ];
 }
 
+function parsePriceFiltersFromParams(
+  params: Record<string, string | undefined>,
+): Pick<ProductListFilters, "minPrice" | "maxPrice"> {
+  const minPrice = parseMinSliderValue(
+    params.minPrice ?? "",
+    PRODUCT_PRICE_SLIDER_MAX,
+  );
+  const maxPrice = parseMaxSliderValue(
+    params.maxPrice ?? "",
+    PRODUCT_PRICE_SLIDER_MAX,
+  );
+  return {
+    minPrice,
+    maxPrice: Math.max(maxPrice, minPrice),
+  };
+}
+
 export function parseGlobalProductListFiltersFromSearchParams(
   params: Record<string, string | undefined>,
 ): ProductListFilters {

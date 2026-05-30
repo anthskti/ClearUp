@@ -63,6 +63,15 @@ export interface ProductListFilters {
   brands: string[];
   /** Category-specific keys from `filters.tsx` (texture, benefits, …). */
   attributes: Record<string, string[]>;
+  /** Catalog unit price (CAD). 0 = no lower bound. */
+  minPrice: number;
+  /** Catalog unit price (CAD). At slider max = no upper bound. */
+  maxPrice: number;
+}
+
+export interface ProductCatalogPage {
+  products: Product[];
+  total: number;
 }
 
 export interface ProductCatalogFetchOptions {

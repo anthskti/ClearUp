@@ -7,7 +7,7 @@ import { Metadata } from "next";
 import {
   flattenSearchParams,
   parseProductListFiltersFromSearchParams,
-} from "@/types/productListFilters";
+} from "@/lib/productListFilters";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +33,7 @@ export default async function ProductListPage({
   );
   const initialSearch = flatParams.search ?? "";
 
-  const [products, availableBrands] = await Promise.all([
+  const [productsPage, availableBrands] = await Promise.all([
     fetchProductsByCategory(slug, 20, 0, {
       search: initialSearch || undefined,
       filters: initialFilters,
@@ -44,7 +44,8 @@ export default async function ProductListPage({
   return (
     <ProductListClient
       scope={{ type: "category", slug }}
-      initialProducts={products}
+      initialProducts={productsPage.products}
+      initialTotal={productsPage.total}
       initialFilters={initialFilters}
       initialSearch={initialSearch}
       availableBrands={availableBrands}

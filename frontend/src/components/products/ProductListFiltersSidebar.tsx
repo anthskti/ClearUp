@@ -8,6 +8,7 @@ import {
   CategoryKey,
   type FilterOption,
 } from "@/constants/filters";
+import { PRODUCT_PRICE_SLIDER_MAX } from "@/constants/productFilters";
 import type { CatalogScope } from "@/hooks/useProductCatalog";
 import { ROUTINE_SKIN_TYPE_OPTIONS } from "@/lib/routineSkinTypeTags";
 import {
@@ -15,8 +16,10 @@ import {
   toggleAttributeFilter,
   toggleBrandFilter,
   toggleSkinTypeFilter,
-} from "@/types/productListFilters";
+} from "@/lib/productListFilters";
 import type { ProductListFilters } from "@/types/product";
+import PriceRangeFilter from "@/components/filters/PriceRangeFilter";
+import { Button } from "@/components/ui/button";
 
 interface FilterSectionProps {
   id: string;
@@ -81,18 +84,26 @@ interface ProductListFiltersSidebarProps {
   scope: CatalogScope;
   filters: ProductListFilters;
   onFiltersChange: (filters: ProductListFilters) => void;
+  draftPriceRange: [number, number];
+  onDraftPriceChange: (range: [number, number]) => void;
+  onApplyPrice: () => void;
+  hasPriceDraftChanges: boolean;
+  onClearAll: () => void;
   availableBrands: string[];
   isFiltered: boolean;
-  onClearAll: () => void;
 }
 
 export default function ProductListFiltersSidebar({
   scope,
   filters,
   onFiltersChange,
+  draftPriceRange,
+  onDraftPriceChange,
+  onApplyPrice,
+  hasPriceDraftChanges,
+  onClearAll,
   availableBrands,
   isFiltered,
-  onClearAll,
 }: ProductListFiltersSidebarProps) {
   const config =
     scope.type === "all"
@@ -102,6 +113,7 @@ export default function ProductListFiltersSidebar({
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     skinType: true,
     brand: false,
+    price: false,
   });
 
   const toggleSection = (id: string) => {
@@ -126,7 +138,9 @@ export default function ProductListFiltersSidebar({
               label={value}
               checked={selected.includes(value)}
               onChange={() =>
-                onFiltersChange(toggleAttributeFilter(filters, filter.id, value))
+                onFiltersChange(
+                  toggleAttributeFilter(filters, filter.id, value),
+                )
               }
             />
           );
@@ -191,6 +205,33 @@ export default function ProductListFiltersSidebar({
           ))}
         </FilterSection>
       )}
+
+      <FilterSection
+        id="price"
+        title="Price"
+        isOpen={openSections.price ?? true}
+        onToggle={() => toggleSection("price")}
+      >
+        <PriceRangeFilter
+          idPrefix="product-price"
+          title="Catalog price (CAD)"
+          value={draftPriceRange}
+          onChange={onDraftPriceChange}
+          sliderMax={PRODUCT_PRICE_SLIDER_MAX}
+          step={1}
+          size="compact"
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          className="mt-3 w-full"
+          onClick={onApplyPrice}
+          disabled={!hasPriceDraftChanges}
+        >
+          Apply
+        </Button>
+      </FilterSection>
 
       {config.specificFilters.map(renderAttributeSection)}
     </aside>

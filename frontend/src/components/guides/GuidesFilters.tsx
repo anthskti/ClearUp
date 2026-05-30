@@ -5,40 +5,11 @@ import { useRouter } from "next/navigation";
 import type { SkinType } from "@/types/product";
 import RoutineSkinTypeTagPicker from "@/components/routine/RoutineSkinTypeTagPicker";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
+import PriceRangeFilter from "@/components/filters/PriceRangeFilter";
+import { toPriceRange } from "@/lib/priceRange";
 
-// Slider ceiling (CAD). Max at this value = no upper bound filter (`300+`). Min at 0 = no lower bound.
+/** Slider ceiling (CAD). Max at this value = no upper bound filter (`300+`). Min at 0 = no lower bound. */
 export const GUIDES_PRICE_SLIDER_MAX = 300;
-
-function parseMinSliderValue(raw: string): number {
-  const n = parseFloat(raw);
-  if (!raw.trim() || !Number.isFinite(n) || n <= 0) {
-    return 0;
-  }
-  return Math.min(Math.max(0, n), GUIDES_PRICE_SLIDER_MAX);
-}
-
-function parseMaxSliderValue(raw: string): number {
-  const n = parseFloat(raw);
-  if (!raw.trim() || !Number.isFinite(n) || n < 0) {
-    return GUIDES_PRICE_SLIDER_MAX;
-  }
-  return Math.min(n, GUIDES_PRICE_SLIDER_MAX);
-}
-
-function formatPriceRangeLabel([min, max]: [number, number]): string {
-  const minLabel = min <= 0 ? "CA $0" : `CA $${min}`;
-  const maxLabel =
-    max >= GUIDES_PRICE_SLIDER_MAX ? "CA $300+" : `CA $${max}`;
-  return `${minLabel} – ${maxLabel}`;
-}
-
-function toPriceRange(min: string, max: string): [number, number] {
-  const lo = parseMinSliderValue(min);
-  const hi = parseMaxSliderValue(max);
-  return [Math.min(lo, hi), Math.max(lo, hi)];
-}
 
 export default function GuidesFilters({
   initialTags,
@@ -52,12 +23,14 @@ export default function GuidesFilters({
   const router = useRouter();
   const [tags, setTags] = useState<SkinType[]>(initialTags);
   const [priceRange, setPriceRange] = useState<[number, number]>(() =>
-    toPriceRange(initialMinPrice, initialMaxPrice),
+    toPriceRange(initialMinPrice, initialMaxPrice, GUIDES_PRICE_SLIDER_MAX),
   );
 
   useEffect(() => {
     setTags(initialTags);
-    setPriceRange(toPriceRange(initialMinPrice, initialMaxPrice));
+    setPriceRange(
+      toPriceRange(initialMinPrice, initialMaxPrice, GUIDES_PRICE_SLIDER_MAX),
+    );
   }, [initialTags, initialMinPrice, initialMaxPrice]);
 
   const toggle = (t: SkinType) => {
@@ -104,94 +77,15 @@ export default function GuidesFilters({
         <RoutineSkinTypeTagPicker value={tags} onToggle={toggle} />
       </div>
 
-      <div className="mb-4 max-w-md">
-        <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
-          Routine Total
-        </h2>
-        <p className="mb-3 text-sm font-semibold text-zinc-800">
-          {formatPriceRangeLabel(priceRange)}
-        </p>
-        <Slider
+      <div className="mb-4">
+        <PriceRangeFilter
+          idPrefix="guides-price"
+          title="Routine total"
           value={priceRange}
-          onValueChange={(value) =>
-            setPriceRange(value as [number, number])
-          }
-          min={0}
-          max={GUIDES_PRICE_SLIDER_MAX}
+          onChange={setPriceRange}
+          sliderMax={GUIDES_PRICE_SLIDER_MAX}
           step={5}
-          className="mb-3"
         />
-        <div className="flex items-center justify-between gap-4 text-sm">
-          <div className="flex flex-col items-start">
-            <label
-              htmlFor="guides-price-from"
-              className="mb-1 text-xs font-medium text-zinc-600"
-            >
-              From
-            </label>
-            <div className="relative">
-              <span className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-zinc-400">
-                $
-              </span>
-              <Input
-                id="guides-price-from"
-                type="text"
-                inputMode="numeric"
-                value={priceRange[0]}
-                onChange={(e) => {
-                  const raw = e.target.value.replace(/[^0-9]/g, "");
-                  const next = raw === "" ? 0 : Number(raw);
-                  const clamped = Math.min(
-                    Math.max(0, next),
-                    GUIDES_PRICE_SLIDER_MAX,
-                  );
-                  setPriceRange([
-                    Math.min(clamped, priceRange[1]),
-                    priceRange[1],
-                  ]);
-                }}
-                className="mt-0 w-24 pl-6"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col items-start">
-            <label
-              htmlFor="guides-price-to"
-              className="mb-1 text-xs font-medium text-zinc-600"
-            >
-              To
-            </label>
-            <div className="relative">
-              <span className="absolute top-1/2 left-2 -translate-y-1/2 text-sm text-zinc-400">
-                $
-              </span>
-              <Input
-                id="guides-price-to"
-                type="text"
-                inputMode="numeric"
-                value={
-                  priceRange[1] >= GUIDES_PRICE_SLIDER_MAX
-                    ? `${GUIDES_PRICE_SLIDER_MAX}+`
-                    : priceRange[1]
-                }
-                onChange={(e) => {
-                  const raw = e.target.value.replace(/[^0-9]/g, "");
-                  const next =
-                    raw === "" ? GUIDES_PRICE_SLIDER_MAX : Number(raw);
-                  const clamped = Math.min(
-                    Math.max(0, next),
-                    GUIDES_PRICE_SLIDER_MAX,
-                  );
-                  setPriceRange([
-                    priceRange[0],
-                    Math.max(clamped, priceRange[0]),
-                  ]);
-                }}
-                className="mt-0 w-24 pl-6"
-              />
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">

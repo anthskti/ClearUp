@@ -25,6 +25,7 @@ import {
 interface ProductListClientProps {
   scope: CatalogScope;
   initialProducts: Product[];
+  initialTotal: number;
   initialFilters: ProductListFilters;
   initialSearch?: string;
   availableBrands: string[];
@@ -38,6 +39,7 @@ function getProductThumbUrl(product: Product): string | null {
 export default function ProductListClient({
   scope,
   initialProducts,
+  initialTotal,
   initialFilters,
   initialSearch = "",
   availableBrands,
@@ -46,6 +48,10 @@ export default function ProductListClient({
     products,
     filters,
     updateFilters,
+    draftPriceRange,
+    setDraftPriceRange,
+    applyPriceFilter,
+    hasPriceDraftChanges,
     inputValue,
     setInputValue,
     commitSearch,
@@ -54,9 +60,11 @@ export default function ProductListClient({
     hasMore,
     loadMore,
     isFiltered,
+    totalCount,
   } = useProductCatalog({
     scope,
     initialProducts,
+    initialTotal,
     initialFilters,
     initialSearch,
   });
@@ -279,6 +287,10 @@ export default function ProductListClient({
           scope={scope}
           filters={filters}
           onFiltersChange={updateFilters}
+          draftPriceRange={draftPriceRange}
+          onDraftPriceChange={setDraftPriceRange}
+          onApplyPrice={applyPriceFilter}
+          hasPriceDraftChanges={hasPriceDraftChanges}
           availableBrands={availableBrands}
           isFiltered={isFiltered}
           onClearAll={clearAll}
@@ -297,7 +309,7 @@ export default function ProductListClient({
           {/* Showing X results; since pagination, its kind of weird */}
           <div className="mb-6 flex items-center justify-end">
             <p className="text-sm font-medium text-zinc-500">
-              Showing {products.length} results
+              Showing {products.length} of {totalCount} results
             </p>
           </div>
           {/* Search Bar */}

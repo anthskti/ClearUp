@@ -1,18 +1,20 @@
 // Translates storage format to application format
 
 import ProductModel from "../models/Product";
-import {
+import type {
   CreateProductInput,
   Product,
   ProductCategory,
+  ProductListResult,
   UpdateProductInput,
 } from "../types/product";
 import PAGINATION from "../config/pagination";
-import { Op, WhereOptions } from "sequelize";
+import { Op } from "sequelize";
 import {
   ProductSearchFilters,
   buildProductFilterWhere,
-  buildProductSearchWhere,
+  buildGlobalProductFilterWhere,
+  hasProductListFilters,
 } from "../lib/productFilterQuery";
 
 export class ProductRepository {
@@ -21,12 +23,26 @@ export class ProductRepository {
     limit: number = PAGINATION.LIMIT,
     offset: number = PAGINATION.OFFSET,
   ): Promise<Product[]> {
-    const products = await ProductModel.findAll({
-      limit: limit,
-      offset: offset,
-      order: [["id", "DESC"]], // Older products to newer
-    });
-    return products.map((product: any) => this.mapToProductType(product));
+    const result = await this.findAllAndTotal(limit, offset);
+    return result.products;
+  }
+
+  async findAllAndTotal(
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<ProductListResult> {
+    const [rows, total] = await Promise.all([
+      ProductModel.findAll({
+        limit,
+        offset,
+        order: [["id", "DESC"]],
+      }),
+      ProductModel.count(),
+    ]);
+    return {
+      products: rows.map((product: any) => this.mapToProductType(product)),
+      total,
+    };
   }
 
   // GET products by category (ex. cleanser, toner) with pagination, infinite scroll
@@ -35,13 +51,29 @@ export class ProductRepository {
     limit: number = PAGINATION.LIMIT,
     offset: number = PAGINATION.OFFSET,
   ): Promise<Product[]> {
-    const products = await ProductModel.findAll({
-      where: { category },
-      limit: limit,
-      offset: offset,
-      order: [["createdAt", "ASC"]],
-    });
-    return products.map((product: any) => this.mapToProductType(product));
+    const result = await this.findByCategoryAndTotal(category, limit, offset);
+    return result.products;
+  }
+
+  async findByCategoryAndTotal(
+    category: ProductCategory,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<ProductListResult> {
+    const where = { category };
+    const [rows, total] = await Promise.all([
+      ProductModel.findAll({
+        where,
+        limit,
+        offset,
+        order: [["createdAt", "ASC"]],
+      }),
+      ProductModel.count({ where }),
+    ]);
+    return {
+      products: rows.map((product: any) => this.mapToProductType(product)),
+      total,
+    };
   }
 
   // Distinct brand names in a category (for filter facets).
@@ -153,14 +185,44 @@ export class ProductRepository {
     limit: number = PAGINATION.LIMIT,
     offset: number = PAGINATION.OFFSET,
   ): Promise<Product[]> {
-    const products = await ProductModel.findAll({
-      where: buildProductFilterWhere(category, filters),
+    const result = await this.findByCategoryWithFiltersAndTotal(
+      category,
+      filters,
       limit,
       offset,
-      order: [["name", "ASC"]],
-    });
+    );
+    return result.products;
+  }
 
-    return products.map((product: any) => this.mapToProductType(product));
+  async findByCategoryWithFiltersAndTotal(
+    category: ProductCategory,
+    filters: ProductSearchFilters,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<ProductListResult> {
+    const where = buildProductFilterWhere(category, filters);
+    const [rows, total] = await Promise.all([
+      ProductModel.findAll({
+        where,
+        limit,
+        offset,
+        order: [["name", "ASC"]],
+      }),
+      ProductModel.count({ where }),
+    ]);
+
+    return {
+      products: rows.map((product: any) => this.mapToProductType(product)),
+      total,
+    };
+  }
+
+  async countByCategory(category: ProductCategory): Promise<number> {
+    return ProductModel.count({ where: { category } });
+  }
+
+  async countAll(): Promise<number> {
+    return ProductModel.count();
   }
 
   // Global catalog listing with skin type / brand / text search (no category).
@@ -169,42 +231,53 @@ export class ProductRepository {
     limit: number = PAGINATION.LIMIT,
     offset: number = PAGINATION.OFFSET,
   ): Promise<Product[]> {
-    return this.searchWithFilters(filters, limit, offset);
+    const result = await this.findAllWithFiltersAndTotal(filters, limit, offset);
+    return result.products;
   }
 
-  // Global search with optional skin type / brand filters (no category).
+  async findAllWithFiltersAndTotal(
+    filters: ProductSearchFilters,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<ProductListResult> {
+    return this.searchWithFiltersAndTotal(filters, limit, offset);
+  }
+
+  // Global search with optional skin type / brand / price filters (no category).
   async searchWithFilters(
     filters: ProductSearchFilters,
     limit: number = PAGINATION.LIMIT,
     offset: number = PAGINATION.OFFSET,
   ): Promise<Product[]> {
-    const and: WhereOptions[] = [];
+    const result = await this.searchWithFiltersAndTotal(filters, limit, offset);
+    return result.products;
+  }
 
-    const textWhere = buildProductSearchWhere(filters);
-    if (textWhere) and.push(textWhere);
-
-    if (filters.skinTypes?.length) {
-      and.push({ skinType: { [Op.overlap]: filters.skinTypes } });
+  async searchWithFiltersAndTotal(
+    filters: ProductSearchFilters,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<ProductListResult> {
+    if (!hasProductListFilters(filters)) {
+      return { products: [], total: 0 };
     }
 
-    if (filters.brands?.length) {
-      and.push({
-        [Op.or]: filters.brands.map((brand) => ({
-          brand: { [Op.iLike]: brand },
-        })),
-      });
-    }
+    const where = buildGlobalProductFilterWhere(filters);
 
-    if (!and.length) return [];
+    const [rows, total] = await Promise.all([
+      ProductModel.findAll({
+        where,
+        limit,
+        offset,
+        order: [["name", "ASC"]],
+      }),
+      ProductModel.count({ where }),
+    ]);
 
-    const products = await ProductModel.findAll({
-      where: { [Op.and]: and },
-      limit,
-      offset,
-      order: [["name", "ASC"]],
-    });
-
-    return products.map((product: any) => this.mapToProductType(product));
+    return {
+      products: rows.map((product: any) => this.mapToProductType(product)),
+      total,
+    };
   }
 
   // GET / SEARCH product by name and brand

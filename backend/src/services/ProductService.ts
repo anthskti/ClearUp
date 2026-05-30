@@ -34,7 +34,7 @@ import {
   ProductSearchFilters,
   hasProductListFilters,
 } from "../lib/productFilterQuery";
-
+import type { ProductCatalogResult } from "../types/product";
 
 export class ProductService {
   private productRepository: ProductRepository;
@@ -52,7 +52,15 @@ export class ProductService {
     limit: number = PAGINATION.LIMIT,
     offset: number = PAGINATION.OFFSET,
   ): Promise<Product[]> {
-    return this.productRepository.findAll(limit, offset);
+    const result = await this.getAllProductsWithTotal(limit, offset);
+    return result.products;
+  }
+
+  async getAllProductsWithTotal(
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+  ): Promise<ProductCatalogResult> {
+    return this.productRepository.findAllAndTotal(limit, offset);
   }
 
   // GET products by category (ex. cleanser, toner)
@@ -62,15 +70,30 @@ export class ProductService {
     offset: number = PAGINATION.OFFSET,
     filters?: ProductSearchFilters,
   ): Promise<Product[]> {
+    const result = await this.getProductsByCategoryWithTotal(
+      category,
+      limit,
+      offset,
+      filters,
+    );
+    return result.products;
+  }
+
+  async getProductsByCategoryWithTotal(
+    category: ProductCategory,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+    filters?: ProductSearchFilters,
+  ): Promise<ProductCatalogResult> {
     if (filters && hasProductListFilters(filters)) {
-      return this.productRepository.findByCategoryWithFilters(
+      return this.productRepository.findByCategoryWithFiltersAndTotal(
         category,
         filters,
         limit,
         offset,
       );
     }
-    return this.productRepository.findByCategory(category, limit, offset);
+    return this.productRepository.findByCategoryAndTotal(category, limit, offset);
   }
 
   async getBrandsByCategory(category: ProductCategory): Promise<string[]> {
@@ -86,10 +109,23 @@ export class ProductService {
     offset: number = PAGINATION.OFFSET,
     filters?: ProductSearchFilters,
   ): Promise<Product[]> {
+    const result = await this.getProductsFilteredWithTotal(limit, offset, filters);
+    return result.products;
+  }
+
+  async getProductsFilteredWithTotal(
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+    filters?: ProductSearchFilters,
+  ): Promise<ProductCatalogResult> {
     if (filters && hasProductListFilters(filters)) {
-      return this.productRepository.findAllWithFilters(filters, limit, offset);
+      return this.productRepository.findAllWithFiltersAndTotal(
+        filters,
+        limit,
+        offset,
+      );
     }
-    return this.productRepository.findAll(limit, offset);
+    return this.productRepository.findAllAndTotal(limit, offset);
   }
 
   // GET / SEARCH products by query
@@ -117,13 +153,30 @@ export class ProductService {
     offset: number = PAGINATION.OFFSET,
     filters?: Omit<ProductSearchFilters, "query">,
   ): Promise<Product[]> {
+    const result = await this.searchProductsInCategoryWithTotal(
+      category,
+      query,
+      limit,
+      offset,
+      filters,
+    );
+    return result.products;
+  }
+
+  async searchProductsInCategoryWithTotal(
+    category: ProductCategory,
+    query: string,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+    filters?: Omit<ProductSearchFilters, "query">,
+  ): Promise<ProductCatalogResult> {
     const merged: ProductSearchFilters = {
       ...filters,
       query: query?.trim() || undefined,
     };
 
     if (hasProductListFilters(merged)) {
-      return this.productRepository.findByCategoryWithFilters(
+      return this.productRepository.findByCategoryWithFiltersAndTotal(
         category,
         merged,
         limit,
@@ -131,7 +184,7 @@ export class ProductService {
       );
     }
 
-    return this.getProductsByCategory(category, limit, offset);
+    return this.getProductsByCategoryWithTotal(category, limit, offset);
   }
 
   // GET product (singlular) by Id

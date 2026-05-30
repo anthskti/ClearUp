@@ -38,18 +38,18 @@ export class ProductController {
 
       if (searchQuery || hasProductListFilters(listFilters)) {
         const merged = { ...listFilters, query: searchQuery?.trim() || listFilters.query };
-        const products = await this.productService.getProductsFiltered(
+        const result = await this.productService.getProductsFilteredWithTotal(
           limit,
           offset,
           merged,
         );
-        res.json(products);
+        res.json(result);
       } else {
-        const products = await this.productService.getAllProducts(
+        const result = await this.productService.getAllProductsWithTotal(
           limit,
           offset,
         );
-        res.json(products);
+        res.json(result);
       }
     } catch (error: unknown) {
       handleInternalError(res, "ProductController.getAllProducts", error);
@@ -70,9 +70,9 @@ export class ProductController {
         category,
       );
 
-      let products;
+      let result;
       if (searchQuery || hasProductListFilters(listFilters)) {
-        products = await this.productService.searchProductsInCategory(
+        result = await this.productService.searchProductsInCategoryWithTotal(
           category,
           searchQuery ?? "",
           limit,
@@ -80,13 +80,13 @@ export class ProductController {
           listFilters,
         );
       } else {
-        products = await this.productService.getProductsByCategory(
+        result = await this.productService.getProductsByCategoryWithTotal(
           category,
           limit,
           offset,
         );
       }
-      res.json(products);
+      res.json(result);
     } catch (error: unknown) {
       handleInternalError(
         res,

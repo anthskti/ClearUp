@@ -33,6 +33,15 @@ export interface ProductSearchFilters {
   skinTypes?: SkinType[];
   brands?: string[];
   attributeFilters?: Record<string, string[]>;
+  minPrice?: number;
+  maxPrice?: number;
+}
+
+function parsePriceParam(raw: unknown): number | undefined {
+  if (typeof raw !== "string" || !raw.trim()) return undefined;
+  const n = parseFloat(raw);
+  if (!Number.isFinite(n) || n < 0) return undefined;
+  return n;
 }
 
 function parseCsvParam(raw: unknown): string[] {
@@ -66,6 +75,8 @@ export function parseProductListQuery(
     skinTypes: parseSkinTypesParam(query.skinType),
     brands: parseCsvParam(query.brands),
     attributeFilters: {},
+    minPrice: parsePriceParam(query.minPrice),
+    maxPrice: parsePriceParam(query.maxPrice),
   };
 
   const filterIds = category
@@ -87,12 +98,82 @@ export function hasProductListFilters(filters: ProductSearchFilters): boolean {
   if (filters.skinTypes?.length) return true;
   if (filters.brands?.length) return true;
   if (
+    filters.minPrice !== undefined &&
+    Number.isFinite(filters.minPrice) &&
+    filters.minPrice > 0
+  ) {
+    return true;
+  }
+  if (
+    filters.maxPrice !== undefined &&
+    Number.isFinite(filters.maxPrice) &&
+    filters.maxPrice >= 0
+  ) {
+    return true;
+  }
+  if (
     filters.attributeFilters &&
     Object.values(filters.attributeFilters).some((v) => v.length > 0)
   ) {
     return true;
   }
   return false;
+}
+
+function appendPriceConditions(
+  and: WhereOptions[],
+  filters: ProductSearchFilters,
+): void {
+  if (
+    filters.minPrice !== undefined &&
+    Number.isFinite(filters.minPrice) &&
+    filters.minPrice > 0
+  ) {
+    and.push({ price: { [Op.gte]: filters.minPrice } });
+  }
+  if (
+    filters.maxPrice !== undefined &&
+    Number.isFinite(filters.maxPrice) &&
+    filters.maxPrice >= 0
+  ) {
+    and.push({ price: { [Op.lte]: filters.maxPrice } });
+  }
+}
+
+function appendTextSearchCondition(
+  and: WhereOptions[],
+  filters: ProductSearchFilters,
+): void {
+  const query = filters.query?.trim();
+  if (!query) return;
+
+  const term = `%${query}%`;
+  and.push({
+    [Op.or]: [
+      { name: { [Op.iLike]: term } },
+      { brand: { [Op.iLike]: term } },
+    ],
+  });
+}
+
+function appendSkinTypeCondition(
+  and: WhereOptions[],
+  filters: ProductSearchFilters,
+): void {
+  if (!filters.skinTypes?.length) return;
+  and.push({ skinType: { [Op.overlap]: filters.skinTypes } });
+}
+
+function appendBrandConditions(
+  and: WhereOptions[],
+  filters: ProductSearchFilters,
+): void {
+  if (!filters.brands?.length) return;
+  and.push({
+    [Op.or]: filters.brands.map((brand) => ({
+      brand: { [Op.iLike]: brand },
+    })),
+  });
 }
 
 function labelAtIndexCondition(
@@ -121,30 +202,10 @@ export function buildProductFilterWhere(
 ): WhereOptions {
   const and: WhereOptions[] = [{ category }];
 
-  const query = filters.query?.trim();
-  if (query) {
-    const term = `%${query}%`;
-    and.push({
-      [Op.or]: [
-        { name: { [Op.iLike]: term } },
-        { brand: { [Op.iLike]: term } },
-      ],
-    });
-  }
-
-  if (filters.skinTypes?.length) {
-    and.push({
-      skinType: { [Op.overlap]: filters.skinTypes },
-    });
-  }
-
-  if (filters.brands?.length) {
-    and.push({
-      [Op.or]: filters.brands.map((brand) => ({
-        brand: { [Op.iLike]: brand },
-      })),
-    });
-  }
+  appendTextSearchCondition(and, filters);
+  appendSkinTypeCondition(and, filters);
+  appendBrandConditions(and, filters);
+  appendPriceConditions(and, filters);
 
   const allowedIds = new Set(CATEGORY_FILTER_IDS[category]);
   for (const [filterId, values] of Object.entries(
@@ -156,6 +217,24 @@ export function buildProductFilterWhere(
     if (labelIndex === undefined) continue;
 
     and.push(labelAtIndexCondition(labelIndex, values));
+  }
+
+  return { [Op.and]: and };
+}
+
+// Global catalog WHERE (no category constraint).
+export function buildGlobalProductFilterWhere(
+  filters: ProductSearchFilters,
+): WhereOptions {
+  const and: WhereOptions[] = [];
+
+  appendTextSearchCondition(and, filters);
+  appendSkinTypeCondition(and, filters);
+  appendBrandConditions(and, filters);
+  appendPriceConditions(and, filters);
+
+  if (!and.length) {
+    return {};
   }
 
   return { [Op.and]: and };

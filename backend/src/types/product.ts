@@ -62,3 +62,14 @@ export type SkinType =
   | "sensitive"
   | "normal"
   | "acne-prone";
+
+export interface ProductListResult {
+  products: Product[];
+  total: number;
+}
+
+export interface ProductCatalogResult {
+  products: Product[];
+  total: number;
+}
+  

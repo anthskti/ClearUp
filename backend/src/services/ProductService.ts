@@ -30,6 +30,10 @@ import {
 import { MerchantRepository } from "../repositories/MerchantRepository";
 import { CsvImportResult, CsvRowError } from "../types/csv";
 import PAGINATION from "../config/pagination";
+import {
+  ProductSearchFilters,
+  hasProductListFilters,
+} from "../lib/productFilterQuery";
 
 
 export class ProductService {
@@ -56,8 +60,78 @@ export class ProductService {
     category: ProductCategory,
     limit: number = PAGINATION.LIMIT,
     offset: number = PAGINATION.OFFSET,
+    filters?: ProductSearchFilters,
   ): Promise<Product[]> {
+    if (filters && hasProductListFilters(filters)) {
+      return this.productRepository.findByCategoryWithFilters(
+        category,
+        filters,
+        limit,
+        offset,
+      );
+    }
     return this.productRepository.findByCategory(category, limit, offset);
+  }
+
+  async getBrandsByCategory(category: ProductCategory): Promise<string[]> {
+    return this.productRepository.findDistinctBrandsByCategory(category);
+  }
+
+  async getAllBrands(): Promise<string[]> {
+    return this.productRepository.findDistinctBrands();
+  }
+
+  async getProductsFiltered(
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+    filters?: ProductSearchFilters,
+  ): Promise<Product[]> {
+    if (filters && hasProductListFilters(filters)) {
+      return this.productRepository.findAllWithFilters(filters, limit, offset);
+    }
+    return this.productRepository.findAll(limit, offset);
+  }
+
+  // GET / SEARCH products by query
+  async searchProducts(
+    query: string,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+    filters?: Omit<ProductSearchFilters, "query">,
+  ): Promise<Product[]> {
+    const merged: ProductSearchFilters = { ...filters, query: query.trim() };
+    if (!merged.query) {
+      if (filters && hasProductListFilters(merged)) {
+        return this.productRepository.searchWithFilters(merged, limit, offset);
+      }
+      return [];
+    }
+    return this.productRepository.searchWithFilters(merged, limit, offset);
+  }
+
+  // GET / SEARCH products by query within a category (+ skin types & attribute filters)
+  async searchProductsInCategory(
+    category: ProductCategory,
+    query: string,
+    limit: number = PAGINATION.LIMIT,
+    offset: number = PAGINATION.OFFSET,
+    filters?: Omit<ProductSearchFilters, "query">,
+  ): Promise<Product[]> {
+    const merged: ProductSearchFilters = {
+      ...filters,
+      query: query?.trim() || undefined,
+    };
+
+    if (hasProductListFilters(merged)) {
+      return this.productRepository.findByCategoryWithFilters(
+        category,
+        merged,
+        limit,
+        offset,
+      );
+    }
+
+    return this.getProductsByCategory(category, limit, offset);
   }
 
   // GET product (singlular) by Id
@@ -168,33 +242,6 @@ export class ProductService {
       await this.syncProductPriceFromLowestOffer(productId);
     }
     return deleted;
-  }
-
-  // GET /SEARCH products by query
-  async searchProducts(
-    query: string,
-    limit: number = PAGINATION.LIMIT,
-    offset: number = PAGINATION.OFFSET,
-  ): Promise<Product[]> {
-    if (!query || query.trim().length === 0) {
-      return [];
-    }
-    return this.productRepository.search(query.trim(), limit, offset);
-  }
-
-  // GET / SEARCH products by query within a category
-  async searchProductsInCategory(
-    category: ProductCategory,
-    query: string,
-    limit: number = PAGINATION.LIMIT,
-    offset: number = PAGINATION.OFFSET,
-  ): Promise<Product[]> {
-    if (!query || query.trim().length === 0) {
-      return this.getProductsByCategory(category, limit, offset);
-    }
-    const allResults = await this.searchProducts(query, limit * 10, 0); // Get more results to filter
-    const filtered = allResults.filter((p) => p.category === category);
-    return filtered.slice(offset, offset + limit);
   }
 
   /** Link scraper `url` + `price` to the default merchant (YesStyle) when present in DB. */

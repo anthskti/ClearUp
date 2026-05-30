@@ -1,33 +1,33 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Search, Star } from "lucide-react";
+import { Search, Star } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { CountryMapping } from "../../constants/CountryMapping";
 
 import {
-  ColumnConfig,
   CATEGORY_CONFIG,
+  ALL_PRODUCTS_CONFIG,
   CategoryKey,
-} from "@/constants/filters"; // The config from above
+  type ColumnConfig,
+} from "@/constants/filters";
 import ProceduralWave from "@/components/themes/ProceduralWave";
-import { Product } from "@/types/product";
+import type { Product, ProductListFilters } from "@/types/product";
 import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
 import { SkinTypeTags } from "./SkinTypeTags";
+import ProductListFiltersSidebar from "./ProductListFiltersSidebar";
 import {
-  getProductsByCategory,
-  searchProductsByCategory,
-} from "@/lib/products";
+  type CatalogScope,
+  useProductCatalog,
+} from "@/hooks/useProductCatalog";
 
 interface ProductListClientProps {
-  category: string;
+  scope: CatalogScope;
   initialProducts: Product[];
-}
-
-// Safety checks for products to NOT brick the system
-function isValidProduct(p: Product): boolean {
-  return Number.isFinite(p?.id) && p.id > 0 && Boolean(p?.name?.trim());
+  initialFilters: ProductListFilters;
+  initialSearch?: string;
+  availableBrands: string[];
 }
 
 function getProductThumbUrl(product: Product): string | null {
@@ -36,17 +36,30 @@ function getProductThumbUrl(product: Product): string | null {
 }
 
 export default function ProductListClient({
-  category,
+  scope,
   initialProducts,
+  initialFilters,
+  initialSearch = "",
+  availableBrands,
 }: ProductListClientProps) {
-  const safeInitial = (initialProducts ?? []).filter(isValidProduct);
-  const [products, setProducts] = useState<Product[]>(safeInitial);
-  const [offset, setOffset] = useState(safeInitial.length);
-  const [hasMore, setHasMore] = useState(safeInitial.length === 20);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [inputValue, setInputValue] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
+  const {
+    products,
+    filters,
+    updateFilters,
+    inputValue,
+    setInputValue,
+    commitSearch,
+    clearAll,
+    isLoading,
+    hasMore,
+    loadMore,
+    isFiltered,
+  } = useProductCatalog({
+    scope,
+    initialProducts,
+    initialFilters,
+    initialSearch,
+  });
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -55,102 +68,23 @@ export default function ProductListClient({
   });
 
   useEffect(() => {
-    const next = (initialProducts ?? []).filter(isValidProduct);
-    setProducts(next);
-    setOffset(next.length);
-    setHasMore(next.length === 20);
-    setSearchQuery("");
-    setInputValue("");
-    setIsSearching(false);
-  }, [category, initialProducts]);
-
-  const handleSearch = async (query: string) => {
-    setSearchQuery(query);
-    setOffset(0);
-    setProducts([]);
-    setIsSearching(query.length > 0);
-
-    if (query.trim().length === 0) {
-      // Reset to initial products if search is cleared
-      const next = (initialProducts ?? []).filter(isValidProduct);
-      setProducts(next);
-      setOffset(next.length);
-      setHasMore(next.length === 20);
-      setIsSearching(false);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const results = (
-        await searchProductsByCategory(category, query, 20, 0)
-      ).filter(isValidProduct);
-      setProducts(results);
-      setOffset(results.length);
-      setHasMore(results.length === 20);
-    } catch (error) {
-      console.error("Search failed:", error);
-      setProducts([]);
-      setHasMore(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch(inputValue);
-    }
-  };
-
-  const loadMore = async () => {
-    if (isLoading || !hasMore) return;
-    setIsLoading(true);
-
-    try {
-      const newProducts = isSearching
-        ? await searchProductsByCategory(category, searchQuery, 20, offset)
-        : await getProductsByCategory(category, 20, offset);
-
-      if (newProducts.length === 0) {
-        setHasMore(false);
-      } else {
-        setProducts((prev) => {
-          const seen = new Set(prev.map((p) => p.id));
-          const merged = [...prev];
-          for (const p of newProducts.filter(isValidProduct)) {
-            if (!seen.has(p.id)) {
-              seen.add(p.id);
-              merged.push(p);
-            }
-          }
-          return merged;
-        });
-        setOffset((prev) => prev + newProducts.length);
-      }
-    } catch (error) {
-      console.error("Failed to load more products:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
     if (inView && hasMore && !isLoading) {
       loadMore();
     }
-  }, [inView, hasMore, isLoading]);
-  // Client-side Hooks are safe here
-  const categorySlug = category;
+  }, [inView, hasMore, isLoading, loadMore]);
+
   const config =
-    CATEGORY_CONFIG[categorySlug as CategoryKey] || CATEGORY_CONFIG.default;
+    scope.type === "all"
+      ? ALL_PRODUCTS_CONFIG
+      : CATEGORY_CONFIG[scope.slug as CategoryKey] || CATEGORY_CONFIG.default;
 
-  const [openFilters, setOpenFilters] = useState<Record<string, boolean>>({
-    brand: true,
-  });
+  const resolveRoutineCategory = (product: Product) =>
+    scope.type === "all" ? product.category : scope.slug;
 
-  const toggleFilter = (id: string) => {
-    setOpenFilters((prev) => ({ ...prev, [id]: !prev[id] }));
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      commitSearch(inputValue);
+    }
   };
 
   type CellVariant = "desktop" | "mobile";
@@ -250,10 +184,19 @@ export default function ProductListClient({
         return (
           <AddToRoutineButton
             product={product}
-            category={category}
+            category={resolveRoutineCategory(product)}
             compact={true}
             size="sm"
           />
+        );
+      case "category":
+        return (
+          <Link
+            href={`/products/category/${product.category}`}
+            className="text-[12px] font-semibold capitalize text-[#0e4a84] hover:underline"
+          >
+            {product.category}
+          </Link>
         );
       case "rating": {
         return (
@@ -318,11 +261,11 @@ export default function ProductListClient({
 
   const emptyState = (
     <div className="p-12 text-center text-sm text-zinc-500">
-      <p className="font-medium text-zinc-700">No products yet</p>
+      <p className="font-medium text-zinc-700">No products found</p>
       <p className="mt-1">
-        {isSearching
-          ? "No matches for your search in this category."
-          : "No products here :/ Admin needs to do their job."}
+        {isFiltered
+          ? "Try adjusting your filters or search."
+          : "No products here yet."}
       </p>
     </div>
   );
@@ -332,101 +275,14 @@ export default function ProductListClient({
       <ProceduralWave seed={6} offset={2} frequency={1.5} />
       <div className="relative z-1 mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 sm:px-6 lg:grid-cols-12 lg:gap-10">
         {/* --- LEFT SIDEBAR (FILTERS) --- */}
-        <aside className="lg:col-span-2 space-y-6">
-          <div>
-            <h1 className="text-3xl font-extrabold uppercase text-zinc-900 mb-6">
-              {config.category}
-            </h1>
-            {/* Showing # Results */}
-            <div className="flex flex-cols justify-between items-center mb-6">
-              <span></span>
-              <div className="flex gap-2 text-sm text-zinc-500 font-medium">
-                Showing {products.length} Results
-              </div>
-            </div>
-          </div>
-
-          <div className="h-px bg-zinc-200 w-full mb-6" />
-
-          {/* Global Filters, aka Brands, Price */}
-          <div className="border-b border-zinc-200 pb-4">
-            <button
-              onClick={() => toggleFilter("brand")}
-              className="w-full flex justify-between items-center group"
-            >
-              <h3 className="font-bold text-sm uppercase text-zinc-500 tracking-wider group-hover:text-zinc-800 transition-colors">
-                Brand
-              </h3>
-              {/* Show Minus if Open, Plus if Closed */}
-              {openFilters["brand"] ? (
-                <Minus size={16} className="text-zinc-400" />
-              ) : (
-                <Plus size={16} className="text-zinc-400" />
-              )}
-            </button>
-
-            {/* Collapse; Leave Auto Opened */}
-            {openFilters["brand"] && (
-              <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
-                <label className="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer hover:text-[#0e4a84]">
-                  <input
-                    type="checkbox"
-                    className="rounded border-zinc-300 text-[#0e4a84] focus:ring-[#0e4a84]"
-                  />
-                  SKIN1004
-                </label>
-                <label className="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer hover:text-blue-600">
-                  <input
-                    type="checkbox"
-                    className="rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  Round Lab
-                </label>
-              </div>
-            )}
-          </div>
-
-          {/* 2. Dynamic Filters  */}
-          {config.specificFilters.map((filter) => {
-            const isOpen = openFilters[filter.id];
-
-            return (
-              <div key={filter.id} className="border-b border-zinc-200 pb-4">
-                <button
-                  onClick={() => toggleFilter(filter.id)}
-                  className="w-full flex justify-between items-center group"
-                >
-                  <h3 className="font-bold text-sm uppercase text-zinc-500 tracking-wider group-hover:text-zinc-800 transition-colors">
-                    {filter.labels}
-                  </h3>
-                  {isOpen ? (
-                    <Minus size={16} className="text-zinc-400" />
-                  ) : (
-                    <Plus size={16} className="text-zinc-400" />
-                  )}
-                </button>
-
-                {/* Collapsible; leave auto closed at startup*/}
-                {isOpen && (
-                  <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
-                    {filter.options.map((opt, optIndex) => (
-                      <label
-                        key={`${filter.id}-${optIndex}-${opt}`}
-                        className="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer hover:text-blue-600"
-                      >
-                        <input
-                          type="checkbox"
-                          className="rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        {opt}
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </aside>
+        <ProductListFiltersSidebar
+          scope={scope}
+          filters={filters}
+          onFiltersChange={updateFilters}
+          availableBrands={availableBrands}
+          isFiltered={isFiltered}
+          onClearAll={clearAll}
+        />
 
         {/* --- RIGHT CONTENT (LIST) --- */}
         <main className="lg:col-span-10">
@@ -438,6 +294,12 @@ export default function ProductListClient({
               <SlidersHorizontal size={14} /> Sort: Popular
             </button>
           </div> */}
+          {/* Showing X results; since pagination, its kind of weird */}
+          <div className="mb-6 flex items-center justify-end">
+            <p className="text-sm font-medium text-zinc-500">
+              Showing {products.length} results
+            </p>
+          </div>
           {/* Search Bar */}
           <div className="relative mb-8 w-full lg:ml-auto lg:w-[40%]">
             <Search className="absolute left-3 top-3 text-zinc-400" size={16} />

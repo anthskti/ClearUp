@@ -1,49 +1,38 @@
-import {
-  fetchCategoryBrands,
-  fetchProductsByCategory,
-} from "@/lib/products";
+import { fetchAllBrands, fetchProducts } from "@/lib/products";
 import ProductListClient from "@/components/products/ProductListClient";
 import { Metadata } from "next";
 import {
   flattenSearchParams,
-  parseProductListFiltersFromSearchParams,
+  parseGlobalProductListFiltersFromSearchParams,
 } from "@/types/productListFilters";
 
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export const metadata: Metadata = {
-  title: "Product Catalog | ClearUp",
-  description: "Browse products.",
+  title: "All Products | ClearUp",
+  description: "Browse the full ClearUp product catalog.",
 };
 
-export default async function ProductListPage({
-  params,
-  searchParams,
-}: PageProps) {
-  const { slug } = await params;
+export default async function AllProductsPage({ searchParams }: PageProps) {
   const flatParams = flattenSearchParams(await searchParams);
-  const initialFilters = parseProductListFiltersFromSearchParams(
-    flatParams,
-    slug,
-  );
+  const initialFilters = parseGlobalProductListFiltersFromSearchParams(flatParams);
   const initialSearch = flatParams.search ?? "";
 
   const [products, availableBrands] = await Promise.all([
-    fetchProductsByCategory(slug, 20, 0, {
+    fetchProducts(20, 0, {
       search: initialSearch || undefined,
       filters: initialFilters,
     }),
-    fetchCategoryBrands(slug),
+    fetchAllBrands(),
   ]);
 
   return (
     <ProductListClient
-      scope={{ type: "category", slug }}
+      scope={{ type: "all" }}
       initialProducts={products}
       initialFilters={initialFilters}
       initialSearch={initialSearch}

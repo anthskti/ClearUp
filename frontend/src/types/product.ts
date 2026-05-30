@@ -38,3 +38,34 @@ export type SkinType =
   | "sensitive"
   | "normal"
   | "acne-prone";
+
+export type CsvImportResponse = {
+  ok: boolean;
+  processed: number;
+  created: number;
+  updated: number;
+  skipped?: number;
+  message: string;
+  totals?: {
+    received: number;
+    processed: number;
+    created: number;
+    updated: number;
+    skipped: number;
+    failed: number;
+  };
+  errors?: { row: number; code: string; message: string }[];
+};
+
+/** Client-side filter state — mirrors backend `ProductSearchFilters`. */
+export interface ProductListFilters {
+  skinTypes: SkinType[];
+  brands: string[];
+  /** Category-specific keys from `filters.tsx` (texture, benefits, …). */
+  attributes: Record<string, string[]>;
+}
+
+export interface ProductCatalogFetchOptions {
+  search?: string;
+  filters?: ProductListFilters;
+}

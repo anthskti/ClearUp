@@ -1,17 +1,15 @@
-import {
-  CATEGORY_CONFIG,
-  CategoryKey,
-} from "@/constants/filters";
+import { CATEGORY_CONFIG, CategoryKey } from "@/constants/filters";
 import { PRODUCT_PRICE_SLIDER_MAX } from "@/constants/productFilters";
-import {
-  parseMinSliderValue,
-  parseMaxSliderValue,
-} from "@/lib/priceRange";
+import { parseMinSliderValue, parseMaxSliderValue } from "@/lib/priceRange";
 import {
   parseSkinTypeTagsFromParam,
   skinTypeLabel,
 } from "@/lib/routineSkinTypeTags";
-import type { SkinType, ProductListFilters } from "@/types/product";
+import type { SkinType } from "@/types/product";
+import type {
+  ProductListFilters,
+  ProductPriceRange,
+} from "@/types/productListFilters";
 
 export const EMPTY_PRODUCT_LIST_FILTERS: ProductListFilters = {
   skinTypes: [],
@@ -33,7 +31,7 @@ function parseCsvParam(raw: string | undefined): string[] {
   ];
 }
 
-function parsePriceFiltersFromParams(
+export function parsePriceFiltersFromParams(
   params: Record<string, string | undefined>,
 ): Pick<ProductListFilters, "minPrice" | "maxPrice"> {
   const minPrice = parseMinSliderValue(
@@ -211,7 +209,7 @@ export function toggleAttributeFilter(
 
 export function setProductPriceRange(
   filters: ProductListFilters,
-  range: [number, number],
+  range: ProductPriceRange,
 ): ProductListFilters {
   return {
     ...filters,

@@ -1,5 +1,9 @@
 // Product DTO for application communication
 
+import type { ProductListFilters } from "./productListFilters";
+
+export type { ProductListFilters };
+
 export interface Product {
   id: number;
   name: string;
@@ -56,16 +60,6 @@ export type CsvImportResponse = {
   };
   errors?: { row: number; code: string; message: string }[];
 };
-
-// Client-side filter state — mirrors backend `ProductSearchFilters`. 
-export interface ProductListFilters {
-  skinTypes: SkinType[];
-  brands: string[];
-  // Category-specific keys from `filters.tsx` (texture, benefits, etc).
-  attributes: Record<string, string[]>;
-  minPrice: number;
-  maxPrice: number;
-}
 
 export interface ProductCatalogPage {
   products: Product[];

@@ -57,15 +57,13 @@ export type CsvImportResponse = {
   errors?: { row: number; code: string; message: string }[];
 };
 
-/** Client-side filter state — mirrors backend `ProductSearchFilters`. */
+// Client-side filter state — mirrors backend `ProductSearchFilters`. 
 export interface ProductListFilters {
   skinTypes: SkinType[];
   brands: string[];
-  /** Category-specific keys from `filters.tsx` (texture, benefits, …). */
+  // Category-specific keys from `filters.tsx` (texture, benefits, etc).
   attributes: Record<string, string[]>;
-  /** Catalog unit price (CAD). 0 = no lower bound. */
   minPrice: number;
-  /** Catalog unit price (CAD). At slider max = no upper bound. */
   maxPrice: number;
 }
 

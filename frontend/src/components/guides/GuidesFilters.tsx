@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import PriceRangeFilter from "@/components/filters/PriceRangeFilter";
 import { toPriceRange } from "@/lib/priceRange";
 
-/** Slider ceiling (CAD). Max at this value = no upper bound filter (`300+`). Min at 0 = no lower bound. */
+// Slider ceiling (CAD). Max at this value = no upper bound filter (`300+`). Min at 0 = no lower bound.
 export const GUIDES_PRICE_SLIDER_MAX = 300;
 
 export default function GuidesFilters({

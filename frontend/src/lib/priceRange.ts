@@ -27,7 +27,7 @@ export function toPriceRange(
 export function formatPriceRangeLabel(
   [min, max]: [number, number],
   sliderMax: number,
-  currencyPrefix = "CA $",
+  currencyPrefix = "CA $", // For more than canada, must update this
 ): string {
   const minLabel = min <= 0 ? `${currencyPrefix}0` : `${currencyPrefix}${min}`;
   const maxLabel =

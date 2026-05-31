@@ -110,10 +110,20 @@ export class RoutineController {
         }
       }
 
+      const minRaw = req.query.minPrice;
+      let minPrice: number | undefined;
+      if (minRaw !== undefined && String(minRaw).trim() !== "") {
+        const n = parseFloat(String(minRaw));
+        if (Number.isFinite(n) && n >= 0) {
+          minPrice = n;
+        }
+      }
+
       const guides = await this.routineService.getPublicGuides({
         limit,
         offset,
         tags,
+        minPrice,
         maxPrice,
       });
       res.json(guides);

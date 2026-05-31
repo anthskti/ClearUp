@@ -3,6 +3,11 @@ import { ProductService } from "../services/ProductService";
 import PAGINATION from "../config/pagination";
 import { handleInternalError } from "../lib/httpError";
 import { csvFromRequestBody } from "../middleware/parseCsvBody";
+import {
+  parseProductListQuery,
+  hasProductListFilters,
+} from "../lib/productFilterQuery";
+import type { ProductCategory } from "../types/product";
 
 export class ProductController {
   private productService: ProductService;
@@ -11,62 +16,94 @@ export class ProductController {
     this.productService = new ProductService();
   }
 
-  // GET /api/products OR /api/prodcuts?category=cleanser
+  // GET /api/products/brands
+  async getAllBrands(req: Request, res: Response): Promise<void> {
+    try {
+      const brands = await this.productService.getAllBrands();
+      res.json(brands);
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getAllBrands", error);
+    }
+  }
+
+  // GET /api/products OR /api/products?search=name&skinType=oily,dry&brands=Anua
   async getAllProducts(req: Request, res: Response): Promise<void> {
     try {
       const limit = parseInt(req.query.limit as string) || PAGINATION.LIMIT;
       const offset = parseInt(req.query.offset as string) || PAGINATION.OFFSET;
       const searchQuery = req.query.search as string | undefined;
+      const listFilters = parseProductListQuery(
+        req.query as Record<string, unknown>,
+      );
 
-      if (searchQuery) {
-        const products = await this.productService.searchProducts(
-          searchQuery,
+      if (searchQuery || hasProductListFilters(listFilters)) {
+        const merged = { ...listFilters, query: searchQuery?.trim() || listFilters.query };
+        const result = await this.productService.getProductsFilteredWithTotal(
           limit,
           offset,
+          merged,
         );
-        res.json(products);
+        res.json(result);
       } else {
-        const products = await this.productService.getAllProducts(
+        const result = await this.productService.getAllProductsWithTotal(
           limit,
           offset,
         );
-        res.json(products);
+        res.json(result);
       }
     } catch (error: unknown) {
       handleInternalError(res, "ProductController.getAllProducts", error);
     }
   }
 
-  // GET /api/products/:category
+  // GET /api/products/category/:category
+  // ?search=...&skinType=oily&brands=Anua&texture=Gel,Foam&limit=20&offset=0
   async getProductsByCategory(req: Request, res: Response): Promise<void> {
     try {
       const limit = parseInt(req.query.limit as string) || PAGINATION.LIMIT;
       const offset = parseInt(req.query.offset as string) || PAGINATION.OFFSET;
-      const { category } = req.params;
-
+      const category = req.params.category as ProductCategory;
       const searchQuery = req.query.search as string | undefined;
-      let products;
-      if (searchQuery) {
-        products = await this.productService.searchProductsInCategory(
-          category as any,
-          searchQuery,
+
+      const listFilters = parseProductListQuery(
+        req.query as Record<string, unknown>,
+        category,
+      );
+
+      let result;
+      if (searchQuery || hasProductListFilters(listFilters)) {
+        result = await this.productService.searchProductsInCategoryWithTotal(
+          category,
+          searchQuery ?? "",
           limit,
           offset,
+          listFilters,
         );
       } else {
-        products = await this.productService.getProductsByCategory(
-          category as any,
+        result = await this.productService.getProductsByCategoryWithTotal(
+          category,
           limit,
           offset,
         );
       }
-      res.json(products);
+      res.json(result);
     } catch (error: unknown) {
       handleInternalError(
         res,
         "ProductController.getProductsByCategory",
         error,
       );
+    }
+  }
+
+  // GET /api/products/category/:category/brands
+  async getBrandsByCategory(req: Request, res: Response): Promise<void> {
+    try {
+      const category = req.params.category as ProductCategory;
+      const brands = await this.productService.getBrandsByCategory(category);
+      res.json(brands);
+    } catch (error: unknown) {
+      handleInternalError(res, "ProductController.getBrandsByCategory", error);
     }
   }
   // GET /api/product/:id

@@ -174,6 +174,13 @@ function Header() {
                     <div className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-t border-l border-gray-100 bg-white"></div>
 
                     <div className="relative overflow-hidden rounded-md bg-white py-2">
+                      <Link
+                          href="/products"
+                          onClick={() => setIsProductsOpen(false)}
+                          className="block px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 hover:text-black"
+                        >
+                          All Products
+                        </Link>
                       {productCategories.map((category) => (
                         <Link
                           key={category.name}
@@ -342,8 +349,7 @@ function Header() {
                     </button>
                     {mobileProductsOpen && (
                       <ul className="mt-1 space-y-0.5 border-l border-zinc-200 pl-3 ml-3">
-                        {/* Future Implementation when filteres are regulated */}
-                        {/* <li>
+                        <li>
                           <Link
                             href="/products"
                             onClick={closeMobileNav}
@@ -351,7 +357,7 @@ function Header() {
                           >
                             All Products
                           </Link>
-                        </li> */}
+                        </li>
                         {productCategories.map((category) => (
                           <li key={category.name}>
                             <Link

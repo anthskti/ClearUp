@@ -29,7 +29,8 @@ router.delete("/product-merchant/:id", requireAdmin,(req, res) =>
   productController.removeMerchantFromProduct(req, res)
 );
 
-// GET for filtering with ?filters=greentea etc
+router.get("/brands", (req, res) => productController.getAllBrands(req, res));
+// GET for filtering with ?search=...
 router.get("/", (req, res) => productController.getAllProducts(req, res));
 
 router.post("/", requireAdmin, (req, res) => productController.createProduct(req, res));
@@ -40,8 +41,11 @@ router.get("/merchants/batch", (req, res) =>
 );
 
 // GET /api/products/category/
+router.get("/category/:category/brands", (req, res) =>
+  productController.getBrandsByCategory(req, res),
+);
 router.get("/category/:category", (req, res) =>
-  productController.getProductsByCategory(req, res)
+  productController.getProductsByCategory(req, res),
 );
 
 // Standard Product CRUD

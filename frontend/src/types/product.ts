@@ -1,5 +1,9 @@
 // Product DTO for application communication
 
+import type { ProductListFilters } from "./productListFilters";
+
+export type { ProductListFilters };
+
 export interface Product {
   id: number;
   name: string;
@@ -38,3 +42,31 @@ export type SkinType =
   | "sensitive"
   | "normal"
   | "acne-prone";
+
+export type CsvImportResponse = {
+  ok: boolean;
+  processed: number;
+  created: number;
+  updated: number;
+  skipped?: number;
+  message: string;
+  totals?: {
+    received: number;
+    processed: number;
+    created: number;
+    updated: number;
+    skipped: number;
+    failed: number;
+  };
+  errors?: { row: number; code: string; message: string }[];
+};
+
+export interface ProductCatalogPage {
+  products: Product[];
+  total: number;
+}
+
+export interface ProductCatalogFetchOptions {
+  search?: string;
+  filters?: ProductListFilters;
+}

@@ -1,37 +1,43 @@
-import React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import Carousel from "../ui/Carousel";
-import ProceduralWave from "../themes/ProceduralWave";
+import type { SkinType } from "@/types/product";
 
 interface Match {
-  id: string;
   label: string;
-  color: string;
+  skinType: SkinType;
 }
 
-const MATCHES = [
-  { id: "acne", label: "Acne Prone", color: "" },
-  { id: "Combination", label: "Combination", color: "" },
-  { id: "Oily", label: "Oil Control", color: "" },
-  { id: "Dry", label: "Dryness", color: "" },
-  { id: "Sensitive", label: "Sensitivity", color: "" },
-  { id: "Anti-Aging", label: "Anti-Aging", color: "" },
+/** Home-page skin concern cards → filtered category catalog links. */
+const MATCHES: Match[] = [
+  { label: "Normal", skinType: "normal" },
+  { label: "Acne Prone", skinType: "acne-prone" },
+  { label: "Combination", skinType: "combination" },
+  { label: "Oil Control", skinType: "oily" },
+  { label: "Dryness", skinType: "dry" },
+  { label: "Sensitivity", skinType: "sensitive" },
 ];
 
+function matchHref(skinType: SkinType): string {
+  const qs = new URLSearchParams({ skinType });
+  return `/products?${qs.toString()}`;
+}
+
+const MatchCard = ({ label, skinType }: Match) => (
+  <Link
+    href={matchHref(skinType)}
+    className="
+      group flex flex-col items-center justify-center
+      w-full aspect-2/3
+      bg-[#e8f6ff] hover:bg-[#87a1b1]
+      rounded-sm shadow-sm transition-all duration-300
+      text-zinc-900 hover:text-white font-medium
+    "
+  >
+    {label}
+  </Link>
+);
+
 const Matches = () => {
-  const MatchCard = ({ label }: Match) => (
-    <button
-      className={`
-        group flex flex-col items-center justify-center
-        w-full aspect-2/3 
-        bg-[#e8f6ff] hover:bg-[#87a1b1]
-        rounded-sm shadow-sm transition-all duration-300
-        text-zinc-900 hover:text-white font-medium
-      `}
-    >
-      {label}
-    </button>
-  );
   return (
     <section>
       <div className="py-10 px-4 md:px-8 w-full mx-auto">
@@ -45,12 +51,7 @@ const Matches = () => {
         <div className="lg:hidden w-full max-w-sm mx-auto px-4">
           <Carousel>
             {MATCHES.map((item) => (
-              <MatchCard
-                key={item.id}
-                id={item.id}
-                label={item.label}
-                color={""}
-              />
+              <MatchCard key={item.skinType} {...item} />
             ))}
           </Carousel>
         </div>
@@ -58,12 +59,7 @@ const Matches = () => {
         {/* Desktop */}
         <div className="hidden lg:grid grid-cols-6 gap-4 w-full max-w-7xl mx-auto">
           {MATCHES.map((item) => (
-            <MatchCard
-              key={item.id}
-              id={item.id}
-              label={item.label}
-              color={""}
-            />
+            <MatchCard key={item.skinType} {...item} />
           ))}
         </div>
       </div>

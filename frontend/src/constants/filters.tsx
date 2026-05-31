@@ -167,7 +167,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
   },
 
   default: {
-    category: "All",
+    category: "Other",
     specificFilters: [],
     tableColumns: [
       { id: "name", labels: "Product", width: "col-span-6 text-left" },
@@ -178,6 +178,21 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       { id: "add", labels: "", width: "col-span-1 text-right" },
     ],
   },
+};
+
+/** Full-catalog page: all categories, skin type + brand filters only. */
+export const ALL_PRODUCTS_CONFIG: CategoryConfigEntry = {
+  category: "All Products",
+  specificFilters: [],
+  tableColumns: [
+    { id: "name", labels: "Product", width: "col-span-6 text-left" },
+    { id: "category", labels: "Category", width: "col-span-1 text-center" },
+    { id: "skinType", labels: "Skin Type", width: "col-span-1" },
+    { id: "country", labels: "Country", width: "col-span-1 text-center" },
+    { id: "rating", labels: "Rating", width: "col-span-1 text-center" },
+    { id: "price", labels: "Price", width: "col-span-1 text-right" },
+    { id: "add", labels: "", width: "col-span-1 text-right" },
+  ],
 };
 
 export type CategoryKey = keyof typeof CATEGORY_CONFIG;

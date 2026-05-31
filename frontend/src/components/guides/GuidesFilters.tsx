@@ -5,22 +5,33 @@ import { useRouter } from "next/navigation";
 import type { SkinType } from "@/types/product";
 import RoutineSkinTypeTagPicker from "@/components/routine/RoutineSkinTypeTagPicker";
 import { Button } from "@/components/ui/button";
+import PriceRangeFilter from "@/components/filters/PriceRangeFilter";
+import { toPriceRange } from "@/lib/priceRange";
+
+// Slider ceiling (CAD). Max at this value = no upper bound filter (`300+`). Min at 0 = no lower bound.
+export const GUIDES_PRICE_SLIDER_MAX = 300;
 
 export default function GuidesFilters({
   initialTags,
+  initialMinPrice,
   initialMaxPrice,
 }: {
   initialTags: SkinType[];
+  initialMinPrice: string;
   initialMaxPrice: string;
 }) {
   const router = useRouter();
   const [tags, setTags] = useState<SkinType[]>(initialTags);
-  const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
+  const [priceRange, setPriceRange] = useState<[number, number]>(() =>
+    toPriceRange(initialMinPrice, initialMaxPrice, GUIDES_PRICE_SLIDER_MAX),
+  );
 
   useEffect(() => {
     setTags(initialTags);
-    setMaxPrice(initialMaxPrice);
-  }, [initialTags, initialMaxPrice]);
+    setPriceRange(
+      toPriceRange(initialMinPrice, initialMaxPrice, GUIDES_PRICE_SLIDER_MAX),
+    );
+  }, [initialTags, initialMinPrice, initialMaxPrice]);
 
   const toggle = (t: SkinType) => {
     setTags((prev) =>
@@ -29,12 +40,16 @@ export default function GuidesFilters({
   };
 
   const apply = () => {
+    const [minPrice, maxPrice] = priceRange;
     const p = new URLSearchParams();
     if (tags.length > 0) {
       p.set("tags", tags.join(","));
     }
-    if (maxPrice.trim()) {
-      p.set("maxPrice", maxPrice.trim());
+    if (minPrice > 0) {
+      p.set("minPrice", String(minPrice));
+    }
+    if (maxPrice < GUIDES_PRICE_SLIDER_MAX) {
+      p.set("maxPrice", String(maxPrice));
     }
     const qs = p.toString();
     router.push(qs ? `/guides?${qs}` : "/guides");
@@ -42,7 +57,7 @@ export default function GuidesFilters({
 
   const clear = () => {
     setTags([]);
-    setMaxPrice("");
+    setPriceRange([0, GUIDES_PRICE_SLIDER_MAX]);
     router.push("/guides");
   };
 
@@ -52,8 +67,8 @@ export default function GuidesFilters({
         Filter guides
       </div>
       <p className="mb-4 text-xs text-zinc-500">
-        Tags match routine skin types. Max price is the total of products in the
-        routine (catalog prices, CAD).
+        Tags match routine skin types. Price range uses the sum of catalog prices
+        in each routine (CAD).
       </p>
       <div className="mb-4">
         <div className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
@@ -61,25 +76,18 @@ export default function GuidesFilters({
         </div>
         <RoutineSkinTypeTagPicker value={tags} onToggle={toggle} />
       </div>
+
       <div className="mb-4">
-        <label
-          htmlFor="guides-max-price"
-          className="mb-2 block text-xs font-bold uppercase tracking-wider text-zinc-500"
-        >
-          Max routine total
-        </label>
-        <input
-          id="guides-max-price"
-          type="number"
-          min={0}
-          step={1}
-          inputMode="decimal"
-          placeholder="100"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-          className="w-full max-w-xs rounded-md border border-zinc-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-zinc-900"
+        <PriceRangeFilter
+          idPrefix="guides-price"
+          title="Routine total"
+          value={priceRange}
+          onChange={setPriceRange}
+          sliderMax={GUIDES_PRICE_SLIDER_MAX}
+          step={5}
         />
       </div>
+
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="secondary" onClick={apply}>
           Apply filters

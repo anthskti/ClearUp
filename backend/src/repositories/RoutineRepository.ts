@@ -279,14 +279,15 @@ export class RoutineRepository {
 
 
   // Public guides: only routines whose owner exists in `user` (registered accounts).
-  // Random order, optional tag overlap + max total price filters (evaluated in SQL).
+  // Random order, optional tag overlap + min/max total price filters (evaluated in SQL).
   async findGuidesPublic(options: {
     limit: number;
     offset: number;
     tags: SkinType[];
+    minPrice?: number;
     maxPrice?: number;
   }): Promise<GuideRoutineView[]> {
-    const { limit, offset, tags, maxPrice } = options;
+    const { limit, offset, tags, minPrice, maxPrice } = options;
 
     const tagsClause =
       tags.length > 0
@@ -295,20 +296,32 @@ export class RoutineRepository {
             .join(",")}]::varchar[]`
         : "";
 
-    const priceClause =
+    const routineTotalSql = `(
+      SELECT COALESCE(SUM(p.price), 0)
+      FROM routine_products rp
+      INNER JOIN products p ON p.id = rp."productId"
+      WHERE rp."routineId" = r.id
+    )`;
+
+    const minPriceClause =
+      minPrice !== undefined &&
+      Number.isFinite(minPrice) &&
+      minPrice > 0
+        ? `AND ${routineTotalSql} >= :minPrice`
+        : "";
+
+    const maxPriceClause =
       maxPrice !== undefined &&
       Number.isFinite(maxPrice) &&
       maxPrice >= 0
-        ? `AND (
-            SELECT COALESCE(SUM(p.price), 0)
-            FROM routine_products rp
-            INNER JOIN products p ON p.id = rp."productId"
-            WHERE rp."routineId" = r.id
-          ) <= :maxPrice`
+        ? `AND ${routineTotalSql} <= :maxPrice`
         : "";
 
     const replacements: Record<string, unknown> = { limit, offset };
-    if (priceClause) {
+    if (minPriceClause) {
+      replacements.minPrice = minPrice;
+    }
+    if (maxPriceClause) {
       replacements.maxPrice = maxPrice;
     }
 
@@ -319,7 +332,8 @@ export class RoutineRepository {
       INNER JOIN "user" u ON u.id = r."userId"
       WHERE 1 = 1
       ${tagsClause}
-      ${priceClause}
+      ${minPriceClause}
+      ${maxPriceClause}
       ORDER BY RANDOM()
       LIMIT :limit OFFSET :offset
       `,

@@ -13,12 +13,13 @@ export const metadata: Metadata = {
 };
 
 type Props = {
-  searchParams: Promise<{ tags?: string; maxPrice?: string; page?: string }>;
+  searchParams: Promise<{ tags?: string; minPrice?: string; maxPrice?: string; page?: string }>;
 };
 
 export default async function GuidesPage({ searchParams }: Props) {
   const sp = await searchParams;
   const tagsParam = sp.tags?.trim() ?? "";
+  const minPriceParam = sp.minPrice?.trim() ?? "";
   const maxPriceParam = sp.maxPrice?.trim() ?? "";
   const page = Math.max(1, parseInt(sp.page || "1", 10) || 1);
   const limit = 24;
@@ -31,6 +32,7 @@ export default async function GuidesPage({ searchParams }: Props) {
   try {
     guides = await getPublicGuides({
       tags: tagsParam,
+      minPrice: minPriceParam,
       maxPrice: maxPriceParam,
       limit,
       offset,
@@ -57,6 +59,7 @@ export default async function GuidesPage({ searchParams }: Props) {
         <div className="mb-10">
           <GuidesFilters
             initialTags={initialTags}
+            initialMinPrice={minPriceParam}
             initialMaxPrice={maxPriceParam}
           />
         </div>
@@ -67,6 +70,7 @@ export default async function GuidesPage({ searchParams }: Props) {
           page={page}
           hasNext={hasNext}
           tags={tagsParam}
+          minPrice={minPriceParam}
           maxPrice={maxPriceParam}
         />
       </div>

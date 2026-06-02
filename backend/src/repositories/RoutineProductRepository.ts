@@ -1,7 +1,9 @@
+import sequelize from "../db";
 import RoutineProductModel from "../models/RoutineProduct";
 import {
   CreateRoutineProductInput,
   RoutineProduct,
+  TimeOfDay,
   UpdateRoutineProductInput,
 } from "../types/routine";
 
@@ -10,8 +12,46 @@ export class RoutineProductRepository {
   async findByRoutineId(routineId: number): Promise<RoutineProduct[]> {
     const routineProducts = await RoutineProductModel.findAll({
       where: { routineId },
+      order: [
+        ["timeOfDay", "ASC"],
+        ["stepOrder", "ASC"],
+      ],
     });
     return routineProducts.map((rp: any) => this.mapToRoutineProductType(rp));
+  }
+
+  // Full replace of all junction rows for a routine (used on builder save / edit). 
+  async replaceAllForRoutine(
+    routineId: number,
+    items: Omit<CreateRoutineProductInput, "routineId">[],
+  ): Promise<void> {
+    await sequelize.transaction(async (transaction) => {
+      await RoutineProductModel.destroy({
+        where: { routineId },
+        transaction,
+      });
+      if (items.length === 0) return;
+      await RoutineProductModel.bulkCreate(
+        items.map((item) => ({ routineId, ...item })),
+        { transaction },
+      );
+    });
+  }
+
+  async updateByRoutineProductSlot(
+    routineId: number,
+    productId: number,
+    timeOfDay: TimeOfDay,
+    updates: UpdateRoutineProductInput,
+  ): Promise<RoutineProduct | null> {
+    const [rows, updatedRows] = await RoutineProductModel.update(updates, {
+      where: { routineId, productId, timeOfDay },
+      returning: true,
+    });
+    const updated = Array.isArray(updatedRows) ? updatedRows[0] : updatedRows;
+    return rows > 0 && updated
+      ? this.mapToRoutineProductType(updated)
+      : null;
   }
 
   // GET single routine by id
@@ -67,6 +107,9 @@ export class RoutineProductRepository {
       routineId: dbRoutineProduct.routineId,
       productId: dbRoutineProduct.productId,
       category: dbRoutineProduct.category,
+      timeOfDay: dbRoutineProduct.timeOfDay,
+      stepOrder: dbRoutineProduct.stepOrder,
+      userNote: dbRoutineProduct.userNote,
     };
   }
 }

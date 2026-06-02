@@ -1,11 +1,21 @@
 import { RoutineRepository } from "../repositories/RoutineRepository";
 import { RoutineProductRepository } from "../repositories/RoutineProductRepository";
 import { UserRepository } from "../repositories/UserRepository";
-import { Routine, RoutineWithProducts, RoutineProduct, GuideRoutineView } from "../types/routine";
+import {
+  Routine,
+  RoutineWithProducts,
+  RoutineProduct,
+  GuideRoutineView,
+  TimeOfDay,
+  AddRoutineProductInput,
+  CreateRoutineWithProductsInput,
+  UpdateRoutineProductInput,
+} from "../types/routine";
 import { AdminStats, FeaturedRoutineView } from "../types/routine-admin";
 import { BasicUserRow, UserDailyCountRow } from "../types/user";
-import { ProductCategory, SkinType } from "../types/product";
+import { SkinType } from "../types/product";
 import { sanitizeSkinTypeTags } from "../types/routineSkinTypeTags";
+import { parseRoutineProductItems } from "../lib/routineProductItems";
 import PAGINATION from "../config/pagination";
 
 export class RoutineService {
@@ -235,15 +245,42 @@ export class RoutineService {
   // POST Add a product to a routine
   async addProductToRoutine(
     routineId: number,
-    productData: {
-      productId: number;
-      category: ProductCategory;
-    },
+    productData: AddRoutineProductInput,
   ): Promise<RoutineProduct> {
+    const [item] = parseRoutineProductItems([productData], {
+      fieldName: "items",
+    });
     return this.routineProductRepository.create({
       routineId,
-      ...productData,
+      ...item,
     });
+  }
+
+  // PUT full replace of routine_products (edit saved routine from builder).
+  async upsertRoutineProducts(
+    routineId: number,
+    products: AddRoutineProductInput[],
+  ): Promise<void> {
+    const items = parseRoutineProductItems(products, { fieldName: "products" });
+    await this.routineProductRepository.replaceAllForRoutine(
+      routineId,
+      items,
+    );
+  }
+
+  // PATCH one junction row (note, order, or AM/PM). 
+  async patchRoutineProductSlot(
+    routineId: number,
+    productId: number,
+    timeOfDay: TimeOfDay,
+    updates: UpdateRoutineProductInput,
+  ): Promise<RoutineProduct | null> {
+    return this.routineProductRepository.updateByRoutineProductSlot(
+      routineId,
+      productId,
+      timeOfDay,
+      updates,
+    );
   }
 
   // INFO: IDK about this, i was thinking of just overwriting the routine and updating.
@@ -264,9 +301,7 @@ export class RoutineService {
   // PUT update a routineProducts info in a routine
   async updateProductInRoutine(
     routineProductId: number,
-    updates: Partial<{
-      category: ProductCategory;
-    }>,
+    updates: UpdateRoutineProductInput,
   ): Promise<RoutineProduct | null> {
     return this.routineProductRepository.update(routineProductId, updates);
   }
@@ -282,17 +317,9 @@ export class RoutineService {
   }
 
   // POST Create routine with products in bulk
-  async createRoutineWithProducts(data: {
-    name: string;
-    description?: string;
-    userId: string;
-    skinTypeTags?: unknown;
-    items: {
-      productId: number;
-      category: ProductCategory;
-    }[];
-  }): Promise<RoutineWithProducts> {
-    // Create the routine first
+  async createRoutineWithProducts(
+    data: CreateRoutineWithProductsInput,
+  ): Promise<RoutineWithProducts> {
     const routine = await this.routineRepository.create({
       name: data.name,
       description: data.description,
@@ -303,20 +330,18 @@ export class RoutineService {
           : undefined,
     });
 
-    // Then create all the routine products
-    const routineProducts = await Promise.all(
-      data.items.map((item) =>
-        this.routineProductRepository.create({
-          routineId: routine.id,
-          productId: item.productId,
-          category: item.category,
-        }),
-      ),
+    const items = parseRoutineProductItems(data.items, { fieldName: "items" });
+    await this.routineProductRepository.replaceAllForRoutine(
+      routine.id,
+      items,
+    );
+    const products = await this.routineProductRepository.findByRoutineId(
+      routine.id,
     );
 
     return {
       ...routine,
-      products: routineProducts,
+      products,
     };
   }
 }

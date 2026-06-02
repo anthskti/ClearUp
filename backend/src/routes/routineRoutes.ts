@@ -74,6 +74,16 @@ router.get("/id/:id/products", (req, res) =>
   routineController.getRoutineWithProducts(req, res)
 );
 
+// Replace all products on a routine (builder save / edit)
+router.put("/id/:id/products", requireAuth, (req, res) =>
+  routineController.upsertRoutineProducts(req, res),
+);
+
+// PATCH one product slot (note, step order, AM/PM)
+router.patch("/id/:id/products/:productId", requireAuth, (req, res) =>
+  routineController.patchRoutineProduct(req, res),
+);
+
 // POST a product TO a specific routine
 router.post("/id/:id/products", requireAuth, (req, res) =>
   routineController.addProductToRoutine(req, res)

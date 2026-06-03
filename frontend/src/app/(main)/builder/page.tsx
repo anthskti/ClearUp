@@ -21,6 +21,27 @@ import RoutineSkinTypeTagPicker from "@/components/routine/RoutineSkinTypeTagPic
 import BuilderSkeleton from "@/components/routine/BuilderSkeleton";
 import BuilderProductNotesSection from "@/components/routine/BuilderProductNotesSection";
 import SaveRoutineModal from "@/components/routine/SaveRoutineModal";
+import type { ProductCategory } from "@/types/product";
+
+function AddCategoryProductLink({
+  categoryId,
+  label,
+  className = "",
+}: {
+  categoryId: ProductCategory;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <Link
+      href={`/products/category/${categoryId}`}
+      className={`inline-flex items-center gap-1.5 pl-16 md:pl-20 text-sm text-zinc-500 hover:text-zinc-800 transition-colors ${className}`}
+    >
+      <Plus size={14} strokeWidth={2.5} aria-hidden />
+      <span className="font-medium capitalize">Select {label}</span>
+    </Link>
+  );
+}
 
 export default function Builder() {
   const {
@@ -192,8 +213,8 @@ export default function Builder() {
         <div className="hidden md:grid grid-cols-12 gap-4 text-zinc-500 font-bold uppercase text-xs border-b border-zinc-200 px-2 pb-2 mb-2">
           <div className="col-span-2">Category</div>
           <div className="col-span-7">Product Selection</div>
-          <div className="col-span-2">Merchant</div>
-          <div className="col-span-1 text-right">Price</div>
+          <div className="col-span-1 text-center">Seller</div>
+          <div className="col-span-2 text-right">Price</div>
         </div>
 
         {/* Builder */}
@@ -202,19 +223,26 @@ export default function Builder() {
             <div
               key={step.id}
               className={`
-              group bg-white rounded-xl border border-zinc-200 shadow-sm p-4 grid grid-cols-1 gap-4 items-center transition-all hover:bg-zinc-50/50
-              md:bg-transparent md:rounded-none md:border-0 md:border-b md:border-zinc-200 md:shadow-none md:px-2 md:py-5 md:grid-cols-12 
+              group bg-white rounded-xl border border-zinc-200 shadow-sm p-4 grid grid-cols-1 gap-4 transition-all hover:bg-zinc-50/50
+              md:bg-transparent md:rounded-none md:border-0 md:border-b md:border-zinc-200 md:shadow-none md:px-2 md:py-5 md:grid-cols-12 md:gap-y-4 md:items-center
               `}
             >
               {/* Category Label */}
-              <div className="col-span-1 md:col-span-2 flex justify-between md:block">
+              <div
+                className="col-span-1 md:col-span-2 flex justify-between md:block md:self-start"
+                style={
+                  step.products.length > 0
+                    ? { gridRow: `span ${step.products.length}` }
+                    : undefined
+                }
+              >
                 <Link href={`/products/category/${step.id}`}>
                   <span className="font-bold text-zinc-900 uppercase text-sm md:text-xs tracking-wide hover:text-zinc-500 transition-colors">
                     {step.label}
                   </span>
                 </Link>
                 {/* Mobile Price Display */}
-                {step.products && step.products.length > 0 && (
+                {step.products.length > 0 && (
                   <span className="md:hidden font-bold text-zinc-900">
                     $
                     {step.products
@@ -224,16 +252,14 @@ export default function Builder() {
                 )}
               </div>
 
-              {/* Selection Area */}
-              <div className="col-span-1 md:col-span-7">
-                {step.products && step.products.length > 0 ? (
-                  // FILLED STATE (render multiple products)
-                  <div className="flex flex-col gap-4">
-                    {step.products.map((prod, productIndex) => (
-                      <div
-                        key={`${step.id}-${prod.id}-${productIndex}`}
-                        className="flex items-center gap-4"
-                      >
+              {step.products.length > 0 ? (
+                <>
+                  {step.products.map((prod, productIndex) => (
+                    <div
+                      key={`${step.id}-${prod.id}-${productIndex}`}
+                      className="col-span-1 md:contents"
+                    >
+                      <div className="flex items-center gap-4 md:col-span-7 md:col-start-3">
                         <div className="w-12 h-12 md:w-16 md:h-16 bg-zinc-100 rounded-md border border-zinc-200 shrink-0 overflow-hidden">
                           {prod.imageUrls && prod.imageUrls[0] ? (
                             <Image
@@ -259,7 +285,6 @@ export default function Builder() {
                           >
                             {prod.name}
                           </Link>
-                          {/* Mobile Merchant Display */}
                           <div className="md:hidden text-xs text-zinc-500 mt-1 flex items-center gap-1">
                             via {prod.merchant || "Unknown"}{" "}
                             <ExternalLink size={10} />
@@ -268,78 +293,68 @@ export default function Builder() {
 
                         <div className="shrink-0">
                           <button
+                            type="button"
                             onClick={() =>
                               handleRemoveProduct(step.id, prod.id)
                             }
-                            className={`top-2 right-2 group-hover:block p-2 text-zinc-300 hover:text-red-500 transition-colors md:relative md:top-auto md:right-auto`}
+                            className="top-2 right-2 group-hover:block p-2 text-zinc-300 hover:text-red-500 transition-colors md:relative md:top-auto md:right-auto"
                           >
                             <X size={16} />
                           </button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  // EMPTY STATE (Dashed Slot)
-                  <Link href={`/products/category/${step.id}`}>
-                    <div className="w-full h-14 md:h-16 border-2 border-dashed border-zinc-300 rounded-lg flex items-center justify-center gap-2 text-zinc-400 hover:border-zinc-400 hover:text-zinc-600 hover:bg-zinc-50 transition-all cursor-pointer">
-                      <Plus size={18} />
-                      <span className="font-medium text-sm">
-                        Select {step.label}
-                      </span>
+
+                      <div className="hidden md:flex md:col-span-1 items-center justify-center">
+                        <div className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm">
+                          {prod.merchantLogo &&
+                          prod.merchantLogo.startsWith("http") ? (
+                            <Image
+                              src={prod.merchantLogo}
+                              alt={prod.merchant || "Merchant"}
+                              width={20}
+                              height={20}
+                              className="object-cover rounded-sm"
+                              sizes="(max-width: 1200px) 50vw, 33vw"
+                            />
+                          ) : (
+                            <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">
+                              ?
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="hidden md:block md:col-span-2 text-right text-lg font-bold text-zinc-900">
+                        ${(prod.price || 0).toFixed(2)}
+                      </div>
                     </div>
-                  </Link>
-                )}
-              </div>
+                  ))}
 
-              {/* Merchant Column (Desktop Only) */}
-              <div className="hidden md:flex col-span-2 items-center">
-                {step.products && step.products.length > 0 && (
-                  <div className="flex flex-col gap-8">
-                    {step.products.map((prod, productIndex) => (
-                      <div
-                        key={`merchant-${step.id}-${prod.id}-${productIndex}`}
-                        className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm"
-                      >
-                        {prod.merchantLogo &&
-                        prod.merchantLogo.startsWith("http") ? (
-                          <Image
-                            src={prod.merchantLogo}
-                            alt={prod.merchant || "Merchant"}
-                            width={20}
-                            height={20}
-                            className="object-cover rounded-sm"
-                            sizes="(max-width: 1200px) 50vw, 33vw"
-                          />
-                        ) : (
-                          <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">
-                            ?
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                  <div className="col-span-1 md:col-span-7 md:col-start-3">
+                    <AddCategoryProductLink
+                      categoryId={step.id}
+                      label={step.label}
+                    />
                   </div>
-                )}
-              </div>
-
-              {/* Price Column (Desktop Only) */}
-              <div className="hidden md:block col-span-1 text-right">
-                {step.products && step.products.length > 0 ? (
-                  <div className="flex flex-col items-end gap-13">
-                    {step.products.map((p, productIndex) => (
-                      <div
-                        key={`price-${step.id}-${p.id}-${productIndex}`}
-                        className="text-lg font-bold text-zinc-900"
-                      >
-                        ${""}
-                        {(p.price || 0).toFixed(2)}
+                </>
+              ) : (
+                <>
+                  <div className="col-span-1 md:col-span-7">
+                    <Link href={`/products/category/${step.id}`}>
+                      <div className="w-full h-14 md:h-16 border-2 border-dashed border-zinc-300 rounded-lg flex items-center justify-center gap-2 text-zinc-400 hover:border-zinc-400 hover:text-zinc-600 hover:bg-zinc-50 transition-all cursor-pointer">
+                        <Plus size={18} />
+                        <span className="font-medium text-sm">
+                          Select {step.label}
+                        </span>
                       </div>
-                    ))}
+                    </Link>
                   </div>
-                ) : (
-                  <span className="text-zinc-200 font-medium">---</span>
-                )}
-              </div>
+                  <div className="hidden md:block md:col-span-1" />
+                  <div className="hidden md:block md:col-span-2 text-right">
+                    <span className="text-zinc-200 font-medium">---</span>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
@@ -352,7 +367,7 @@ export default function Builder() {
         >
           <div className="mb-4">
             <div className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
-              Skintypes for this Routine
+              Skin Type for this Routine
             </div>
             <RoutineSkinTypeTagPicker
               value={skinTypeTags}

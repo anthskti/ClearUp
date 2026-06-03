@@ -24,11 +24,11 @@ export default async function FeaturedRoutinesSection() {
       <div className="relative mx-auto max-w-7xl">
         <div className="mb-8 text-center md:text-left md:pr-24">
           <h2 className="text-2xl font-bold text-zinc-900">
-            Featured community routines
+            Featured Skincare Routines
           </h2>
           <p className="mt-2 text-sm text-zinc-500">
-            Hand-picked guides from the community. Swipe or use arrows to see
-            more.
+            These routines are hand-picked routines from the community along
+            with potential celebrity routines from sources.
           </p>
         </div>
         <FeaturedRoutinesClient items={cards} />

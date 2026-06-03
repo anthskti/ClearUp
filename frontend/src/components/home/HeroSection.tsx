@@ -24,17 +24,31 @@ const HeroSection = () => {
         <div className="flex flex-col gap-6 max-w-2xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 text-sm font-medium w-fit mb-4">
             <Sparkles className="w-4 h-4" />
+            {/* <Image
+              src="/assets/clearuploading.png"
+              alt="logo"
+              width="16"
+              height="16"
+              draggable={false}
+              className="object-cover"
+              sizes="16px"
+            /> */}
             <span>Your Skincare Organizer</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-stone-900 mb-6 max-w-3xl">
-            Pick Products. <br />
-            <span className="text-[#0E4B84]">Build Your Routine.</span> <br />
-            Improve Your Skin.
+            {/* font-medium font-serif */}
+            Pick <span className="italic">Products</span>
+            <br />
+            <span className="text-[#0E4B84]">
+              Build Your <span className="italic">Routine</span>
+            </span>{" "}
+            <br />
+            <span className="italic">Improve</span> Your Skin!
           </h1>
 
           <p className="text-sm md:text-lg text-stone-500 leading-relaxed max-w-lg mb-4 delay-150 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-backwards">
-            The organizer that helps you track your products, easily build
-            routines, and figure out what actually works for your skin.
+            Your skincare organizer to help you improve your skin, save money,
+            and age beautifully.
           </p>
 
           {/* Buttons */}

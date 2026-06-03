@@ -139,7 +139,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
         <div className="hidden md:grid grid-cols-12 gap-4 text-zinc-500 font-bold uppercase text-xs border-b border-zinc-200 px-2 pb-2 mb-2">
           <div className="col-span-2">Category</div>
           <div className="col-span-7">Product Selection</div>
-          <div className="col-span-1">Merchant</div>
+          <div className="col-span-1 text-center">Seller</div>
           <div className="col-span-1 text-right">Price</div>
           <div className="col-span-1" /> {/* Buy */}
         </div>
@@ -239,7 +239,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
               </div>
 
               {/* Merchant Column (Desktop Only) */}
-              <div className="hidden md:flex col-span-1 items-center">
+              <div className="hidden md:flex col-span-1 items-center justify-center">
                 {step.products.length > 0 && (
                   <div className="flex flex-col gap-8">
                     {step.products.map((prod) => {

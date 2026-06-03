@@ -116,7 +116,7 @@ function BuilderProductNotesSection({
     <>
       <div className="mt-12 bg-white rounded-xl shadow-sm border border-zinc-200 p-8">
         <h3 className="text-lg font-bold text-zinc-900 mb-2 flex items-center gap-2">
-          <Book size={20} /> Usage notes
+          <Book size={20} /> User Routine notes
         </h3>
         <p className="text-sm text-zinc-500 mb-6">
           Link notes to products already in your routine. The same product can

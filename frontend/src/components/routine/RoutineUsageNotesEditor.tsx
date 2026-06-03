@@ -253,7 +253,7 @@ export default function RoutineUsageNotesEditor({
     <div className="mt-8 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
       <div className="mb-4 flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-zinc-900">User Product Notes</h3>
+          <h3 className="text-lg font-bold text-zinc-900">User Routine notes update</h3>
           <p className="text-sm text-zinc-500">
             Update your AM/PM product notes.
           </p>

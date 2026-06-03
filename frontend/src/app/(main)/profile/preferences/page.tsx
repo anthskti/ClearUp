@@ -35,7 +35,12 @@ export default function ProfilePage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!confirm("Are you absolutely sure? This cannot be undone.")) return;
+    if (
+      !confirm(
+        "Are you absolutely sure? This cannot be undone. If you signed in with no password, don't enter a password.",
+      )
+    )
+      return;
 
     setIsDeleting(true);
     setDeleteError(null);
@@ -100,6 +105,7 @@ export default function ProfilePage() {
         <div className="text-xl font-semibold mb-4 pt-8">
           Profile Information
         </div>
+        <p className="text-sm mb-4">Update your profile preferences here:</p>
         <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden">
           {/* Email Row (with sub-label) */}
           <div className="flex items-center justify-between p-6 border-b border-zinc-200">
@@ -129,7 +135,7 @@ export default function ProfilePage() {
             <Input
               id="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value.trim())}
               className="w-2/3 border border-zinc-400"
             />
           </div>
@@ -161,7 +167,9 @@ export default function ProfilePage() {
         {/* Account Removal */}
         <div className="py-10">
           <div className="text-2xl font-semibold mb-4">Account Removal</div>
-          Permanently delete your ClearUp Account.
+          <p className="text-sm mb-4">
+            Permanently delete your ClearUp Account.
+          </p>
           <div className="border border-red-700/50 bg-red-700/10 p-6 rounded-lg">
             <div className="flex flex-col gap-2">
               <div className="text-sm font-bold">
@@ -169,7 +177,7 @@ export default function ProfilePage() {
               </div>
               <div className="text-sm">
                 Request for account deletion. Deleting your account is permanent
-                and cannot be undone. Your data will be deleted within 30 days.
+                and cannot be undone. Your data will be deleted immediately.
               </div>
               {deleteError && (
                 <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">

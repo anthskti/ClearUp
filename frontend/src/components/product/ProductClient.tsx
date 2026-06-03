@@ -64,11 +64,11 @@ export default function ProductClient({
             </h2>
             {/* Rating */}
             <div className="flex items-center gap-2 mt-2 text-sm">
-              <span className="flex text-yellow-600">★★★★★</span>{" "}
+              {/* <span className="flex text-yellow-600">★★★★★</span>{" "} */}
               {/* Input Function for stars later */}
-              <span className="text-zinc-400">
+              {/* <span className="text-zinc-400">
                 ({product.reviewCount} review logs)
-              </span>
+              </span> */}
             </div>
           </div>
 
@@ -174,7 +174,7 @@ export default function ProductClient({
                     size="sm"
                     onClick={() => setIsMerchantModalOpen(true)}
                   >
-                    Add Merchant Info
+                    Add Seller Info
                   </Button>
                 </span>
               ) : null}
@@ -184,7 +184,7 @@ export default function ProductClient({
               <table className="w-full text-sm text-left">
                 <thead className="text-zinc-500 font-medium uppercase text-xs border-b border-zinc-200">
                   <tr>
-                    <th className="px-4 py-3">Merchant</th>
+                    <th className="px-4 py-3 text-center">Seller</th>
                     <th className="px-4 py-3">Availability</th>
                     <th className="px-4 py-3 text-right">Price</th>
                     <th className="px-4 py-3 text-right">Link</th>

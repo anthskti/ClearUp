@@ -2,6 +2,31 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import React from "react";
+
+const SUPPORT_EMAIL = "support.clearup@gmail.com";
+const SUPPORT_MAILTO = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("ClearUp — Question or concern")}`;
+
+export function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
 
 function Footer() {
   return (
@@ -11,7 +36,7 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
           {/* Column 1: Logo */}
           <div className="md:col-span-5 lg:col-span-4">
-            <div className="-mt-8 shrink-0">
+            <div className="flex justify-center md:justify-start -mt-8 shrink-0">
               <Image
                 src="/assets/clearuplogo-white.png"
                 alt="ClearUp"
@@ -23,6 +48,15 @@ function Footer() {
                 className="h-22px w-auto max-w-[220px] md:h-30px md:max-w-[250px]"
               />
             </div>
+            <p className="mt-4 text-sm text-slate-200 md:text-center">
+              Questions? Email{" "}
+              <a
+                href={SUPPORT_MAILTO}
+                className="text-white underline hover:text-slate-100"
+              >
+                {SUPPORT_EMAIL}
+              </a>
+            </p>
           </div>
 
           <div className="hidden md:block md:col-span-1" />
@@ -50,9 +84,9 @@ function Footer() {
                 Account
               </h4>
               <ul className="space-y-3 text-sm text-white">
-                <li>
+                {/* <li>
                   <Link href="/contact">Contact Us</Link>
-                </li>
+                </li> */}
                 <li>
                   <Link href="/products/category/other">View Products</Link>
                 </li>
@@ -72,7 +106,13 @@ function Footer() {
               </h4>
               <ul className="space-y-3 text-sm text-white">
                 <li>
-                  <Link href="https://www.instagram.com/clearup.skin/">
+                  <Link
+                    href="https://www.instagram.com/clearup.skin/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2"
+                  >
+                    <InstagramIcon className="h-4 w-4 shrink-0" />
                     Instagram
                   </Link>
                 </li>
@@ -89,7 +129,7 @@ function Footer() {
 
           <div className="flex gap-6 text-xs text-white">
             <Link href="/privacy">Privacy Policy</Link>
-            <span>|</span>
+            <div className="hidden md:block w-px h-4 bg-white" />
             <Link href="/tos">Terms of Service</Link>
           </div>
         </div>

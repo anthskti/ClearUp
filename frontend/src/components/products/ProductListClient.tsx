@@ -403,7 +403,7 @@ export default function ProductListClient({
               </div>
             )}
             {!hasMore && products.length > 0 && (
-              <p className="text-sm italic text-zinc-400">
+              <p className="text-sm italic text-zinc-400 mb-8">
                 You've reached the end of the shelf.
               </p>
             )}

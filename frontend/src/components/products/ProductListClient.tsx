@@ -299,14 +299,6 @@ export default function ProductListClient({
         {/* --- RIGHT CONTENT (LIST) --- */}
         <main className="lg:col-span-10">
           {/* List Header */}
-
-          {/* Sort button, NOT IMPLMENTED FOR DEMO */}
-          {/* <div className="flex justify-end items-center mb-6">
-            <button className="text-sm font-bold text-zinc-700 flex items-center gap-2 bg-white px-4 py-2 border border-zinc-200 rounded hover:bg-zinc-50">
-              <SlidersHorizontal size={14} /> Sort: Popular
-            </button>
-          </div> */}
-          {/* Showing X results; since pagination, its kind of weird */}
           <div className="mb-6 flex items-center justify-end">
             <p className="text-sm font-medium text-zinc-500">
               Showing {products.length} of {totalCount} results

@@ -526,11 +526,14 @@ export class RoutineController {
         return;
       }
       const body = (req.body ?? {}) as Record<string, unknown>;
+      const incomingProducts = Array.isArray(body.products)
+        ? (body.products as AddRoutineProductInput[])
+        : Array.isArray(body.items)
+          ? (body.items as AddRoutineProductInput[])
+          : [];
       await this.routineService.upsertRoutineProducts(
         routineId,
-        Array.isArray(body.products)
-          ? (body.products as AddRoutineProductInput[])
-          : [],
+        incomingProducts,
       );
       res.json({ ok: true });
     } catch (error: unknown) {

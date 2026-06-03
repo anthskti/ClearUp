@@ -9,12 +9,14 @@ import {
 } from "@/lib/products";
 
 import DeleteRoutineButton from "@/components/routine/DeleteRoutineButton";
-import RoutineDescriptionEditor from "@/components/routine/RoutineDescriptionEditor";
-import RoutineSkinTypeTagsEditor from "@/components/routine/RoutineSkinTypeTagsEditor";
+import RoutineDetailsEditor from "@/components/routine/RoutineDetailsEditor";
+import RoutineProductNotesView from "@/components/routine/RoutineProductNotesView";
+import RoutineUsageNotesEditor from "@/components/routine/RoutineUsageNotesEditor";
 import RoutineShareLink from "@/components/routine/RoutineShareLink";
 import { getEffectiveUser } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Metadata } from "next";
+import { Button } from "@/components/ui/button";
 
 interface RoutineProps {
   params: Promise<{ id: string }>;
@@ -56,6 +58,7 @@ export async function generateMetadata({
 export default async function ViewRoutine({ params }: RoutineProps) {
   const { id } = await params;
   const routineData = await getRoutineWithProducts(id);
+  const routineProducts = routineData?.products ?? [];
 
   const headersList = await headers();
   const cookieString = headersList.get("cookie") || "";
@@ -72,7 +75,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
   }
 
   const productIds =
-    routineData.products
+    routineProducts
       ?.map((rp) => rp.product?.id)
       .filter((id): id is number => typeof id === "number" && id > 0) ?? [];
   const offersByProductId = await getMerchantOffersByProductIds(productIds);
@@ -82,8 +85,15 @@ export default async function ViewRoutine({ params }: RoutineProps) {
 
   const finalRoutine = ROUTINE_SLOTS.map((slot) => {
     const matchedItem =
-      routineData.products?.filter((p) => p.category === slot.id) || [];
-    const products = matchedItem.map((item) => item.product).filter((p) => !!p);
+      routineProducts?.filter((p) => p.category === slot.id) || [];
+    const seen = new Set<number>();
+    const products = matchedItem
+      .map((item) => item.product)
+      .filter((p): p is NonNullable<typeof p> => {
+        if (!p || seen.has(p.id)) return false;
+        seen.add(p.id);
+        return true;
+      });
     return {
       ...slot,
       products,
@@ -111,7 +121,8 @@ export default async function ViewRoutine({ params }: RoutineProps) {
     <div className="relative min-h-screen w-full bg-[#F8F8F8]">
       <ProceduralWave seed={123} height={190} />
       <div className="relative z-1 max-w-6xl mx-auto px-6 pt-20 pb-20">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+        {/* header */}
+        <div className="flex flex-col md:flex-row justify-between items-end mb-4 gap-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#2E2E2E] uppercase">
             {routineData.name}
             {authorName !== "ClearUp User" && (
@@ -121,7 +132,6 @@ export default async function ViewRoutine({ params }: RoutineProps) {
               </div>
             )}
           </h1>
-
           <RoutineShareLink routineId={id} />
         </div>
 
@@ -129,8 +139,9 @@ export default async function ViewRoutine({ params }: RoutineProps) {
         <div className="hidden md:grid grid-cols-12 gap-4 text-zinc-500 font-bold uppercase text-xs border-b border-zinc-200 px-2 pb-2 mb-2">
           <div className="col-span-2">Category</div>
           <div className="col-span-7">Product Selection</div>
-          <div className="col-span-2">Merchant</div>
+          <div className="col-span-1">Merchant</div>
           <div className="col-span-1 text-right">Price</div>
+          <div className="col-span-1" /> {/* Buy */}
         </div>
 
         {/* Showing Route */}
@@ -148,7 +159,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                 <span className="font-bold text-zinc-900 uppercase text-sm md:text-xs tracking-wide">
                   {step.label}
                 </span>
-                {/* Mobile Price Display */}
+                {/* Mobile Price Display, top corner */}
                 {step.products.length > 0 && (
                   <span className="md:hidden font-bold text-zinc-900">
                     $
@@ -170,7 +181,6 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                       );
                       const merchantName = best?.merchant?.name ?? "Direct";
                       const merchantHref = best?.website?.trim() || undefined;
-                      const logo = best?.merchant?.logo?.trim();
 
                       return (
                         <div key={prod.id} className="flex items-center gap-4">
@@ -229,7 +239,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
               </div>
 
               {/* Merchant Column (Desktop Only) */}
-              <div className="hidden md:flex col-span-2 items-center">
+              <div className="hidden md:flex col-span-1 items-center">
                 {step.products.length > 0 && (
                   <div className="flex flex-col gap-8">
                     {step.products.map((prod) => {
@@ -237,7 +247,6 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                         offersByProductId[prod.id] ?? [],
                       );
                       const merchantName = best?.merchant?.name ?? "-";
-                      const merchantHref = best?.website?.trim() || undefined;
                       const logo = best?.merchant?.logo?.trim();
 
                       return (
@@ -282,6 +291,37 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                   <span className="text-zinc-200 font-medium">---</span>
                 )}
               </div>
+
+              {/* Buy Column (Desktop Only) */}
+              <div className="hidden md:block col-span-1">
+                {step.products.length > 0 && (
+                  <div className="flex flex-col gap-8">
+                    {step.products.map((prod) => {
+                      const best = pickLowestPriceOffer(
+                        offersByProductId[prod.id] ?? [],
+                      );
+                      const merchantHref = best?.website?.trim() || undefined;
+
+                      return (
+                        <div
+                          key={prod.id}
+                          className="flex items-center justify-end"
+                        >
+                          <a
+                            href={merchantHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Button variant="secondary" size="sm">
+                              Buy
+                            </Button>
+                          </a>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -292,12 +332,24 @@ export default async function ViewRoutine({ params }: RoutineProps) {
           lg:top-20 lg:bottom-auto lg:shadow-sm 
           `}
         >
-          <div
-            className={`
-          bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-4 z-20 px-6 py-4
-          lg:top-20 lg:bottom-auto lg:shadow-sm 
-          `}
-          >
+          {routineData.skinTypeTags.length > 0 && (
+            <div className="mb-4">
+              <div className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                Skin Type for this Routine
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {routineData.skinTypeTags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-900 ring-1 ring-blue-200"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="flex justify-between items-center">
             <div>
               <div className="text-xs uppercase font-bold text-zinc-400 tracking-wider">
                 Estimated Total
@@ -308,21 +360,34 @@ export default async function ViewRoutine({ params }: RoutineProps) {
               <span className="hidden sm:flex items-center text-sm font-medium text-zinc-500 mr-2">
                 {totalItems} items selected
               </span>
+              {routineData.description?.trim() ? (
+                <p className="mt-2 max-w-2xl text-sm text-zinc-500">
+                  <span className="font-bold">Description:</span> <br />{" "}
+                  {routineData.description}
+                </p>
+              ) : null}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <RoutineDetailsEditor
+                routineId={routineData.id}
+                canEdit={canEditRoutine}
+                initialName={routineData.name}
+                initialDescription={routineData.description}
+                initialTags={routineData.skinTypeTags ?? []}
+              />
             </div>
           </div>
         </div>
 
-        <RoutineSkinTypeTagsEditor
-          routineId={routineData.id}
-          initialTags={routineData.skinTypeTags ?? []}
-          canEdit={canEditRoutine}
-        />
-        <RoutineDescriptionEditor
-          routineId={routineData.id}
-          initialDescription={routineData.description}
-          canEdit={canEditRoutine}
-        />
-        {/* Delete if user is signed in */}
+        {canEditRoutine ? (
+          <RoutineUsageNotesEditor
+            routineId={routineData.id}
+            canEdit={canEditRoutine}
+            initialProducts={routineProducts}
+          />
+        ) : (
+          <RoutineProductNotesView products={routineProducts} />
+        )}
         {canEditRoutine && <DeleteRoutineButton routineId={routineData.id} />}
       </div>
     </div>

@@ -18,18 +18,20 @@ export interface Routine {
   author?: RoutineAuthor;
 }
 
+export type TimeOfDay = "AM" | "PM";
+
 export interface RoutineProduct {
   id: number;
   routineId: number;
   productId: number;
   category: ProductCategory;
+  timeOfDay: TimeOfDay;
+  stepOrder: number;
+  userNote: string | null;
 }
 
 export type RoutineProductWithDetails = RoutineProduct & {
-  product?: Pick<
-    Product,
-    "id" | "name" | "brand" | "price" | "averageRating" | "imageUrls"
-  >;
+  product?: Pick<Product, "id" | "name" | "brand" | "price" | "imageUrls">;
 };
 
 export interface RoutineWithProducts extends Routine {

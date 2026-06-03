@@ -1,13 +1,12 @@
+import type { RoutineProductInput } from "@/types/builder";
 import {
   Routine,
-  RoutineAuthor,
   RoutineWithProducts,
-  RoutineProduct,
   FeaturedRoutine,
   GuideRoutine,
 } from "@/types/routine";
 import type { AdminDashboardStats } from "@/types/routine-admin";
-import { ProductCategory, SkinType } from "@/types/product";
+import { SkinType } from "@/types/product";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
@@ -158,14 +157,11 @@ export const createRoutine = async (data: {
   name: string;
   description?: string;
   skinTypeTags?: SkinType[];
-  items: {
-    productId: number;
-    category: string;
-  }[];
+  items: RoutineProductInput[];
 }): Promise<RoutineWithProducts> => {
   const url = `${API_URL}/api/routines/bulk`;
-  console.log("Creating routine at:", url);
-  console.log("Request data:", data);
+  // console.log("Creating routine at:", url);
+  // console.log("Request data:", data);
 
   const res = await fetch(url, {
     method: "POST",
@@ -174,13 +170,13 @@ export const createRoutine = async (data: {
     body: JSON.stringify(data),
   });
 
+  // TODO: Implement description 
   // Check content type before trying to parse JSON
   const contentType = res.headers.get("content-type");
   if (!contentType || !contentType.includes("application/json")) {
     const text = await res.text();
-    console.error("Non-JSON response:", text.substring(0, 200));
     throw new Error(
-      `Server returned ${res.status} ${res.statusText}. Expected JSON but got ${contentType}. Check if the backend server is running.`,
+      `Server returned ${res.status} ${res.statusText}. Expected JSON but got ${contentType}.`,
     );
   }
 
@@ -206,6 +202,29 @@ export const getRoutineWithProducts = async (
   if (!res.ok) {
     throw new Error(`Failed to fetch routine ${id}`);
   }
+  return res.json();
+};
+
+export const updateRoutineProductsById = async (
+  id: number,
+  items: RoutineProductInput[],
+): Promise<RoutineWithProducts> => {
+  const res = await fetch(`${API_URL}/api/routines/id/${id}/products`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    // Endpoint expects `products`; include `items` for backward compatibility.
+    // Might reword (TODO)
+    body: JSON.stringify({ products: items, items }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res
+      .json()
+      .catch(() => ({ error: "Failed to update routine products" }));
+    throw new Error(errorData.error || "Failed to update routine products");
+  }
+
   return res.json();
 };
 

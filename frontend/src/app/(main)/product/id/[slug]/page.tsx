@@ -18,7 +18,7 @@ export async function generateMetadata({
   const productId = parseInt(slug, 10);
 
   if (!Number.isFinite(productId) || productId <= 0) {
-    return { title: "Product Not Found | ClearUp" };
+    return { title: "Product Not Found | Clearup" };
   }
 
   try {
@@ -26,15 +26,15 @@ export async function generateMetadata({
 
     if (product?.name) {
       return {
-        title: `${product.name} | ClearUp`,
+        title: `${product.name} | Clearup`,
         description: `View details about ${product.name}.`,
       };
     }
   } catch {
-    return { title: "Product | ClearUp" };
+    return { title: "Product | Clearup" };
   }
 
-  return { title: "Product | ClearUp" };
+  return { title: "Product | Clearup" };
 }
 
 export default async function ProductListPage({ params }: ProductProps) {

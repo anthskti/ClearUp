@@ -9,7 +9,7 @@ import { parseSkinTypeTagsFromParam } from "@/lib/routineSkinTypeTags";
 
 export const metadata: Metadata = {
   title: "Community Routines | Clearup",
-  description: "Browse public skincare routines from the ClearUp community.",
+  description: "Browse public skincare routines from the Clearup community.",
 };
 
 type Props = {

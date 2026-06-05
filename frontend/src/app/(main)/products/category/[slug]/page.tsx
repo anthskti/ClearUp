@@ -1,7 +1,4 @@
-import {
-  fetchCategoryBrands,
-  fetchProductsByCategory,
-} from "@/lib/products";
+import { fetchCategoryBrands, fetchProductsByCategory } from "@/lib/products";
 import ProductListClient from "@/components/products/ProductListClient";
 import { Metadata } from "next";
 import {
@@ -17,7 +14,7 @@ interface PageProps {
 }
 
 export const metadata: Metadata = {
-  title: "Product Catalog | ClearUp",
+  title: "Product Catalog | Clearup",
   description: "Browse products.",
 };
 

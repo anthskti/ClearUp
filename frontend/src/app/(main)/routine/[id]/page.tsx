@@ -37,7 +37,7 @@ export async function generateMetadata({
   const { id } = await params;
 
   if (!id?.trim()) {
-    return { title: "Routine Not Found | ClearUp" };
+    return { title: "Routine Not Found | Clearup" };
   }
 
   try {
@@ -45,14 +45,14 @@ export async function generateMetadata({
 
     if (routine?.name) {
       return {
-        title: `${routine.name} | ClearUp`,
-        description: `View ${routine.name} and explore this skincare routine on ClearUp.`,
+        title: `${routine.name} | Clearup`,
+        description: `View ${routine.name} and explore this skincare routine on Clearup.`,
       };
     }
   } catch {
-    return { title: "Routine | ClearUp" };
+    return { title: "Routine | Clearup" };
   }
-  return { title: "Routine | ClearUp" };
+  return { title: "Routine | Clearup" };
 }
 
 export default async function ViewRoutine({ params }: RoutineProps) {

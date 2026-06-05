@@ -11,6 +11,7 @@ import ProceduralWave from "@/components/themes/ProceduralWave";
 import getProductData from "@/components/product/details";
 import { DETAIL_CONFIG, CategoryKey } from "@/components/product/details";
 import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
+import ProductRating from "@/components/product/ProductRating";
 import { useEffectiveRole } from "@/hooks/useEffectiveRole";
 
 import { Product } from "@/types/product";
@@ -62,14 +63,12 @@ export default function ProductClient({
             <h2 className="text-2xl text-zinc-600 font-light ">
               {product.name}
             </h2>
-            {/* Rating */}
-            <div className="flex items-center gap-2 mt-2 text-sm">
-              {/* <span className="flex text-yellow-600">★★★★★</span>{" "} */}
-              {/* Input Function for stars later */}
-              {/* <span className="text-zinc-400">
-                ({product.reviewCount} review logs)
-              </span> */}
-            </div>
+            <ProductRating
+              averageRating={product.averageRating}
+              reviewCount={product.reviewCount}
+              variant="detail"
+              className="mt-2"
+            />
           </div>
 
           {/* 2. Add to Routine */}
@@ -96,7 +95,7 @@ export default function ProductClient({
           {/* 3. Detail Sheet */}
           <div className="space-y-6 mb-10">
             <div className="border-b border-zinc-200 pb-2 mb-4">
-              <h3 className="text-sm font-bold uppercase text-zinc-400">
+              <h3 className="text-sm font-bold uppercase text-zinc-600">
                 Details
               </h3>
             </div>
@@ -123,9 +122,9 @@ export default function ProductClient({
             </div>
 
             <div className="pt-4 border-t border-zinc-200">
-              <span className="block text-xs text-zinc-500 uppercase font-medium mb-2">
+              <h3 className="text-sm font-bold uppercase text-zinc-600">
                 How to Use
-              </span>
+              </h3>
               <ul className="list-disc list-inside text-zinc-600 space-y-1">
                 {product.instructions.map((step, i) => (
                   <li key={i}>{step}</li>
@@ -141,13 +140,13 @@ export default function ProductClient({
                   aria-expanded={ingredientsOpen}
                   className="flex w-full items-center justify-between gap-2 text-left"
                 >
-                  <span className="text-xs text-zinc-500 uppercase font-medium">
+                  <h3 className="text-sm font-bold uppercase text-zinc-600">
                     Ingredients
-                  </span>
+                  </h3>
                   <ChevronDown
                     size={16}
                     className={cn(
-                      "shrink-0 text-zinc-400 transition-transform duration-200",
+                      "shrink-0 text-zinc-700 transition-transform duration-200",
                       ingredientsOpen && "rotate-180",
                     )}
                   />
@@ -164,7 +163,7 @@ export default function ProductClient({
           {/* Merchant Tracker, Implement through admin. Might Add Datascrapper in future.  */}
           <div className="mt-auto">
             <div className="border-b border-zinc-200 pb-2 mb-4 flex justify-between items-end">
-              <h3 className="text-sm font-bold uppercase text-zinc-400">
+              <h3 className="text-sm font-bold uppercase text-zinc-600">
                 Marketplace Data
               </h3>
               {isAdmin ? (

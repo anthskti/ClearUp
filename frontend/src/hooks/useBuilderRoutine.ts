@@ -35,7 +35,7 @@ function createEmptyRoutine(): RoutineSlot[] {
   return ROUTINE_SLOTS.map((slot) => ({ ...slot, products: [] }));
 }
 
-// Deduplicate products by ID
+// Deduplicate products by ID for hydration
 function dedupeProductsById<T extends { id: number }>(products: T[]): T[] {
   const seen = new Set<number>();
   return products.filter((p) => {
@@ -96,18 +96,16 @@ export const useBuilderRoutine = () => {
           slot.id === category
             ? {
                 ...slot,
-                products: dedupeProductsById(
-                  slot.products.some((p) => p.id === product.id)
-                    ? slot.products
-                    : [
-                        ...slot.products,
-                        {
-                          ...product,
-                          merchant: "-",
-                          merchantLogo: "-",
-                        },
-                      ],
-                ),
+                products: slot.products.some((p) => p.id === product.id)
+                  ? slot.products
+                  : [
+                      ...slot.products,
+                      {
+                        ...product,
+                        merchant: "-",
+                        merchantLogo: "-",
+                      },
+                    ],
               }
             : slot,
         ),

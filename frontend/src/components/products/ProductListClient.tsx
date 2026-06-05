@@ -2,7 +2,8 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Star } from "lucide-react";
+import { Search } from "lucide-react";
+import ProductRating from "@/components/product/ProductRating";
 import { useInView } from "react-intersection-observer";
 import { CountryMapping } from "../../constants/CountryMapping";
 
@@ -201,19 +202,19 @@ export default function ProductListClient({
         return (
           <Link
             href={`/products/category/${product.category}`}
-            className="text-[12px] font-semibold capitalize text-[#0e4a84] hover:underline"
+            className="text-[12px] font-semibold capitalize text-[#0e4a84]"
           >
             {product.category}
           </Link>
         );
       case "rating": {
         return (
-          <div
-            className={`flex items-center gap-0.5 text-xs text-yellow-600 ${variant === "mobile" ? "justify-start" : "justify-center"}`}
-          >
-            <Star size={14} className="shrink-0 text-yellow-600" />
-            <span>{product.averageRating ?? "—"}</span>
-          </div>
+          <ProductRating
+            averageRating={product.averageRating}
+            reviewCount={product.reviewCount}
+            variant="compact"
+            align={variant === "mobile" ? "start" : "center"}
+          />
         );
       }
       // Default: Just render the default

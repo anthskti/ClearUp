@@ -174,7 +174,6 @@ export const createRoutine = async (data: {
     body: JSON.stringify(data),
   });
 
-  // TODO: Implement description 
   // Check content type before trying to parse JSON
   const contentType = res.headers.get("content-type");
   if (!contentType || !contentType.includes("application/json")) {

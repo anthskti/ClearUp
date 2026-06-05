@@ -20,26 +20,56 @@ export interface Routine {
   author?: RoutineAuthor;
 }
 
+/** One junction row per product in a routine. */
 export interface RoutineProduct {
   id: number;
   routineId: number;
   productId: number;
   category: ProductCategory;
+  amNote: string | null;
+  pmNote: string | null;
+  amStepOrder: number | null;
+  pmStepOrder: number | null;
 }
 
-export type CreateRoutineProductInput = Pick<
-  RoutineProduct,
-  "routineId" | "productId" | "category"
->;
+export type CreateRoutineProductInput = {
+  routineId: number;
+  productId: number;
+  category: ProductCategory;
+  amNote: string | null;
+  pmNote: string | null;
+  amStepOrder: number | null;
+  pmStepOrder: number | null;
+};
+
+export type AddRoutineProductInput = {
+  productId: number;
+  category: ProductCategory;
+  amNote?: string | null;
+  pmNote?: string | null;
+  amStepOrder?: number | null;
+  pmStepOrder?: number | null;
+};
+
+export type UpsertRoutineProductItem = AddRoutineProductInput;
+
+export type CreateRoutineWithProductsInput = {
+  name: string;
+  description?: string;
+  userId: string;
+  skinTypeTags?: unknown;
+  items: AddRoutineProductInput[];
+};
+
 export type UpdateRoutineProductInput = Partial<
-  Pick<RoutineProduct, "category">
+  Pick<
+    RoutineProduct,
+    "category" | "amNote" | "pmNote" | "amStepOrder" | "pmStepOrder"
+  >
 >;
 
 export type RoutineProductWithDetails = RoutineProduct & {
-  product?: Pick<
-    Product,
-    "id" | "name" | "brand" | "price" | "averageRating" | "imageUrls"
-  >;
+  product?: Pick<Product, "id" | "name" | "brand" | "price" | "imageUrls">;
 };
 
 export interface RoutineWithProducts extends Routine {
@@ -58,4 +88,3 @@ export type GuideRoutineView = {
   /** Sum of linked product prices (CAD in catalog). */
   estimatedTotalPrice: number;
 };
-

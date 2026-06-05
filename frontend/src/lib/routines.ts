@@ -1,13 +1,14 @@
+import type { RoutineProductInput } from "@/types/builder";
+import { mutationHeaders } from "@/lib/mutationHeaders";
 import {
   Routine,
-  RoutineAuthor,
   RoutineWithProducts,
-  RoutineProduct,
   FeaturedRoutine,
   GuideRoutine,
+  RoutineNoteUpdate,
 } from "@/types/routine";
 import type { AdminDashboardStats } from "@/types/routine-admin";
-import { ProductCategory, SkinType } from "@/types/product";
+import { SkinType } from "@/types/product";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
@@ -127,6 +128,7 @@ export const featureRoutine = async (routineId: number): Promise<void> => {
     `${API_URL}/api/routines/admin/featured/${routineId}`,
     {
       method: "POST",
+      headers: mutationHeaders(),
       credentials: "include",
     },
   );
@@ -143,6 +145,7 @@ export const unfeatureRoutine = async (routineId: number): Promise<void> => {
     `${API_URL}/api/routines/admin/featured/${routineId}`,
     {
       method: "DELETE",
+      headers: mutationHeaders(),
       credentials: "include",
     },
   );
@@ -158,18 +161,15 @@ export const createRoutine = async (data: {
   name: string;
   description?: string;
   skinTypeTags?: SkinType[];
-  items: {
-    productId: number;
-    category: string;
-  }[];
+  items: RoutineProductInput[];
 }): Promise<RoutineWithProducts> => {
   const url = `${API_URL}/api/routines/bulk`;
-  console.log("Creating routine at:", url);
-  console.log("Request data:", data);
+  // console.log("Creating routine at:", url);
+  // console.log("Request data:", data);
 
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: mutationHeaders({ "Content-Type": "application/json" }),
     credentials: "include",
     body: JSON.stringify(data),
   });
@@ -178,9 +178,8 @@ export const createRoutine = async (data: {
   const contentType = res.headers.get("content-type");
   if (!contentType || !contentType.includes("application/json")) {
     const text = await res.text();
-    console.error("Non-JSON response:", text.substring(0, 200));
     throw new Error(
-      `Server returned ${res.status} ${res.statusText}. Expected JSON but got ${contentType}. Check if the backend server is running.`,
+      `Server returned ${res.status} ${res.statusText}. Expected JSON but got ${contentType}.`,
     );
   }
 
@@ -207,6 +206,68 @@ export const getRoutineWithProducts = async (
     throw new Error(`Failed to fetch routine ${id}`);
   }
   return res.json();
+};
+
+// export const updateRoutineProductsById = async (
+//   id: number,
+//   items: RoutineProductInput[],
+//   options?: { confirmClear?: boolean },
+// ): Promise<{ ok: boolean }> => {
+//   const res = await fetch(`${API_URL}/api/routines/id/${id}/products`, {
+//     method: "PUT",
+//     headers: mutationHeaders({ "Content-Type": "application/json" }),
+//     credentials: "include",
+//     body: JSON.stringify({
+//       products: items,
+//       items,
+//       confirmClear: options?.confirmClear === true,
+//     }),
+//   });
+
+//   if (!res.ok) {
+//     const errorData = await res
+//       .json()
+//       .catch(() => ({ error: "Failed to update routine products" }));
+//     throw new Error(errorData.error || "Failed to update routine products");
+//   }
+
+//   return res.json();
+// };
+
+export const saveRoutineNotes = async (
+  routineId: number,
+  updates: RoutineNoteUpdate[],
+): Promise<void> => {
+  const res = await fetch(`${API_URL}/api/routines/id/${routineId}/notes`, {
+    method: "PATCH",
+    headers: mutationHeaders({ "Content-Type": "application/json" }),
+    credentials: "include",
+    body: JSON.stringify({ updates }),
+  });
+  if (!res.ok) {
+    const errorData = await res
+      .json()
+      .catch(() => ({ error: "Failed to save routine notes" }));
+    throw new Error(errorData.error || "Failed to save routine notes");
+  }
+};
+
+export const addProductToRoutine = async (
+  routineId: number,
+  item: RoutineProductInput,
+): Promise<void> => {
+  const res = await fetch(`${API_URL}/api/routines/id/${routineId}/products`, {
+    method: "POST",
+    headers: mutationHeaders({ "Content-Type": "application/json" }),
+    credentials: "include",
+    body: JSON.stringify(item),
+  });
+  if (!res.ok) {
+    const errorData = await res
+      .json()
+      .catch(() => ({ error: "Failed to add product to routine" }));
+    throw new Error(errorData.error || "Failed to add product to routine");
+  }
 };
 
 export const getRoutinesByUserId = async (
@@ -237,6 +298,7 @@ export const getMyRoutines = async (): Promise<RoutineWithProducts[]> => {
 export const deleteRoutineById = async (id: number): Promise<boolean> => {
   const res = await fetch(`${API_URL}/api/routines/id/${id}`, {
     method: "DELETE",
+    headers: mutationHeaders(),
     credentials: "include",
   });
   if (!res.ok) {
@@ -251,7 +313,7 @@ export const updateRoutineById = async (
 ): Promise<Routine> => {
   const res = await fetch(`${API_URL}/api/routines/id/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: mutationHeaders({ "Content-Type": "application/json" }),
     credentials: "include",
     body: JSON.stringify(data),
   });

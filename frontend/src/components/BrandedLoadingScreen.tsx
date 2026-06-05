@@ -2,9 +2,9 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const LOADING_IMAGE_SRC = "/assets/clearupbottle.png";
-const LOADING_IMAGE_ALT = "ClearUp loading artwork";
+const LOADING_IMAGE_ALT = "Clearup loading artwork";
 const LOADING_ACCENT_SRC = "/assets/clearuploading.png";
-const LOADING_ACCENT_ALT = "ClearUp loading indicator";
+const LOADING_ACCENT_ALT = "Clearup loading indicator";
 
 type BrandedLoadingScreenProps = {
   title?: string;
@@ -15,7 +15,7 @@ type BrandedLoadingScreenProps = {
 
 export default function BrandedLoadingScreen({
   title = "Loading",
-  subtitle = "Preparing your ClearUp experience.",
+  subtitle = "Preparing your Clearup experience.",
   fullScreen = false,
   className,
 }: BrandedLoadingScreenProps) {
@@ -51,7 +51,10 @@ export default function BrandedLoadingScreen({
             <div
               key={i}
               className="relative h-4 w-4 animate-bounce will-change-transform"
-              style={{ animationDelay: `${i * 0.15}s`, animationDuration: "1.1s" }}
+              style={{
+                animationDelay: `${i * 0.15}s`,
+                animationDuration: "1.1s",
+              }}
             >
               <Image
                 src={LOADING_ACCENT_SRC}

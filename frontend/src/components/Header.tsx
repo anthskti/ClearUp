@@ -127,7 +127,7 @@ function Header() {
           <Link href="/" className="inline-flex min-w-0 shrink">
             <Image
               src="/assets/clearuplogov11.png"
-              alt="ClearUp"
+              alt="Clearup"
               width={2048}
               height={663}
               priority
@@ -138,12 +138,16 @@ function Header() {
           {/* <p className="font-bold tracking-widest text-lg">CLEARUP</p> */}
         </div>
 
-        <div className="hidden items-center justify-center space-x-6 text-xs uppercase md:flex">
+        <div className="hidden items-center justify-center space-x-10 text-xs font-semibold uppercase md:flex">
           {navItems.map((item) => {
             // Check if this item is the "Products" dropdown
             if (item.name === "Products") {
               return (
-                <div key={item.name} className="relative" ref={productsDropdownRef}>
+                <div
+                  key={item.name}
+                  className="relative"
+                  ref={productsDropdownRef}
+                >
                   <button
                     type="button"
                     onClick={() => setIsProductsOpen((open) => !open)}
@@ -151,7 +155,7 @@ function Header() {
                     aria-haspopup="true"
                     className={`flex items-center transition-colors text-xs uppercase ${
                       path.startsWith("/products")
-                        ? "text-gray-700 font-medium"
+                        ? "text-gray-700"
                         : "text-black hover:text-gray-700"
                     }`}
                   >
@@ -175,12 +179,12 @@ function Header() {
 
                     <div className="relative overflow-hidden rounded-md bg-white py-2">
                       <Link
-                          href="/products"
-                          onClick={() => setIsProductsOpen(false)}
-                          className="block px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 hover:text-black"
-                        >
-                          All Products
-                        </Link>
+                        href="/products"
+                        onClick={() => setIsProductsOpen(false)}
+                        className="block px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 hover:text-black"
+                      >
+                        All Products
+                      </Link>
                       {productCategories.map((category) => (
                         <Link
                           key={category.name}
@@ -204,7 +208,7 @@ function Header() {
                 href={item.href}
                 className={`transition-colors ${
                   path === item.href
-                    ? "text-gray-700 font-medium"
+                    ? "text-gray-700"
                     : "text-black hover:text-gray-700"
                 }`}
               >

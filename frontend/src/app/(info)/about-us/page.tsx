@@ -5,10 +5,10 @@ export default function AboutUsPage() {
   return (
     <div>
       <ProceduralWave seed={7} height={190} />
-      <InfoArticle title="About us" description="What is ClearUp?">
-        <h2>ClearUp's Goal</h2>
+      <InfoArticle title="About us" description="What is Clearup?">
+        <h2>Clearup's Goal</h2>
         <p>
-          ClearUp is on a goal to bring clarity to skincare. Building an
+          Clearup is on a goal to bring clarity to skincare. Building an
           effective routine shouldn't require spending hundreds on potential
           products, having spreadsheet of what work, and feeling like looking at
           new products is a guessing game.
@@ -24,7 +24,7 @@ export default function AboutUsPage() {
         </p>
         <h2>What We Do</h2>
         <p>
-          ClearUp is a community-driven routine builder and discovery platform.
+          Clearup is a community-driven routine builder and discovery platform.
           We provide the tools to:
         </p>
         <ul>
@@ -43,7 +43,7 @@ export default function AboutUsPage() {
         </ul>
         <p>
           Whether you are a skincare minimalist or have a dedicated 10-step
-          routine, ClearUp will help you track what works for your skin.
+          routine, Clearup will help you track what works for your skin.
         </p>
       </InfoArticle>
     </div>

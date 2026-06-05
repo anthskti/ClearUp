@@ -1,4 +1,4 @@
-# ClearUp - Skincare Organizer Application
+# Clearup - Skincare Organizer Application
 
 A monolithic skincare organizer application built with Node.js, Express, TypeScript, and PostgreSQL. This application helps users organize their skincare products and create personalized routines.
 
@@ -15,7 +15,7 @@ A monolithic skincare organizer application built with Node.js, Express, TypeScr
 
 ## Overview
 
-ClearUp is a skincare organizer application that allows users to:
+Clearup is a skincare organizer application that allows users to:
 
 - Manage their skincare product collection
 - Organize products by category (Cleanser, Toner, Essence, Serum, Eye Cream, Moisturizer, Sunscreen, Other)

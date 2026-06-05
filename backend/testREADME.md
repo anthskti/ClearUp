@@ -1,4 +1,4 @@
-# ClearUp Backend Testing
+# Clearup Backend Testing
 
 - [Setup](#setup)
 - [Product Testing](#product-testing)
@@ -12,7 +12,7 @@
 
 1. **Environment** — Copy `backend/.env.example` → `backend/.env`:
    - `NODE_ENV=development`
-   - Use `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` 
+   - Use `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
    - **Comment out or remove `DATABASE_URL`** — if it is set, the app connects to Supabase instead of Docker
 2. **Start Postgres**:
 
@@ -48,13 +48,13 @@ Or paste scraper CSV on the admin import page (requires `ADMIN_EMAILS` + logged-
 
 ### Troubleshooting
 
-| Symptom | Likely cause | Fix |
-|--------|----------------|-----|
-| Better Auth / sign-in DB errors | `DATABASE_URL` empty but auth only read that before; or SSL mismatch with Supabase in dev | Leave `DATABASE_URL` unset for local Docker; use `DB_*`. Pull latest — auth now uses `src/lib/dbConfig.ts` (same URL + SSL as Sequelize). |
-| `relation "featured_routines" does not exist` | Migration `003-create-featured-routines.ts` never ran | `docker compose up -d` then `bun run migrate:up` or restart `bun run dev` (migrations on boot). |
-| Bun vs npm issues | Mixed lockfiles / `ts-node` | Use only `bun install` and `bun run dev` (see `package.json`). |
-| Google OAuth alert `undefined` | API returns 500; `verification.value` was `varchar(255)` but OAuth state is longer | Run `bun run migrate:up` (migration `004-verification-value-text`). In Google Cloud, redirect URI must be `http://localhost:5050/api/auth/callback/google` (API host, not `:3000`). |
-| `unable_to_create_user` / missing `banned` | `plugins: [admin()]` expects extra `user` columns | Run `bun run migrate:up` (migration `005-add-better-auth-admin-columns`). |
+| Symptom                                       | Likely cause                                                                              | Fix                                                                                                                                                                                 |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Better Auth / sign-in DB errors               | `DATABASE_URL` empty but auth only read that before; or SSL mismatch with Supabase in dev | Leave `DATABASE_URL` unset for local Docker; use `DB_*`. Pull latest — auth now uses `src/lib/dbConfig.ts` (same URL + SSL as Sequelize).                                           |
+| `relation "featured_routines" does not exist` | Migration `003-create-featured-routines.ts` never ran                                     | `docker compose up -d` then `bun run migrate:up` or restart `bun run dev` (migrations on boot).                                                                                     |
+| Bun vs npm issues                             | Mixed lockfiles / `ts-node`                                                               | Use only `bun install` and `bun run dev` (see `package.json`).                                                                                                                      |
+| Google OAuth alert `undefined`                | API returns 500; `verification.value` was `varchar(255)` but OAuth state is longer        | Run `bun run migrate:up` (migration `004-verification-value-text`). In Google Cloud, redirect URI must be `http://localhost:5050/api/auth/callback/google` (API host, not `:3000`). |
+| `unable_to_create_user` / missing `banned`    | `plugins: [admin()]` expects extra `user` columns                                         | Run `bun run migrate:up` (migration `005-add-better-auth-admin-columns`).                                                                                                           |
 
 **Inspect tables:**
 
@@ -70,12 +70,12 @@ In `psql`: `\dt` lists tables, `\q` quits.
 
 ### Commands cheat sheet
 
-| Goal | Command |
-|------|---------|
-| DB in background | `docker compose up -d` |
-| DB logs | `docker compose logs -f postgres` |
-| Stop DB | `docker compose down` |
-| API dev server | `bun run dev` |
+| Goal             | Command                              |
+| ---------------- | ------------------------------------ |
+| DB in background | `docker compose up -d`               |
+| DB logs          | `docker compose logs -f postgres`    |
+| Stop DB          | `docker compose down`                |
+| API dev server   | `bun run dev`                        |
 | Production build | `bun run build` then `bun run start` |
 
 ## POSTMAN TESTING (highkey all invalidated after updating so much)
@@ -364,8 +364,8 @@ DEL a merchant
 DEL http://localhost:3000/api/merchant/3
 ```
 
-
 ## Testing Amazon SES
+
 Go to AWS SES
 
 For adding identities:

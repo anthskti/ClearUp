@@ -1,9 +1,12 @@
 import express from "express";
 import { RoutineController } from "../controllers/RoutineController";
 import { requireAdmin, requireAuth } from "../middleware/requireAuth";
+import { requireMutationHeader } from "../middleware/requireMutationHeader";
 
 const router = express.Router();
 const routineController = new RoutineController();
+
+router.use(requireMutationHeader);
 
 
 // ROUTINE 
@@ -72,6 +75,21 @@ router.delete("/id/:id", requireAuth, (req, res) =>
 // get a Routine with its products
 router.get("/id/:id/products", (req, res) =>
   routineController.getRoutineWithProducts(req, res)
+);
+
+// Replace all products on a routine (builder save / edit)
+router.put("/id/:id/products", requireAuth, (req, res) =>
+  routineController.upsertRoutineProducts(req, res),
+);
+
+// PATCH batch usage notes (routine owner editor)
+router.patch("/id/:id/notes", requireAuth, (req, res) =>
+  routineController.saveRoutineNotes(req, res),
+);
+
+// PATCH one product row (category / single-field edits)
+router.patch("/id/:id/products/:productId", requireAuth, (req, res) =>
+  routineController.patchRoutineProduct(req, res),
 );
 
 // POST a product TO a specific routine

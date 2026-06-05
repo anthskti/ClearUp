@@ -2,9 +2,8 @@ import dynamic from "next/dynamic";
 
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import HeroSection from "@/components/home/HeroSection";
-import TrustBanner from "@/components/home/TrustBanner";
 import FeaturedRoutinesSection from "@/components/home/FeaturedRoutinesSection";
-
+import TrustBanner from "@/components/home/TrustBanner";
 const Matches = dynamic(() => import("@/components/home/Matches"), {
   loading: () => <div className="h-64 animate-pulse bg-zinc-50" />,
 });
@@ -17,7 +16,9 @@ const Home = () => {
   return (
     <main className="bg-white min-h-screen">
       <HeroSection />
-      <TrustBanner />
+      <ScrollReveal>
+        <HowItWorks />
+      </ScrollReveal>
       <ScrollReveal>
         <FeaturedRoutinesSection />
       </ScrollReveal>
@@ -25,7 +26,7 @@ const Home = () => {
         <Matches />
       </ScrollReveal>
       <ScrollReveal>
-        <HowItWorks />
+        <TrustBanner />
       </ScrollReveal>
     </main>
   );

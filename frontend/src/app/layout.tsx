@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ClearUp",
-  description: "Skincare Organizer.",
+  title: "Clearup",
+  description: "Your Skincare Organizer.",
 };
 
 export default function RootLayout({

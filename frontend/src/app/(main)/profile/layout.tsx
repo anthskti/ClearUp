@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Profile | ClearUp",
+  title: "Profile | Clearup",
   description: "Your profile.",
 };
 

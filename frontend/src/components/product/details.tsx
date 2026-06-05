@@ -53,12 +53,12 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
   cleanser: {
     sheet: [
       {
-        label: "Capacity",
+        label: "Size",
         dataKey: "capacity",
         icon: <FlaskConical size={16} />,
       },
       {
-        label: "Country",
+        label: "Country of Origin",
         dataKey: "country",
         icon: <MapPin size={16} />,
       },
@@ -77,12 +77,12 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
   toner: {
     sheet: [
       {
-        label: "Capacity",
+        label: "Size",
         dataKey: "capacity",
         icon: <FlaskConical size={16} />,
       },
       {
-        label: "Country",
+        label: "Country of Origin",
         dataKey: "country",
         icon: <MapPin size={16} />,
       },
@@ -101,12 +101,12 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
   essence: {
     sheet: [
       {
-        label: "Capacity",
+        label: "Size",
         dataKey: "capacity",
         icon: <FlaskConical size={16} />,
       },
       {
-        label: "Country",
+        label: "Country of Origin",
         dataKey: "country",
         icon: <MapPin size={16} />,
       },
@@ -125,12 +125,12 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
   serum: {
     sheet: [
       {
-        label: "Capacity",
+        label: "Size",
         dataKey: "capacity",
         icon: <FlaskConical size={16} />,
       },
       {
-        label: "Country",
+        label: "Country of Origin",
         dataKey: "country",
         icon: <MapPin size={16} />,
       },
@@ -154,12 +154,12 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
   moisturizer: {
     sheet: [
       {
-        label: "Capacity",
+        label: "Size",
         dataKey: "capacity",
         icon: <FlaskConical size={16} />,
       },
       {
-        label: "Country",
+        label: "Country of Origin",
         dataKey: "country",
         icon: <MapPin size={16} />,
       },
@@ -183,12 +183,12 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
   sunscreen: {
     sheet: [
       {
-        label: "Capacity",
+        label: "Size",
         dataKey: "capacity",
         icon: <FlaskConical size={16} />,
       },
       {
-        label: "Country",
+        label: "Country of Origin",
         dataKey: "country",
         icon: <MapPin size={16} />,
       },

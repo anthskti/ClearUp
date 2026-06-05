@@ -63,12 +63,10 @@ export default function GuidesFilters({
 
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
-      <div className="mb-3 text-sm font-semibold text-zinc-900">
-        Filter guides
-      </div>
+      <div className="mb-3 text-sm font-semibold text-zinc-900">Filters</div>
       <p className="mb-4 text-xs text-zinc-500">
-        Tags match routine skin types. Price range uses the sum of catalog prices
-        in each routine (CAD).
+        Tags match routine skin types. Price range uses the sum of catalog
+        prices in each routine (CAD).
       </p>
       <div className="mb-4">
         <div className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
@@ -90,7 +88,7 @@ export default function GuidesFilters({
 
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="secondary" onClick={apply}>
-          Apply filters
+          Apply
         </Button>
         <Button type="button" variant="outline" onClick={clear}>
           Clear

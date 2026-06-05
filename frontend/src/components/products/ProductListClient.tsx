@@ -2,7 +2,8 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Star } from "lucide-react";
+import { Search } from "lucide-react";
+import ProductRating from "@/components/product/ProductRating";
 import { useInView } from "react-intersection-observer";
 import { CountryMapping } from "../../constants/CountryMapping";
 
@@ -201,19 +202,19 @@ export default function ProductListClient({
         return (
           <Link
             href={`/products/category/${product.category}`}
-            className="text-[12px] font-semibold capitalize text-[#0e4a84] hover:underline"
+            className="text-[12px] font-semibold capitalize text-[#0e4a84]"
           >
             {product.category}
           </Link>
         );
       case "rating": {
         return (
-          <div
-            className={`flex items-center gap-0.5 text-xs text-yellow-600 ${variant === "mobile" ? "justify-start" : "justify-center"}`}
-          >
-            <Star size={14} className="shrink-0 text-yellow-600" />
-            <span>{product.averageRating ?? "—"}</span>
-          </div>
+          <ProductRating
+            averageRating={product.averageRating}
+            reviewCount={product.reviewCount}
+            variant="compact"
+            align={variant === "mobile" ? "start" : "center"}
+          />
         );
       }
       // Default: Just render the default
@@ -299,14 +300,6 @@ export default function ProductListClient({
         {/* --- RIGHT CONTENT (LIST) --- */}
         <main className="lg:col-span-10">
           {/* List Header */}
-
-          {/* Sort button, NOT IMPLMENTED FOR DEMO */}
-          {/* <div className="flex justify-end items-center mb-6">
-            <button className="text-sm font-bold text-zinc-700 flex items-center gap-2 bg-white px-4 py-2 border border-zinc-200 rounded hover:bg-zinc-50">
-              <SlidersHorizontal size={14} /> Sort: Popular
-            </button>
-          </div> */}
-          {/* Showing X results; since pagination, its kind of weird */}
           <div className="mb-6 flex items-center justify-end">
             <p className="text-sm font-medium text-zinc-500">
               Showing {products.length} of {totalCount} results
@@ -411,7 +404,7 @@ export default function ProductListClient({
               </div>
             )}
             {!hasMore && products.length > 0 && (
-              <p className="text-sm italic text-zinc-400">
+              <p className="text-sm italic text-zinc-400 mb-8">
                 You've reached the end of the shelf.
               </p>
             )}

@@ -101,12 +101,37 @@ export function parseScraperPrice(raw: string | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+// Periods in these tokens must not start a new instruction step (e.g. "Dr. Althea").
+// Extend when scraper copy includes other dotted names or abbreviations.
+const INSTRUCTION_PERIOD_EXCEPTIONS = [
+  "Dr",
+  "Mr",
+  "Mrs",
+  "Ms",
+  "Mx",
+  "Sr",
+  "Jr",
+  "St",
+  "Co",
+  "Inc",
+  "Ltd",
+  "vs",
+  "etc",
+] as const;
+
+const INSTRUCTION_STEP_SPLIT = new RegExp(
+  `(?<!(?:${INSTRUCTION_PERIOD_EXCEPTIONS.map((abbr) =>
+    abbr.replace(/\./g, "\\."),
+  ).join("|")}))\\.\\s+`,
+  "gi",
+);
+
 export function parseInstructions(raw: string | undefined): string[] {
   const trimmed = raw?.trim();
   if (!trimmed || trimmed.toLowerCase() === "n/a") return [];
 
   const segments = trimmed
-    .split(/\.\s+/)
+    .split(INSTRUCTION_STEP_SPLIT)
     .map((s) => s.trim())
     .filter(Boolean);
   if (segments.length <= 1) {
@@ -143,3 +168,9 @@ export function isScraperRowSuccessful(status: string | undefined): boolean {
 }
 
 export const SCRAPER_DEFAULT_MERCHANT_NAME = "YesStyle";
+
+/** CSV `merchant` column; falls back to YesStyle when blank. */
+export function parseMerchantName(raw: string | undefined): string {
+  const trimmed = raw?.trim();
+  return trimmed || SCRAPER_DEFAULT_MERCHANT_NAME;
+}

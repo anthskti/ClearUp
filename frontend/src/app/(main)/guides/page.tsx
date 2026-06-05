@@ -8,12 +8,17 @@ import { getPublicGuides } from "@/lib/routines";
 import { parseSkinTypeTagsFromParam } from "@/lib/routineSkinTypeTags";
 
 export const metadata: Metadata = {
-  title: "Community Guides | Clearup",
-  description: "Browse public skincare routines from the ClearUp community.",
+  title: "Community Routines | Clearup",
+  description: "Browse public skincare routines from the Clearup community.",
 };
 
 type Props = {
-  searchParams: Promise<{ tags?: string; minPrice?: string; maxPrice?: string; page?: string }>;
+  searchParams: Promise<{
+    tags?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    page?: string;
+  }>;
 };
 
 export default async function GuidesPage({ searchParams }: Props) {
@@ -50,9 +55,8 @@ export default async function GuidesPage({ searchParams }: Props) {
             Community guides
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-zinc-600">
-            Public routines from registered members. Each load is randomized.
-            Use filters to narrow by skin type tags or estimated routine total
-            (sum of catalog prices).
+            Public routines from registered members. Use filters to narrow by
+            skin type or routine total.
           </p>
         </header>
 

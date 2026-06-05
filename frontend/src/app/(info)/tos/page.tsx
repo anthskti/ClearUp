@@ -7,10 +7,10 @@ export default function TermsOfServicePage() {
       <ProceduralWave seed={4} height={190} />
       <InfoArticle
         title="Terms of Service (TOS)"
-        description="Terms that govern use of ClearUp."
+        description="Terms that govern use of Clearup."
       >
         <h3>Terms of Service Last Updated: May 9, 2026</h3>
-        <h2>Welcome to ClearUp!</h2>
+        <h2>Welcome to Clearup!</h2>
         <p>
           By accessing or using this website and services, you agree to be bound
           by these Terms of Service. If you do not agree to these terms, please
@@ -18,13 +18,13 @@ export default function TermsOfServicePage() {
         </p>
         <h2>1. Nature of the Platform & Medical Disclaimer</h2>
         <p>
-          ClearUp is a community-driven platform designed to help users
-          organize, track, and share their skincare routines. ClearUp does not
+          Clearup is a community-driven platform designed to help users
+          organize, track, and share their skincare routines. Clearup does not
           provide medical advice. The routines, product lists, and guides shared
           on this platform are for informational and educational purposes only.
           Always consider consulting with a qualified dermatologist or
           healthcare provider before starting a new skincare routine, especially
-          if you have existing skin conditions or allergies. ClearUp is not
+          if you have existing skin conditions or allergies. Clearup is not
           liable for any adverse reactions, skin damage, or health issues
           resulting from products discovered or routines copied from our
           platform.
@@ -40,16 +40,16 @@ export default function TermsOfServicePage() {
         </p>
         <h2>3. User-Generated Content</h2>
         <p>
-          ClearUp allows you to create, post, and share public skincare guides
+          Clearup allows you to create, post, and share public skincare guides
           and routines. You retain ownership of the content you create. However,
-          by setting a routine to "public," you grant ClearUp a non-exclusive,
+          by setting a routine to "public," you grant Clearup a non-exclusive,
           royalty-free license to display, distribute, and reproduce that
           content across the platform. You agree not to post content that is
           illegal, abusive, harassing, or spam.
         </p>
         <h2>4. Acceptable Use Policy</h2>
         <p>
-          You agree to use ClearUp only for its intended purpose. You may not:
+          You agree to use Clearup only for its intended purpose. You may not:
           Use the platform to send unauthorized commercial communications or
           spam. Attempt to bypass, exploit, or hack our authentication systems
           or email verification processes. Post false, misleading, or malicious
@@ -63,10 +63,10 @@ export default function TermsOfServicePage() {
         </p>
         <h2>6. Limitation of Liability</h2>
         <p>
-          ClearUp is provided on an "as-is" and "as-available" basis. We make no
+          Clearup is provided on an "as-is" and "as-available" basis. We make no
           warranties, expressed or implied, regarding the accuracy of product
           data, the continuous availability of the site, or the efficiency of
-          any skincare routine. In no event shall ClearUp be liable for any
+          any skincare routine. In no event shall Clearup be liable for any
           direct, indirect, incidental, or consequential damages arising from
           your use of the platform.
         </p>

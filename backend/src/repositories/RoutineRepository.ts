@@ -63,6 +63,11 @@ export class RoutineRepository {
         {
           model: RoutineProductModel,
           as: "routineProducts",
+          separate: true,
+          order: [
+            ["category", "ASC"],
+            ["productId", "ASC"], // Stable sort (same products per routine).
+          ],
           include: [
             {
               model: ProductModel,
@@ -72,7 +77,6 @@ export class RoutineRepository {
                 "name",
                 "brand",
                 "price",
-                "averageRating",
                 "imageUrls",
               ],
             },
@@ -101,6 +105,11 @@ export class RoutineRepository {
         {
           model: RoutineProductModel,
           as: "routineProducts",
+          separate: true,
+          order: [
+            ["category", "ASC"],
+            ["productId", "ASC"], // Same here, more stable
+          ],
           include: [
             {
               model: ProductModel, // Import your ProductModel
@@ -110,7 +119,6 @@ export class RoutineRepository {
                 "name",
                 "brand",
                 "price",
-                "averageRating",
                 "imageUrls",
               ],
             },
@@ -456,13 +464,16 @@ export class RoutineRepository {
               routineId: rp.routineId,
               productId: rp.productId,
               category: rp.category,
+              amNote: rp.amNote,
+              pmNote: rp.pmNote,
+              amStepOrder: rp.amStepOrder,
+              pmStepOrder: rp.pmStepOrder,
               product: rp.product
                 ? {
                     id: rp.product.id,
                     name: rp.product.name,
                     brand: rp.product.brand,
                     price: rp.product.price,
-                    averageRating: rp.product.averageRating,
                     imageUrls: rp.product.imageUrls,
                   }
                 : undefined,

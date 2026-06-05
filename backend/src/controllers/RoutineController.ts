@@ -3,6 +3,24 @@ import { RoutineService } from "../services/RoutineService";
 import PAGINATION from "../config/pagination";
 import { sanitizeSkinTypeTags } from "../types/routineSkinTypeTags";
 import { handleInternalError } from "../lib/httpError";
+import {
+  RoutineProductValidationError,
+  parseProductCategory,
+} from "../lib/routineProductItems";
+import {
+  parseOptionalStepField,
+  parseOptionalUserNote,
+} from "../lib/routineProductParse";
+import {
+  MAX_ROUTINE_DESCRIPTION_LENGTH,
+  MAX_ROUTINE_NAME_LENGTH,
+  RoutineProductReplaceError,
+  truncateRoutineText,
+} from "../lib/routineSecurity";
+import type {
+  AddRoutineProductInput,
+  UpdateRoutineProductInput,
+} from "../types/routine";
 
 export class RoutineController {
   private routineService: RoutineService;
@@ -302,10 +320,16 @@ export class RoutineController {
         skinTypeTags: unknown;
       }> = {};
       if (typeof body.name === "string") {
-        patch.name = body.name;
+        patch.name = truncateRoutineText(
+          body.name.trim(),
+          MAX_ROUTINE_NAME_LENGTH,
+        );
       }
       if (typeof body.description === "string") {
-        patch.description = body.description;
+        patch.description = truncateRoutineText(
+          body.description,
+          MAX_ROUTINE_DESCRIPTION_LENGTH,
+        );
       }
       if (body.skinTypeTags !== undefined) {
         patch.skinTypeTags = body.skinTypeTags;
@@ -329,6 +353,7 @@ export class RoutineController {
       const id = parseInt(req.params.id as string);
       if (isNaN(id)) {
         res.status(404).json({ error: "Invalid Routine Id" });
+        return;
       }
       const userId = req.user?.id;
       const role = req.user?.role;
@@ -386,13 +411,17 @@ export class RoutineController {
       }
       const routineProduct = await this.routineService.addProductToRoutine(
         routineId,
-        req.body,
+        req.body as AddRoutineProductInput,
       );
       res.status(201).json(routineProduct);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "";
       if (message === "Routine not found") {
         res.status(404).json({ error: message });
+        return;
+      }
+      if (error instanceof RoutineProductValidationError) {
+        res.status(400).json({ error: error.message });
         return;
       }
       handleInternalError(res, "RoutineController.addProductToRoutine", error);
@@ -487,6 +516,183 @@ export class RoutineController {
     }
   }
 
+  // PUT /api/routines/id/:id/products — replace all routine_products
+  async upsertRoutineProducts(req: Request, res: Response): Promise<void> {
+    try {
+      const routineId = parseInt(req.params.id as string, 10);
+      const userId = req.user?.id;
+      const role = req.user?.role;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      if (!Number.isFinite(routineId)) {
+        res.status(400).json({ error: "Invalid routine id" });
+        return;
+      }
+      const routine = await this.routineService.getRoutineById(
+        String(routineId),
+      );
+      if (!routine) {
+        res.status(404).json({ error: "Routine not found" });
+        return;
+      }
+      if (!this.canManageRoutine(userId, routine.userId, role)) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      const hasProducts = Array.isArray(body.products);
+      const hasItems = Array.isArray(body.items);
+      if (!hasProducts && !hasItems) {
+        res.status(400).json({
+          error:
+            "Request must include a products or items array.",
+        });
+        return;
+      }
+      const incomingProducts = (
+        hasProducts ? body.products : body.items
+      ) as AddRoutineProductInput[];
+      const confirmClear = body.confirmClear === true;
+      await this.routineService.upsertRoutineProducts(
+        routineId,
+        incomingProducts,
+        { confirmClear },
+      );
+      res.json({ ok: true });
+    } catch (error: unknown) {
+      if (error instanceof RoutineProductReplaceError) {
+        res.status(400).json({ error: error.message });
+        return;
+      }
+      if (error instanceof RoutineProductValidationError) {
+        res.status(400).json({ error: error.message });
+        return;
+      }
+      handleInternalError(
+        res,
+        "RoutineController.upsertRoutineProducts",
+        error,
+      );
+    }
+  }
+
+  // PATCH /api/routines/id/:id/notes — batch save usage notes (atomic)
+  async saveRoutineNotes(req: Request, res: Response): Promise<void> {
+    try {
+      const routineId = parseInt(req.params.id as string, 10);
+      const userId = req.user?.id;
+      const role = req.user?.role;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      if (!Number.isFinite(routineId)) {
+        res.status(400).json({ error: "Invalid routine id" });
+        return;
+      }
+      const routine = await this.routineService.getRoutineById(
+        String(routineId),
+      );
+      if (!routine) {
+        res.status(404).json({ error: "Routine not found" });
+        return;
+      }
+      if (!this.canManageRoutine(userId, routine.userId, role)) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
+
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      const updates = await this.routineService.saveRoutineNotes(
+        routineId,
+        body.updates,
+      );
+      res.json({ ok: true, updated: updates.length, products: updates });
+    } catch (error: unknown) {
+      if (error instanceof RoutineProductValidationError) {
+        res.status(400).json({ error: error.message });
+        return;
+      }
+      handleInternalError(res, "RoutineController.saveRoutineNotes", error);
+    }
+  }
+
+  // PATCH /api/routines/id/:id/products/:productId
+  async patchRoutineProduct(req: Request, res: Response): Promise<void> {
+    try {
+      const routineId = parseInt(req.params.id as string, 10);
+      const productId = parseInt(req.params.productId as string, 10);
+      const userId = req.user?.id;
+      const role = req.user?.role;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      if (!Number.isFinite(routineId) || !Number.isFinite(productId)) {
+        res.status(400).json({ error: "Invalid routine or product id" });
+        return;
+      }
+      const routine = await this.routineService.getRoutineById(
+        String(routineId),
+      );
+      if (!routine) {
+        res.status(404).json({ error: "Routine not found" });
+        return;
+      }
+      if (!this.canManageRoutine(userId, routine.userId, role)) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      const patch: UpdateRoutineProductInput = {};
+
+      try {
+        if (body.category !== undefined) {
+          patch.category = parseProductCategory(body.category);
+        }
+        const amNote = parseOptionalUserNote(body.amNote, "amNote");
+        if (amNote !== undefined) patch.amNote = amNote;
+        const pmNote = parseOptionalUserNote(body.pmNote, "pmNote");
+        if (pmNote !== undefined) patch.pmNote = pmNote;
+        const amStepOrder = parseOptionalStepField(
+          body.amStepOrder,
+          "amStepOrder",
+        );
+        if (amStepOrder !== undefined) patch.amStepOrder = amStepOrder;
+        const pmStepOrder = parseOptionalStepField(
+          body.pmStepOrder,
+          "pmStepOrder",
+        );
+        if (pmStepOrder !== undefined) patch.pmStepOrder = pmStepOrder;
+      } catch (error: unknown) {
+        if (error instanceof RoutineProductValidationError) {
+          res.status(400).json({ error: error.message });
+          return;
+        }
+        throw error;
+      }
+
+      if (Object.keys(patch).length === 0) {
+        res.status(400).json({ error: "No valid fields to update" });
+        return;
+      }
+      const updated = await this.routineService.patchRoutineProduct(
+        routineId,
+        productId,
+        patch,
+      );
+      if (!updated) {
+        res.status(404).json({ error: "Routine product not found" });
+        return;
+      }
+      res.json(updated);
+    } catch (error: unknown) {
+      handleInternalError(res, "RoutineController.patchRoutineProduct", error);
+    }
+  }
+
   // POST /api/routines/bulk - Create routine with products in bulk
   async createRoutineBulk(req: Request, res: Response): Promise<void> {
     try {
@@ -497,15 +703,29 @@ export class RoutineController {
       }
       const body = (req.body ?? {}) as Record<string, unknown>;
       const routine = await this.routineService.createRoutineWithProducts({
-        name: typeof body.name === "string" ? body.name : "",
+        name:
+          typeof body.name === "string"
+            ? truncateRoutineText(body.name.trim(), MAX_ROUTINE_NAME_LENGTH)
+            : "",
         description:
-          typeof body.description === "string" ? body.description : undefined,
+          typeof body.description === "string"
+            ? truncateRoutineText(
+                body.description,
+                MAX_ROUTINE_DESCRIPTION_LENGTH,
+              )
+            : undefined,
         userId,
         skinTypeTags: body.skinTypeTags,
-        items: Array.isArray(body.items) ? body.items : [],
+        items: Array.isArray(body.items)
+          ? (body.items as AddRoutineProductInput[])
+          : [],
       });
       res.status(201).json(routine);
     } catch (error: unknown) {
+      if (error instanceof RoutineProductValidationError) {
+        res.status(400).json({ error: error.message });
+        return;
+      }
       handleInternalError(res, "RoutineController.createRoutineBulk", error);
     }
   }

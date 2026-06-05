@@ -1,19 +1,51 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
-import { Copy, Plus, ExternalLink, X, Book } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
+import { Copy, Plus, ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useBuilderRoutine } from "@/hooks/useBuilderRoutine";
-import { useBuilderNotes } from "@/hooks/useBuilderNotes";
+import { useBuilderProductNotes } from "@/hooks/useBuilderProductNotes";
+import {
+  assertRoutineSaveItemsValid,
+  buildRoutineSaveItems,
+} from "@/lib/buildRoutineSaveItems";
 import type { SkinType } from "@/types/product";
 import RoutineSkinTypeTagPicker from "@/components/routine/RoutineSkinTypeTagPicker";
 import BuilderSkeleton from "@/components/routine/BuilderSkeleton";
-
+import BuilderProductNotesSection from "@/components/routine/BuilderProductNotesSection";
 import SaveRoutineModal from "@/components/routine/SaveRoutineModal";
+import { createRoutine } from "@/lib/routines";
+import type { ProductCategory } from "@/types/product";
+
+function AddCategoryProductLink({
+  categoryId,
+  label,
+  className = "",
+}: {
+  categoryId: ProductCategory;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <Link
+      href={`/products/category/${categoryId}`}
+      className={`inline-flex items-center gap-1.5 pl-16 md:pl-20 text-sm text-zinc-500 hover:text-zinc-800 transition-colors ${className}`}
+    >
+      <Plus size={14} strokeWidth={2.5} aria-hidden />
+      <span className="font-medium capitalize">Select {label}</span>
+    </Link>
+  );
+}
 
 export default function Builder() {
   const {
@@ -23,20 +55,106 @@ export default function Builder() {
     clearRoutine,
   } = useBuilderRoutine();
   const {
-    notes,
+    entries: noteEntries,
     isLoaded: notesLoaded,
-    updateNote,
-    addNote,
-    removeNote,
-    clearNotes,
-  } = useBuilderNotes();
+    morningNotes,
+    eveningNotes,
+    addProductNote,
+    updateProductNote,
+    removeProductNote,
+    removeNotesForProduct,
+    clearProductNotes,
+  } = useBuilderProductNotes();
 
-  const [savedRoutineId, setSavedRoutineId] = useState<number | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const routineProductOptions = useMemo(
+    () =>
+      routine.flatMap((slot) =>
+        slot.products.map((product) => ({
+          product,
+          category: slot.id,
+        })),
+      ),
+    [routine],
+  );
+
+  const modalProducts = useMemo(() => {
+    const seen = new Set<number>();
+    return routineProductOptions
+      .filter(({ product }) => {
+        if (seen.has(product.id)) return false;
+        seen.add(product.id);
+        return true;
+      })
+      .map(({ product, category }) => ({
+        productId: product.id,
+        name: product.name,
+        brand: product.brand,
+        category,
+      }));
+  }, [routineProductOptions]);
+
+  const saveItems = useMemo(
+    () => buildRoutineSaveItems(routine, noteEntries),
+    [routine, noteEntries],
+  );
+
+  const handleAddProductNote = useCallback(
+    (
+      productId: number,
+      category: (typeof routineProductOptions)[0]["category"],
+      timeOfDay: "AM" | "PM",
+      userNote: string,
+    ) => {
+      const match = routineProductOptions.find(
+        (o) => o.product.id === productId,
+      );
+      if (!match) return;
+      addProductNote(match.product, category, timeOfDay, userNote);
+    },
+    [routineProductOptions, addProductNote],
+  );
+
+  const handleRemoveProduct = useCallback(
+    (category: (typeof routine)[0]["id"], productId: number) => {
+      removeProductFromSlot(category, productId);
+      removeNotesForProduct(productId);
+    },
+    [removeProductFromSlot, removeNotesForProduct],
+  );
+
   const [skinTypeTags, setSkinTypeTags] = useState<SkinType[]>([]);
   const { data: session } = authClient.useSession(); // session data
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [, startSaveTransition] = useTransition(); // lowers priority update so UI is responsive (laggy since so much is being pushed.)
+
+  const handleCloseSaveModal = useCallback(() => setIsModalOpen(false), []);
+
+  const handleSaveRoutine = useCallback(
+    async ({
+      name,
+      description,
+      skinTypeTags: tags,
+    }: {
+      name: string;
+      description: string;
+      skinTypeTags: SkinType[];
+    }) => {
+      const items = buildRoutineSaveItems(routine, noteEntries);
+      assertRoutineSaveItemsValid(items);
+      const response = await createRoutine({
+        name,
+        description,
+        skinTypeTags: tags,
+        items,
+      });
+      clearRoutine();
+      clearProductNotes();
+      setSkinTypeTags([]);
+      return response.id;
+    },
+    [routine, noteEntries, clearRoutine, clearProductNotes],
+  );
 
   const toggleSkinTypeTag = (tag: SkinType) => {
     setSkinTypeTags((prev) =>
@@ -44,27 +162,20 @@ export default function Builder() {
     );
   };
 
-  const handleInitialSave = async () => {
+  const handleInitialSave = () => {
     if (!session) {
       alert("Please log in to save your routine."); // Update with Toaster
       router.push("/login");
       return;
     }
-    setIsModalOpen(true);
-  };
-
-  const copyLink = () => {
-    if (typeof window !== "undefined") {
-      const url = savedRoutineId
-        ? `${window.location.origin}/routine/${savedRoutineId}`
-        : `${window.location.origin}`;
-      navigator.clipboard.writeText(url);
-      // You could add a toast notification here
+    try {
+      assertRoutineSaveItemsValid(saveItems);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Cannot save an empty routine.");
+      return;
     }
+    startSaveTransition(() => setIsModalOpen(true));
   };
-  const formattedProducts = routine.flatMap((slot) =>
-    slot.products.map((p) => ({ productId: p.id, category: slot.id })),
-  );
 
   const totalPrice = routine.reduce(
     (acc, step) => acc + step.products.reduce((s, p) => s + (p.price || 0), 0),
@@ -90,23 +201,22 @@ export default function Builder() {
           </h1>
 
           {/* External Link */}
-          <div className="flex items-center bg-white border border-zinc-200 rounded-md overflow-hidden shadow-sm max-w-2xl w-full md:w-auto">
+          <div className="flex items-center bg-white border border-zinc-200 rounded-md overflow-hidden shadow-sm max-w-lg w-full md:w-auto">
             <div className="bg-zinc-50 px-3 py-2 border-r border-zinc-200 text-zinc-400">
               <ExternalLink size={16} />
             </div>
             <input
               readOnly
-              value={
-                typeof window !== "undefined"
-                  ? savedRoutineId
-                    ? `${window.location.origin}/routine/${savedRoutineId}`
-                    : window.location.href
-                  : ""
-              }
-              className="px-3 py-2 text-sm text-zinc-600 outline-none w-full md:w-72 bg-transparent"
+              value={typeof window !== "undefined" ? window.location.href : ""}
+              className="px-3 py-2 text-sm text-zinc-600 outline-none w-full md:w-64 bg-transparent"
             />
             <button
-              onClick={copyLink}
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  navigator.clipboard.writeText(window.location.href);
+                }
+              }}
               className="px-4 py-2 hover:bg-zinc-50 border-l border-zinc-200 transition-colors"
             >
               <Copy size={16} className="text-zinc-500 hover:text-black" />
@@ -118,8 +228,8 @@ export default function Builder() {
         <div className="hidden md:grid grid-cols-12 gap-4 text-zinc-500 font-bold uppercase text-xs border-b border-zinc-200 px-2 pb-2 mb-2">
           <div className="col-span-2">Category</div>
           <div className="col-span-7">Product Selection</div>
-          <div className="col-span-2">Merchant</div>
-          <div className="col-span-1 text-right">Price</div>
+          <div className="col-span-1 text-center">Seller</div>
+          <div className="col-span-2 text-right">Price</div>
         </div>
 
         {/* Builder */}
@@ -128,19 +238,26 @@ export default function Builder() {
             <div
               key={step.id}
               className={`
-              group bg-white rounded-xl border border-zinc-200 shadow-sm p-4 grid grid-cols-1 gap-4 items-center transition-all hover:bg-zinc-50/50
-              md:bg-transparent md:rounded-none md:border-0 md:border-b md:border-zinc-200 md:shadow-none md:px-2 md:py-5 md:grid-cols-12 
+              group bg-white rounded-xl border border-zinc-200 shadow-sm p-4 grid grid-cols-1 gap-4 transition-all hover:bg-zinc-50/50
+              md:bg-transparent md:rounded-none md:border-0 md:border-b md:border-zinc-200 md:shadow-none md:px-2 md:py-5 md:grid-cols-12 md:gap-y-4 md:items-center
               `}
             >
               {/* Category Label */}
-              <div className="col-span-1 md:col-span-2 flex justify-between md:block">
+              <div
+                className="col-span-1 md:col-span-2 flex justify-between md:block md:self-start"
+                style={
+                  step.products.length > 0
+                    ? { gridRow: `span ${step.products.length}` }
+                    : undefined
+                }
+              >
                 <Link href={`/products/category/${step.id}`}>
                   <span className="font-bold text-zinc-900 uppercase text-sm md:text-xs tracking-wide hover:text-zinc-500 transition-colors">
                     {step.label}
                   </span>
                 </Link>
                 {/* Mobile Price Display */}
-                {step.products && step.products.length > 0 && (
+                {step.products.length > 0 && (
                   <span className="md:hidden font-bold text-zinc-900">
                     $
                     {step.products
@@ -150,13 +267,14 @@ export default function Builder() {
                 )}
               </div>
 
-              {/* Selection Area */}
-              <div className="col-span-1 md:col-span-7">
-                {step.products && step.products.length > 0 ? (
-                  // FILLED STATE (render multiple products)
-                  <div className="flex flex-col gap-4">
-                    {step.products.map((prod) => (
-                      <div key={prod.id} className="flex items-center gap-4">
+              {step.products.length > 0 ? (
+                <>
+                  {step.products.map((prod, productIndex) => (
+                    <div
+                      key={`${step.id}-${prod.id}-${productIndex}`}
+                      className="col-span-1 md:contents"
+                    >
+                      <div className="flex items-center gap-4 md:col-span-7 md:col-start-3">
                         <div className="w-12 h-12 md:w-16 md:h-16 bg-zinc-100 rounded-md border border-zinc-200 shrink-0 overflow-hidden">
                           {prod.imageUrls && prod.imageUrls[0] ? (
                             <Image
@@ -182,7 +300,6 @@ export default function Builder() {
                           >
                             {prod.name}
                           </Link>
-                          {/* Mobile Merchant Display */}
                           <div className="md:hidden text-xs text-zinc-500 mt-1 flex items-center gap-1">
                             via {prod.merchant || "Unknown"}{" "}
                             <ExternalLink size={10} />
@@ -191,91 +308,80 @@ export default function Builder() {
 
                         <div className="shrink-0">
                           <button
+                            type="button"
                             onClick={() =>
-                              removeProductFromSlot(step.id, prod.id)
+                              handleRemoveProduct(step.id, prod.id)
                             }
-                            className={`top-2 right-2 group-hover:block p-2 text-zinc-300 hover:text-red-500 transition-colors md:relative md:top-auto md:right-auto`}
+                            className="top-2 right-2 group-hover:block p-2 text-zinc-300 hover:text-red-500 transition-colors md:relative md:top-auto md:right-auto"
                           >
                             <X size={16} />
                           </button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  // EMPTY STATE (Dashed Slot)
-                  <Link href={`/products/category/${step.id}`}>
-                    <div className="w-full h-14 md:h-16 border-2 border-dashed border-zinc-300 rounded-lg flex items-center justify-center gap-2 text-zinc-400 hover:border-zinc-400 hover:text-zinc-600 hover:bg-zinc-50 transition-all cursor-pointer">
-                      <Plus size={18} />
-                      <span className="font-medium text-sm">
-                        Select {step.label}
-                      </span>
+
+                      <div className="hidden md:flex md:col-span-1 items-center justify-center">
+                        <div className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm">
+                          {prod.merchantLogo &&
+                          prod.merchantLogo.startsWith("http") ? (
+                            <Image
+                              src={prod.merchantLogo}
+                              alt={prod.merchant || "Merchant"}
+                              width={20}
+                              height={20}
+                              className="object-cover rounded-sm"
+                              sizes="(max-width: 1200px) 50vw, 33vw"
+                            />
+                          ) : (
+                            <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">
+                              ?
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="hidden md:block md:col-span-2 text-right text-lg font-bold text-zinc-900">
+                        ${(prod.price || 0).toFixed(2)}
+                      </div>
                     </div>
-                  </Link>
-                )}
-              </div>
+                  ))}
 
-              {/* Merchant Column (Desktop Only) */}
-              <div className="hidden md:flex col-span-2 items-center">
-                {step.products && step.products.length > 0 && (
-                  <div className="flex flex-col gap-8">
-                    {step.products.map((prod) => (
-                      <div
-                        key={prod.id}
-                        className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm"
-                      >
-                        {prod.merchantLogo &&
-                        prod.merchantLogo.startsWith("http") ? (
-                          <Image
-                            src={prod.merchantLogo}
-                            alt={prod.merchant || "Merchant"}
-                            width={20}
-                            height={20}
-                            className="object-cover rounded-sm"
-                            sizes="(max-width: 1200px) 50vw, 33vw"
-                          />
-                        ) : (
-                          <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">
-                            ?
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                  <div className="col-span-1 md:col-span-7 md:col-start-3">
+                    <AddCategoryProductLink
+                      categoryId={step.id}
+                      label={step.label}
+                    />
                   </div>
-                )}
-              </div>
-
-              {/* Price Column (Desktop Only) */}
-              <div className="hidden md:block col-span-1 text-right">
-                {step.products && step.products.length > 0 ? (
-                  <div className="flex flex-col items-end gap-13">
-                    {step.products.map((p) => (
-                      <div
-                        key={p.id}
-                        className="text-lg font-bold text-zinc-900"
-                      >
-                        ${""}
-                        {(p.price || 0).toFixed(2)}
+                </>
+              ) : (
+                <>
+                  <div className="col-span-1 md:col-span-7">
+                    <Link href={`/products/category/${step.id}`}>
+                      <div className="w-full h-14 md:h-16 border-2 border-dashed border-zinc-300 rounded-lg flex items-center justify-center gap-2 text-zinc-400 hover:border-zinc-400 hover:text-zinc-600 hover:bg-zinc-50 transition-all cursor-pointer">
+                        <Plus size={18} />
+                        <span className="font-medium text-sm">
+                          Select {step.label}
+                        </span>
                       </div>
-                    ))}
+                    </Link>
                   </div>
-                ) : (
-                  <span className="text-zinc-200 font-medium">---</span>
-                )}
-              </div>
+                  <div className="hidden md:block md:col-span-1" />
+                  <div className="hidden md:block md:col-span-2 text-right">
+                    <span className="text-zinc-200 font-medium">---</span>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
-
         <div
           className={`
-          bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-4 z-20 px-6 py-4
+          bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-8 z-20 px-6 py-4
           lg:top-20 lg:bottom-auto lg:shadow-sm 
           `}
         >
           <div className="mb-4">
             <div className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
-              Skin type tags
+              Skin Type for this Routine
             </div>
             <RoutineSkinTypeTagPicker
               value={skinTypeTags}
@@ -298,137 +404,30 @@ export default function Builder() {
               <Button
                 variant="secondary"
                 onClick={handleInitialSave}
-                disabled={isSaving || totalItems === 0}
+                disabled={totalItems === 0}
               >
                 Save
               </Button>
-              <SaveRoutineModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                routineData={formattedProducts}
-                notesData={notes}
-                skinTypeTags={skinTypeTags}
-                // This is the bridge! The modal calls this when it finishes successfully.
-                onSuccess={() => {
-                  clearRoutine(); // Wipes builder local storage
-                  clearNotes(); // Wipes notes local storage
-                  setSkinTypeTags([]);
-                }}
-              />
+              {isModalOpen && (
+                <SaveRoutineModal
+                  isOpen
+                  onClose={handleCloseSaveModal}
+                  skinTypeTags={skinTypeTags}
+                  onSave={handleSaveRoutine}
+                />
+              )}
             </div>
           </div>
         </div>
 
-        {/* User instructions card */}
-        <div className="mt-12 bg-white rounded-xl shadow-sm border border-zinc-200 p-8">
-          <h3 className="text-lg font-bold text-zinc-900 mb-6 flex items-center gap-2">
-            <Book size={20} /> Users Notes:
-          </h3>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Morning Notes */}
-            <div>
-              <div className="flex items-center gap-2 mb-4 text-amber-500 font-bold uppercase text-xs tracking-wider">
-                <div className="w-2 h-2 rounded-full bg-amber-500" /> Morning
-              </div>
-              <ol className="relative border-l border-zinc-200 ml-3 space-y-6">
-                {notes.morning.map((note, index) => (
-                  <li key={index} className="ml-6">
-                    <span className="absolute -left-1.5 w-3 h-3 bg-zinc-200 rounded-full mt-1.5 ring-4 ring-white" />
-                    <input
-                      type="text"
-                      value={note.title}
-                      onChange={(e) =>
-                        updateNote("morning", index, "title", e.target.value)
-                      }
-                      className="font-bold text-zinc-900 text-sm w-full bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
-                      placeholder="Note title"
-                    />
-                    <textarea
-                      value={note.description}
-                      onChange={(e) =>
-                        updateNote(
-                          "morning",
-                          index,
-                          "description",
-                          e.target.value,
-                        )
-                      }
-                      className="text-sm text-zinc-500 mt-1 w-full bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 rounded px-1 resize-none"
-                      placeholder="Note description"
-                      rows={2}
-                    />
-                    <button
-                      onClick={() => removeNote("morning", index)}
-                      className="mt-2 text-xs text-red-500 hover:text-red-700"
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-                <li className="ml-6">
-                  <button
-                    onClick={() => addNote("morning")}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    + Add Note
-                  </button>
-                </li>
-              </ol>
-            </div>
-
-            {/* Evening Notes */}
-            <div>
-              <div className="flex items-center gap-2 mb-4 text-violet-500 font-bold uppercase text-xs tracking-wider">
-                <div className="w-2 h-2 rounded-full bg-violet-500" /> Night
-              </div>
-              <ol className="relative border-l border-zinc-200 ml-3 space-y-6">
-                {notes.evening.map((note, index) => (
-                  <li key={index} className="ml-6">
-                    <span className="absolute -left-1.5 w-3 h-3 bg-zinc-200 rounded-full mt-1.5 ring-4 ring-white" />
-                    <input
-                      type="text"
-                      value={note.title}
-                      onChange={(e) =>
-                        updateNote("evening", index, "title", e.target.value)
-                      }
-                      className="font-bold text-zinc-900 text-sm w-full bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
-                      placeholder="Note title"
-                    />
-                    <textarea
-                      value={note.description}
-                      onChange={(e) =>
-                        updateNote(
-                          "evening",
-                          index,
-                          "description",
-                          e.target.value,
-                        )
-                      }
-                      className="text-sm text-zinc-500 mt-1 w-full bg-transparent border-none outline-none focus:ring-2 focus:ring-blue-500 rounded px-1 resize-none"
-                      placeholder="Note description"
-                      rows={2}
-                    />
-                    <button
-                      onClick={() => removeNote("evening", index)}
-                      className="mt-2 text-xs text-red-500 hover:text-red-700"
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-                <li className="ml-6">
-                  <button
-                    onClick={() => addNote("evening")}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    + Add Note
-                  </button>
-                </li>
-              </ol>
-            </div>
-          </div>
-        </div>
+        <BuilderProductNotesSection
+          modalProducts={modalProducts}
+          morningNotes={morningNotes}
+          eveningNotes={eveningNotes}
+          onAddNote={handleAddProductNote}
+          onUpdateNote={updateProductNote}
+          onRemoveNote={removeProductNote}
+        />
       </div>
     </div>
   );

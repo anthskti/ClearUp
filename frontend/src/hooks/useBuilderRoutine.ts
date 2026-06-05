@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { Product, ProductCategory } from "@/types/product";
 import { getMerchantsByProductId, pickLowestPriceOffer } from "@/lib/products";
+import {
+  expandStoredRoutine,
+  normalizeStoredSlots,
+  slimRoutineForStorage,
+} from "@/lib/slimBuilderRoutineStorage";
 
 export interface RoutineSlot {
   id: ProductCategory;
@@ -26,8 +31,21 @@ const ROUTINE_SLOTS: RoutineSlot[] = [
 
 const STORAGE_KEY = "builder-routine";
 
+function createEmptyRoutine(): RoutineSlot[] {
+  return ROUTINE_SLOTS.map((slot) => ({ ...slot, products: [] }));
+}
+
+// Deduplicate products by ID for hydration
+function dedupeProductsById<T extends { id: number }>(products: T[]): T[] {
+  const seen = new Set<number>();
+  return products.filter((p) => {
+    if (seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
+  });
+}
+
 export const useBuilderRoutine = () => {
-  const [routineName, setRoutineName] = useState<string>("My Skincare Routine");
   const [routine, setRoutine] = useState<RoutineSlot[]>(ROUTINE_SLOTS);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -38,14 +56,12 @@ export const useBuilderRoutine = () => {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          // Backwards compat: if older data has `product` (single), convert to `products` array
-          const normalized: RoutineSlot[] = parsed.map((slot: any) => {
-            if (slot.products) return slot;
-            if (slot.product && slot.product !== null) {
-              return { ...slot, products: [slot.product] };
-            }
-            return { ...slot, products: [] };
-          });
+          const normalized = expandStoredRoutine(normalizeStoredSlots(parsed)).map(
+            (slot) => ({
+              ...slot,
+              products: dedupeProductsById(slot.products),
+            }),
+          );
           setRoutine(normalized);
         } catch (e) {
           console.error("Failed to parse saved routine", e);
@@ -55,10 +71,20 @@ export const useBuilderRoutine = () => {
     }
   }, []);
 
-  // Save to localStorage whenever routine changes
   useEffect(() => {
-    if (isLoaded && typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(routine));
+    if (!isLoaded || typeof window === "undefined") return;
+    const hasProducts = routine.some((slot) => slot.products.length > 0);
+    try {
+      if (!hasProducts) {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(slimRoutineForStorage(routine)),
+      );
+    } catch (e) {
+      console.error("Failed to persist builder routine", e);
     }
   }, [routine, isLoaded]);
 
@@ -159,10 +185,7 @@ export const useBuilderRoutine = () => {
   );
 
   const clearRoutine = useCallback(() => {
-    setRoutine(ROUTINE_SLOTS);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    setRoutine(createEmptyRoutine());
   }, []);
 
   // Listen for products added from other pages

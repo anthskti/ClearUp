@@ -13,13 +13,14 @@ interface PageProps {
 }
 
 export const metadata: Metadata = {
-  title: "All Products | ClearUp",
-  description: "Browse the full ClearUp product catalog.",
+  title: "All Products | Clearup",
+  description: "Browse the full Clearup product catalog.",
 };
 
 export default async function AllProductsPage({ searchParams }: PageProps) {
   const flatParams = flattenSearchParams(await searchParams);
-  const initialFilters = parseGlobalProductListFiltersFromSearchParams(flatParams);
+  const initialFilters =
+    parseGlobalProductListFiltersFromSearchParams(flatParams);
   const initialSearch = flatParams.search ?? "";
 
   const [productsPage, availableBrands] = await Promise.all([

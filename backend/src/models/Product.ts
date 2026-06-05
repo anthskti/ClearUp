@@ -2,6 +2,8 @@
 
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../db";
+import { PRODUCT_CATEGORY_VALUES } from "../config/productCategories";
+
 
 interface ProductAttributes {
   id: number;
@@ -60,16 +62,7 @@ Product.init(
     name: { type: DataTypes.STRING, allowNull: false },
     brand: { type: DataTypes.STRING, allowNull: false },
     category: {
-      type: DataTypes.ENUM(
-        "cleanser",
-        "toner",
-        "essence",
-        "serum",
-        // "eye-cream",
-        "moisturizer",
-        "sunscreen",
-        "other"
-      ),
+      type: DataTypes.ENUM(...PRODUCT_CATEGORY_VALUES),
       allowNull: false,
     },
     labels: {

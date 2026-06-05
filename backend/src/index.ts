@@ -62,6 +62,14 @@ const createStrictLimiter = rateLimit({
   message: "You are creating too many routines. Please wait a while.",
 });
 
+const routineMutateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many routine updates. Please try again later.",
+});
+
 app.use(
   compression({
     level: 6, // Balance between speed and compression (1-9)
@@ -97,6 +105,9 @@ app.use(
   (req, res, next) => {
     if (req.method === "POST") {
       return createStrictLimiter(req, res, next);
+    }
+    if (["PUT", "PATCH", "DELETE"].includes(req.method)) {
+      return routineMutateLimiter(req, res, next);
     }
     next();
   },

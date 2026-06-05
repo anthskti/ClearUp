@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { mutationHeaders } from "@/lib/mutationHeaders";
 import type { RoutineWithProducts, FeaturedRoutine } from "@/types/routine";
 import type { AdminDashboardStats } from "@/types/routine-admin";
 import type { AdminUsersPagePayload } from "@/types/admin";
@@ -19,9 +20,14 @@ async function fetchWithCookies(
   init?: RequestInit,
 ): Promise<Response> {
   const cookie = await cookieHeader();
+  const method = init?.method?.toUpperCase() ?? "GET";
+  const needsMutationHeader = ["POST", "PUT", "PATCH", "DELETE"].includes(
+    method,
+  );
   return fetch(`${API_URL}${path}`, {
     ...init,
     headers: {
+      ...(needsMutationHeader ? mutationHeaders() : {}),
       ...init?.headers,
       cookie,
     },

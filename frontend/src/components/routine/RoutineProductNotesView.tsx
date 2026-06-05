@@ -6,7 +6,7 @@ import RoutineNoteItemHeader from "./RoutineNoteItemHeader";
 
 function sortNotes(notes: RoutineNoteDisplay[], timeOfDay: TimeOfDay) {
   return notes
-    .filter((n) => n.timeOfDay === timeOfDay && n.userNote.trim())
+    .filter((n) => n.timeOfDay === timeOfDay)
     .sort((a, b) => a.stepOrder - b.stepOrder);
 }
 
@@ -41,9 +41,11 @@ function NoteColumn({
               productBrand={note.productBrand}
               category={note.category}
             />
-            <p className="text-sm text-zinc-600 whitespace-pre-wrap">
-              {note.userNote}
-            </p>
+            {note.userNote.trim() ? (
+              <p className="text-sm text-zinc-600 whitespace-pre-wrap">
+                {note.userNote}
+              </p>
+            ) : null}
           </li>
         ))}
       </ol>
@@ -66,9 +68,13 @@ export default function RoutineProductNotesView({
 
   return (
     <div className="mt-12 bg-white rounded-xl shadow-sm border border-zinc-200 p-8">
-      <h3 className="text-lg font-bold text-zinc-900 mb-6 flex items-center gap-2">
+      <h3 className="text-lg font-bold text-zinc-900 mb-2 flex items-center gap-2">
         <Book size={20} /> Usage notes
       </h3>
+      <p className="text-sm text-zinc-500 mb-6">
+        Optional tips for how products are used. All products in this routine
+        are listed above, even when they do not have a note here.
+      </p>
       <div className="grid md:grid-cols-2 gap-8">
         <NoteColumn
           title="Morning"

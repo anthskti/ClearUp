@@ -1,73 +1,54 @@
-import type { RoutineNoteDisplay, RoutineProductInput } from "@/types/builder";
+import type {
+  BuilderProductNoteEntry,
+  RoutineNoteDisplay,
+  RoutineProductInput,
+} from "@/types/builder";
 import type { ProductCategory } from "@/types/product";
-import type { RoutineProductWithDetails } from "@/types/routine";
+import type { RoutineProductWithDetails, TimeOfDay } from "@/types/routine";
 
 type GridSlot = {
   id: ProductCategory;
   products: Array<{ id: number }>;
 };
 
-/**
- * Merge PCPartPicker grid + product-linked notes into API junction rows.
- * Same product can appear twice (AM + PM) when it has notes for both.
- * Grid-only products get a single AM row with null userNote.
- */
-export function buildRoutineSaveItems(
+function categoryByProductFromGrid(
   routine: GridSlot[],
-  notes: RoutineNoteDisplay[],
-): RoutineProductInput[] {
-  const categoryByProductId = new Map<number, ProductCategory>();
+): Map<number, ProductCategory> {
+  const map = new Map<number, ProductCategory>();
   for (const slot of routine) {
     for (const product of slot.products) {
-      categoryByProductId.set(product.id, slot.id);
+      map.set(product.id, slot.id);
     }
   }
+  return map;
+}
 
+// One API row per grid product; optional AM/PM notes on the same row.
+export function buildRoutineSaveItems(
+  routine: GridSlot[],
+  noteEntries: BuilderProductNoteEntry[],
+): RoutineProductInput[] {
+  const notesByProduct = new Map(
+    noteEntries.map((entry) => [entry.productId, entry]),
+  );
+  const gridCategory = categoryByProductFromGrid(routine);
   const items: RoutineProductInput[] = [];
-  const amNotes = notes
-    .filter((n) => n.timeOfDay === "AM")
-    .sort((a, b) => a.stepOrder - b.stepOrder);
-  const pmNotes = notes
-    .filter((n) => n.timeOfDay === "PM")
-    .sort((a, b) => a.stepOrder - b.stepOrder);
+  const seen = new Set<number>();
 
-  let amStep = 0;
-  for (const note of amNotes) {
-    const category = categoryByProductId.get(note.productId);
-    if (!category) continue;
-    items.push({
-      productId: note.productId,
-      category,
-      timeOfDay: "AM",
-      stepOrder: ++amStep,
-      userNote: note.userNote.trim() || null,
-    });
-  }
-
-  let pmStep = 0;
-  for (const note of pmNotes) {
-    const category = categoryByProductId.get(note.productId);
-    if (!category) continue;
-    items.push({
-      productId: note.productId,
-      category,
-      timeOfDay: "PM",
-      stepOrder: ++pmStep,
-      userNote: note.userNote.trim() || null,
-    });
-  }
-
-  for (const [productId, category] of categoryByProductId) {
-    const hasAm = items.some(
-      (i) => i.productId === productId && i.timeOfDay === "AM",
-    );
-    if (!hasAm) {
+  for (const slot of routine) {
+    for (const product of slot.products) {
+      if (seen.has(product.id)) continue;
+      seen.add(product.id);
+      const entry = notesByProduct.get(product.id);
+      const amText = entry?.amNote.trim() || null;
+      const pmText = entry?.pmNote.trim() || null;
       items.push({
-        productId,
-        category,
-        timeOfDay: "AM",
-        stepOrder: ++amStep,
-        userNote: null,
+        productId: product.id,
+        category: gridCategory.get(product.id) ?? slot.id,
+        amNote: amText,
+        pmNote: pmText,
+        amStepOrder: entry?.amStepOrder ?? null,
+        pmStepOrder: entry?.pmStepOrder ?? null,
       });
     }
   }
@@ -75,23 +56,67 @@ export function buildRoutineSaveItems(
   return items;
 }
 
-// Map saved routine_products → note display rows (junction category = grid slot). 
+// Client-side guard before POST /bulk — avoids empty create hitting the server.
+export function assertRoutineSaveItemsValid(
+  items: RoutineProductInput[],
+): void {
+  if (!items.length) {
+    throw new Error("Add at least one product before saving your routine.");
+  }
+}
+
+function pushNoteFromRow(
+  rows: RoutineNoteDisplay[],
+  rp: RoutineProductWithDetails,
+  timeOfDay: TimeOfDay,
+  userNote: string,
+  stepOrder: number,
+): void {
+  if (!rp.product) return;
+  rows.push({
+    productId: rp.productId,
+    timeOfDay,
+    stepOrder,
+    userNote,
+    productName: rp.product.name,
+    productBrand: rp.product.brand,
+    category: rp.category,
+  });
+}
+
+// Expand flat junction rows into AM/PM note display entries.
+export function hydrateRoutineProductNotesFromApi(
+  products: RoutineProductWithDetails[],
+): RoutineNoteDisplay[] {
+  const rows: RoutineNoteDisplay[] = [];
+  for (const rp of products) {
+    if (rp.amStepOrder != null) {
+      pushNoteFromRow(
+        rows,
+        rp,
+        "AM",
+        rp.amNote?.trim() ?? "",
+        rp.amStepOrder,
+      );
+    }
+    if (rp.pmStepOrder != null) {
+      pushNoteFromRow(
+        rows,
+        rp,
+        "PM",
+        rp.pmNote?.trim() ?? "",
+        rp.pmStepOrder,
+      );
+    }
+  }
+  return rows.sort((a, b) => {
+    if (a.timeOfDay !== b.timeOfDay) return a.timeOfDay === "AM" ? -1 : 1;
+    return a.stepOrder - b.stepOrder;
+  });
+}
+
 export function hydrateProductNotesFromApi(
   products: RoutineProductWithDetails[],
 ): RoutineNoteDisplay[] {
-  return products
-    .filter((rp) => rp.userNote?.trim() && rp.product)
-    .sort((a, b) => {
-      if (a.timeOfDay !== b.timeOfDay) return a.timeOfDay === "AM" ? -1 : 1;
-      return a.stepOrder - b.stepOrder;
-    })
-    .map((rp) => ({
-      productId: rp.productId,
-      timeOfDay: rp.timeOfDay,
-      stepOrder: rp.stepOrder,
-      userNote: rp.userNote ?? "",
-      productName: rp.product!.name,
-      productBrand: rp.product!.brand,
-      category: rp.category,
-    }));
+  return hydrateRoutineProductNotesFromApi(products);
 }

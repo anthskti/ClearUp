@@ -1,24 +1,24 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { hydrateProductNotesFromApi } from "@/lib/buildRoutineSaveItems";
-import { updateRoutineProductsById } from "@/lib/routines";
-import type { RoutineNoteDisplay, RoutineProductInput } from "@/types/builder";
+import { hydrateRoutineProductNotesFromApi } from "@/lib/buildRoutineSaveItems";
+import { saveRoutineNotes } from "@/lib/routines";
+import type { RoutineNoteDisplay } from "@/types/builder";
 import type { ProductCategory } from "@/types/product";
-import type { RoutineProductWithDetails, TimeOfDay } from "@/types/routine";
+import type {
+  RoutineNoteUpdate,
+  RoutineProductWithDetails,
+  TimeOfDay,
+} from "@/types/routine";
 import BuilderProductNotesSection from "./BuilderProductNotesSection";
 
 interface RoutineUsageNotesEditorProps {
   routineId: number;
   canEdit: boolean;
   initialProducts: RoutineProductWithDetails[];
-}
-
-function noteKey(productId: number, timeOfDay: TimeOfDay): string {
-  return `${productId}-${timeOfDay}`;
 }
 
 function reindexTimeBlock(
@@ -29,13 +29,13 @@ function reindexTimeBlock(
     .filter((n) => n.timeOfDay === timeOfDay)
     .sort((a, b) => a.stepOrder - b.stepOrder);
   const stepMap = new Map(
-    block.map((n, i) => [noteKey(n.productId, timeOfDay), i + 1]),
+    block.map((n, i) => [`${n.productId}-${timeOfDay}`, i + 1]),
   );
   return notes.map((n) =>
     n.timeOfDay === timeOfDay
       ? {
           ...n,
-          stepOrder: stepMap.get(noteKey(n.productId, timeOfDay)) ?? n.stepOrder,
+          stepOrder: stepMap.get(`${n.productId}-${timeOfDay}`) ?? n.stepOrder,
         }
       : n,
   );
@@ -43,6 +43,69 @@ function reindexTimeBlock(
 
 function normalizeNoteStepOrder(notes: RoutineNoteDisplay[]): RoutineNoteDisplay[] {
   return reindexTimeBlock(reindexTimeBlock(notes, "AM"), "PM");
+}
+
+function noteStateKey(productId: number, timeOfDay: TimeOfDay): string {
+  return `${productId}-${timeOfDay}`;
+}
+
+function buildNoteUpdates(
+  notes: RoutineNoteDisplay[],
+  initialProducts: RoutineProductWithDetails[],
+): RoutineNoteUpdate[] {
+  const notesByKey = new Map<string, RoutineNoteDisplay>();
+  for (const n of notes) {
+    notesByKey.set(noteStateKey(n.productId, n.timeOfDay), n);
+  }
+
+  const junctionByProductId = new Map<number, RoutineProductWithDetails>();
+  for (const rp of initialProducts) {
+    if (!junctionByProductId.has(rp.productId)) {
+      junctionByProductId.set(rp.productId, rp);
+    }
+  }
+
+  const updates: RoutineNoteUpdate[] = [];
+
+  for (const productId of junctionByProductId.keys()) {
+    const junction = junctionByProductId.get(productId)!;
+    const amRow = notesByKey.get(noteStateKey(productId, "AM"));
+    const pmRow = notesByKey.get(noteStateKey(productId, "PM"));
+
+    const nextAm = amRow ? amRow.userNote.trim() || null : null;
+    const nextPm = pmRow ? pmRow.userNote.trim() || null : null;
+    const nextAmStep = amRow?.stepOrder ?? null;
+    const nextPmStep = pmRow?.stepOrder ?? null;
+
+    const prevAm = junction.amNote?.trim() || null;
+    const prevPm = junction.pmNote?.trim() || null;
+    const prevAmStep = junction.amStepOrder;
+    const prevPmStep = junction.pmStepOrder;
+
+    const patch: RoutineNoteUpdate = { productId };
+    let changed = false;
+
+    if (nextAm !== prevAm) {
+      patch.amNote = nextAm;
+      changed = true;
+    }
+    if (nextAmStep !== prevAmStep) {
+      patch.amStepOrder = nextAmStep;
+      changed = true;
+    }
+    if (nextPm !== prevPm) {
+      patch.pmNote = nextPm;
+      changed = true;
+    }
+    if (nextPmStep !== prevPmStep) {
+      patch.pmStepOrder = nextPmStep;
+      changed = true;
+    }
+
+    if (changed) updates.push(patch);
+  }
+
+  return updates;
 }
 
 export default function RoutineUsageNotesEditor({
@@ -55,10 +118,15 @@ export default function RoutineUsageNotesEditor({
   const [error, setError] = useState("");
 
   const initialNotes = useMemo(
-    () => normalizeNoteStepOrder(hydrateProductNotesFromApi(initialProducts)),
+    () =>
+      normalizeNoteStepOrder(hydrateRoutineProductNotesFromApi(initialProducts)),
     [initialProducts],
   );
   const [notes, setNotes] = useState<RoutineNoteDisplay[]>(initialNotes);
+
+  useEffect(() => {
+    setNotes(initialNotes);
+  }, [initialNotes]);
 
   const productInfoById = useMemo(() => {
     const map = new Map<
@@ -77,23 +145,13 @@ export default function RoutineUsageNotesEditor({
   }, [initialProducts]);
 
   const modalProducts = useMemo(() => {
-    const seen = new Set<number>();
-    return initialProducts
-      .filter((rp) => {
-        if (!rp.product) return false;
-        if (seen.has(rp.productId)) return false;
-        seen.add(rp.productId);
-        return true;
-      })
-      .map((rp) => {
-        return {
-          productId: rp.productId,
-          name: rp.product!.name,
-          brand: rp.product!.brand,
-          category: rp.category,
-        };
-      });
-  }, [initialProducts]);
+    return [...productInfoById.entries()].map(([productId, info]) => ({
+      productId,
+      name: info.name,
+      brand: info.brand,
+      category: info.category,
+    }));
+  }, [productInfoById]);
 
   const morningNotes = useMemo(
     () =>
@@ -120,8 +178,8 @@ export default function RoutineUsageNotesEditor({
           userNote: n.userNote,
         }))
         .sort((a, b) =>
-          `${a.productId}-${a.timeOfDay}`.localeCompare(
-            `${b.productId}-${b.timeOfDay}`,
+          noteStateKey(a.productId, a.timeOfDay).localeCompare(
+            noteStateKey(b.productId, b.timeOfDay),
           ),
         );
     return (
@@ -139,10 +197,15 @@ export default function RoutineUsageNotesEditor({
       const info = productInfoById.get(productId);
       if (!info) return;
       setNotes((prev) => {
-        if (prev.some((n) => n.productId === productId && n.timeOfDay === timeOfDay)) {
+        if (
+          prev.some(
+            (n) => n.productId === productId && n.timeOfDay === timeOfDay,
+          )
+        ) {
           return prev;
         }
-        const stepOrder = prev.filter((n) => n.timeOfDay === timeOfDay).length + 1;
+        const stepOrder =
+          prev.filter((n) => n.timeOfDay === timeOfDay).length + 1;
         return reindexTimeBlock(
           [
             ...prev,
@@ -185,60 +248,14 @@ export default function RoutineUsageNotesEditor({
     });
   }, []);
 
-  const saveNotes = useCallback(async () => {
+  const handleSaveNotes = useCallback(async () => {
     if (!hasNoteChanges) return;
     setIsSaving(true);
     setError("");
     try {
-      const noteByKey = new Map(
-        notes.map((n) => [noteKey(n.productId, n.timeOfDay), n]),
-      );
-
-      // Preserve current routine lineup rows; only update userNote values.
-      const items: RoutineProductInput[] = initialProducts.map((rp) => {
-        const match = noteByKey.get(noteKey(rp.productId, rp.timeOfDay));
-        return {
-          productId: rp.productId,
-          category: rp.category,
-          timeOfDay: rp.timeOfDay,
-          stepOrder: rp.stepOrder,
-          userNote: match ? match.userNote.trim() || null : null,
-        };
-      });
-
-      // If a new AM/PM note was added for a missing row, append that row.
-      const existingKeys = new Set(
-        items.map((i) => noteKey(i.productId, i.timeOfDay ?? "AM")),
-      );
-      const maxStepByTime = {
-        AM: Math.max(
-          0,
-          ...items
-            .filter((i) => i.timeOfDay === "AM")
-            .map((i) => i.stepOrder ?? 0),
-        ),
-        PM: Math.max(
-          0,
-          ...items
-            .filter((i) => i.timeOfDay === "PM")
-            .map((i) => i.stepOrder ?? 0),
-        ),
-      };
-
-      for (const n of notes) {
-        const key = noteKey(n.productId, n.timeOfDay);
-        if (existingKeys.has(key)) continue;
-        maxStepByTime[n.timeOfDay] += 1;
-        items.push({
-          productId: n.productId,
-          category: n.category,
-          timeOfDay: n.timeOfDay,
-          stepOrder: maxStepByTime[n.timeOfDay],
-          userNote: n.userNote.trim() || null,
-        });
-      }
-
-      await updateRoutineProductsById(routineId, items);
+      const updates = buildNoteUpdates(notes, initialProducts);
+      if (updates.length === 0) return;
+      await saveRoutineNotes(routineId, updates);
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to update usage notes.");
@@ -253,17 +270,20 @@ export default function RoutineUsageNotesEditor({
     <div className="mt-8 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
       <div className="mb-4 flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-zinc-900">User Routine notes update</h3>
+          <h3 className="text-lg font-bold text-zinc-900">
+            Routine Product notes update
+          </h3>
           <p className="text-sm text-zinc-500">
-            Update your AM/PM product notes.
+            Add or edit usage notes for products in this routine. Use the buttons
+            below to pick a product.
           </p>
         </div>
         <Button
-          onClick={saveNotes}
+          onClick={handleSaveNotes}
           disabled={isSaving || !hasNoteChanges}
           variant="secondary"
         >
-            <Save className="mr-2 h-4 w-4" />
+          <Save className="mr-2 h-4 w-4" />
           Save notes
         </Button>
       </div>

@@ -5,24 +5,26 @@ import { createPortal } from "react-dom";
 import { X, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { SkinType } from "@/types/product";
-import type { RoutineProductInput } from "@/types/builder";
-import { createRoutine } from "@/lib/routines";
 import RoutineShareLink from "./RoutineShareLink";
+
+export type SaveRoutinePayload = {
+  name: string;
+  description: string;
+  skinTypeTags: SkinType[];
+};
 
 interface SaveRoutineModalProps {
   isOpen: boolean;
   onClose: () => void;
-  items: RoutineProductInput[];
   skinTypeTags: SkinType[];
-  onSuccess: () => void;
+  onSave: (payload: SaveRoutinePayload) => Promise<number>;
 }
 
 function SaveRoutineModal({
   isOpen,
   onClose,
-  items,
   skinTypeTags,
-  onSuccess,
+  onSave,
 }: SaveRoutineModalProps) {
   const [routineName, setRoutineName] = useState("");
   const [routineDescription, setRoutineDescription] = useState("");
@@ -35,6 +37,7 @@ function SaveRoutineModal({
   useEffect(() => {
     if (!isOpen) return;
     setRoutineName("");
+    setRoutineDescription("");
     setSavedRoutineId(null);
     setIsSaving(false);
   }, [isOpen]);
@@ -42,22 +45,23 @@ function SaveRoutineModal({
   const handleConfirmSave = useCallback(async () => {
     setIsSaving(true);
     try {
-      const response = await createRoutine({
+      const id = await onSave({
         name: routineName.trim() || "My Skincare Routine",
         description: routineDescription.trim() || "",
         skinTypeTags,
-        items,
       });
-
-      onSuccess();
-      setSavedRoutineId(response.id);
+      setSavedRoutineId(id);
     } catch (error) {
       console.error(error);
-      alert("An error occurred while saving.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "An error occurred while saving.",
+      );
     } finally {
       setIsSaving(false);
     }
-  }, [routineName, routineDescription, skinTypeTags, items, onSuccess]);
+  }, [routineName, routineDescription, skinTypeTags, onSave]);
 
   const handleCloseAfterSave = useCallback(() => {
     onClose();
@@ -123,12 +127,11 @@ function SaveRoutineModal({
             <textarea
               placeholder="inspired by glass skin, this routine..."
               value={routineDescription}
-              rows={2} 
+              rows={2}
               onChange={(e) => setRoutineDescription(e.target.value)}
               className="w-full text-sm p-2 border border-zinc-200 rounded-md mb-6 focus:outline-none focus:ring-2 focus:ring-black"
               disabled={isSaving}
             />
-            
 
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={onClose} disabled={isSaving}>

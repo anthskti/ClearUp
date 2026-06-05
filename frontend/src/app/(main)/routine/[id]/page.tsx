@@ -11,7 +11,7 @@ import {
 import DeleteRoutineButton from "@/components/routine/DeleteRoutineButton";
 import RoutineDetailsEditor from "@/components/routine/RoutineDetailsEditor";
 import RoutineProductNotesView from "@/components/routine/RoutineProductNotesView";
-import RoutineUsageNotesEditor from "@/components/routine/RoutineUsageNotesEditor";
+import RoutineProductsNotesEditor from "@/components/routine/RoutineProductsNotesEditor";
 import RoutineShareLink from "@/components/routine/RoutineShareLink";
 import { getEffectiveUser } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -84,16 +84,10 @@ export default async function ViewRoutine({ params }: RoutineProps) {
     effectiveUser?.id === routineData.userId || effectiveUser?.role === "admin";
 
   const finalRoutine = ROUTINE_SLOTS.map((slot) => {
-    const matchedItem =
-      routineProducts?.filter((p) => p.category === slot.id) || [];
-    const seen = new Set<number>();
-    const products = matchedItem
-      .map((item) => item.product)
-      .filter((p): p is NonNullable<typeof p> => {
-        if (!p || seen.has(p.id)) return false;
-        seen.add(p.id);
-        return true;
-      });
+    const products =
+      routineProducts
+        ?.filter((p) => p.category === slot.id && p.product)
+        .map((item) => item.product!) ?? [];
     return {
       ...slot,
       products,
@@ -380,7 +374,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
         </div>
 
         {canEditRoutine ? (
-          <RoutineUsageNotesEditor
+          <RoutineProductsNotesEditor
             routineId={routineData.id}
             canEdit={canEditRoutine}
             initialProducts={routineProducts}

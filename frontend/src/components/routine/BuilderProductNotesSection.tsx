@@ -119,8 +119,8 @@ function BuilderProductNotesSection({
           <Book size={20} /> User Routine notes
         </h3>
         <p className="text-sm text-zinc-500 mb-6">
-          Link notes to products already in your routine. The same product can
-          have separate morning and night notes (e.g. moisturizer).
+          Optional: add routine product notes for products you want to explain. Use the
+          buttons below to pick a product from your routine grid.
         </p>
 
         <div className="grid md:grid-cols-2 gap-8">

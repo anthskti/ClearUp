@@ -31,6 +31,10 @@ const ROUTINE_SLOTS: RoutineSlot[] = [
 
 const STORAGE_KEY = "builder-routine";
 
+function createEmptyRoutine(): RoutineSlot[] {
+  return ROUTINE_SLOTS.map((slot) => ({ ...slot, products: [] }));
+}
+
 // Deduplicate products by ID
 function dedupeProductsById<T extends { id: number }>(products: T[]): T[] {
   const seen = new Set<number>();
@@ -69,8 +73,16 @@ export const useBuilderRoutine = () => {
 
   useEffect(() => {
     if (!isLoaded || typeof window === "undefined") return;
+    const hasProducts = routine.some((slot) => slot.products.length > 0);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(slimRoutineForStorage(routine)));
+      if (!hasProducts) {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(slimRoutineForStorage(routine)),
+      );
     } catch (e) {
       console.error("Failed to persist builder routine", e);
     }
@@ -175,10 +187,7 @@ export const useBuilderRoutine = () => {
   );
 
   const clearRoutine = useCallback(() => {
-    setRoutine(ROUTINE_SLOTS);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    setRoutine(createEmptyRoutine());
   }, []);
 
   // Listen for products added from other pages

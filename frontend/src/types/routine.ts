@@ -18,16 +18,19 @@ export interface Routine {
   author?: RoutineAuthor;
 }
 
+// UI label for morning vs night note blocks. 
 export type TimeOfDay = "AM" | "PM";
 
+/** One row per product in a routine. */
 export interface RoutineProduct {
   id: number;
   routineId: number;
   productId: number;
   category: ProductCategory;
-  timeOfDay: TimeOfDay;
-  stepOrder: number;
-  userNote: string | null;
+  amNote: string | null;
+  pmNote: string | null;
+  amStepOrder: number | null;
+  pmStepOrder: number | null;
 }
 
 export type RoutineProductWithDetails = RoutineProduct & {
@@ -43,11 +46,20 @@ export type FeaturedRoutine = {
   name: string;
   description?: string;
   userId: string;
-  pinnedBy: string; // Diff
+  pinnedBy: string;
   author?: RoutineAuthor;
   skinTypeTags: SkinType[];
   previewImageUrls: string[];
   estimatedTotalPrice: number;
+};
+
+/** One product's AM/PM note fields for PATCH /routines/id/:id/notes. */
+export type RoutineNoteUpdate = {
+  productId: number;
+  amNote?: string | null;
+  pmNote?: string | null;
+  amStepOrder?: number | null;
+  pmStepOrder?: number | null;
 };
 
 export type GuideRoutine = {

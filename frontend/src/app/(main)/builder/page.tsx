@@ -15,12 +15,16 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useBuilderRoutine } from "@/hooks/useBuilderRoutine";
 import { useBuilderProductNotes } from "@/hooks/useBuilderProductNotes";
-import { buildRoutineSaveItems } from "@/lib/buildRoutineSaveItems";
+import {
+  assertRoutineSaveItemsValid,
+  buildRoutineSaveItems,
+} from "@/lib/buildRoutineSaveItems";
 import type { SkinType } from "@/types/product";
 import RoutineSkinTypeTagPicker from "@/components/routine/RoutineSkinTypeTagPicker";
 import BuilderSkeleton from "@/components/routine/BuilderSkeleton";
 import BuilderProductNotesSection from "@/components/routine/BuilderProductNotesSection";
 import SaveRoutineModal from "@/components/routine/SaveRoutineModal";
+import { createRoutine } from "@/lib/routines";
 import type { ProductCategory } from "@/types/product";
 
 function AddCategoryProductLink({
@@ -51,16 +55,15 @@ export default function Builder() {
     clearRoutine,
   } = useBuilderRoutine();
   const {
-    notes,
+    entries: noteEntries,
     isLoaded: notesLoaded,
+    morningNotes,
+    eveningNotes,
     addProductNote,
     updateProductNote,
     removeProductNote,
     removeNotesForProduct,
-    pruneNotesToProductIds,
     clearProductNotes,
-    morningNotes,
-    eveningNotes,
   } = useBuilderProductNotes();
 
   const routineProductOptions = useMemo(
@@ -90,19 +93,9 @@ export default function Builder() {
       }));
   }, [routineProductOptions]);
 
-  const routineProductIds = useMemo(
-    () => routine.flatMap((slot) => slot.products.map((p) => p.id)),
-    [routine],
-  );
-
-  useEffect(() => {
-    if (!routineLoaded || !notesLoaded) return;
-    pruneNotesToProductIds(routineProductIds);
-  }, [routineProductIds, routineLoaded, notesLoaded, pruneNotesToProductIds]);
-
   const saveItems = useMemo(
-    () => buildRoutineSaveItems(routine, notes),
-    [routine, notes],
+    () => buildRoutineSaveItems(routine, noteEntries),
+    [routine, noteEntries],
   );
 
   const handleAddProductNote = useCallback(
@@ -137,13 +130,31 @@ export default function Builder() {
 
   const handleCloseSaveModal = useCallback(() => setIsModalOpen(false), []);
 
-  const handleSaveSuccess = useCallback(() => {
-    startSaveTransition(() => {
+  const handleSaveRoutine = useCallback(
+    async ({
+      name,
+      description,
+      skinTypeTags: tags,
+    }: {
+      name: string;
+      description: string;
+      skinTypeTags: SkinType[];
+    }) => {
+      const items = buildRoutineSaveItems(routine, noteEntries);
+      assertRoutineSaveItemsValid(items);
+      const response = await createRoutine({
+        name,
+        description,
+        skinTypeTags: tags,
+        items,
+      });
       clearRoutine();
       clearProductNotes();
       setSkinTypeTags([]);
-    });
-  }, [clearRoutine, clearProductNotes]);
+      return response.id;
+    },
+    [routine, noteEntries, clearRoutine, clearProductNotes],
+  );
 
   const toggleSkinTypeTag = (tag: SkinType) => {
     setSkinTypeTags((prev) =>
@@ -157,10 +168,14 @@ export default function Builder() {
       router.push("/login");
       return;
     }
+    try {
+      assertRoutineSaveItemsValid(saveItems);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Cannot save an empty routine.");
+      return;
+    }
     startSaveTransition(() => setIsModalOpen(true));
   };
-
-  const formattedProducts = saveItems;
 
   const totalPrice = routine.reduce(
     (acc, step) => acc + step.products.reduce((s, p) => s + (p.price || 0), 0),
@@ -358,10 +373,9 @@ export default function Builder() {
             </div>
           ))}
         </div>
-
         <div
           className={`
-          bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-4 z-20 px-6 py-4
+          bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-8 z-20 px-6 py-4
           lg:top-20 lg:bottom-auto lg:shadow-sm 
           `}
         >
@@ -398,9 +412,8 @@ export default function Builder() {
                 <SaveRoutineModal
                   isOpen
                   onClose={handleCloseSaveModal}
-                  items={formattedProducts}
                   skinTypeTags={skinTypeTags}
-                  onSuccess={handleSaveSuccess}
+                  onSave={handleSaveRoutine}
                 />
               )}
             </div>

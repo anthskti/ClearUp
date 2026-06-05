@@ -1,41 +1,93 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { RoutineNoteDisplay } from "@/types/builder";
+import type {
+  BuilderProductNoteEntry,
+  RoutineNoteDisplay,
+} from "@/types/builder";
 import type { Product, ProductCategory } from "@/types/product";
 import type { TimeOfDay } from "@/types/routine";
-import { useDebouncedLocalStorage } from "./useDebouncedLocalStorage";
 
 const STORAGE_KEY = "builder-product-notes";
 
-// Consistent bug with duplications fix
-function dedupeNotes(notes: RoutineNoteDisplay[]): RoutineNoteDisplay[] {
-  const seen = new Set<string>();
-  return notes.filter((n) => {
-    const key = `${n.productId}-${n.timeOfDay}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+function emptyEntry(
+  product: Product,
+  category: ProductCategory,
+): BuilderProductNoteEntry {
+  return {
+    productId: product.id,
+    productName: product.name,
+    productBrand: product.brand,
+    category,
+    amNote: "",
+    pmNote: "",
+    amStepOrder: null,
+    pmStepOrder: null,
+  };
 }
 
-function reindexBlock(
-  notes: RoutineNoteDisplay[],
+function reindexAmSteps(entries: BuilderProductNoteEntry[]): BuilderProductNoteEntry[] {
+  const amIds = entries
+    .filter((e) => e.amStepOrder !== null)
+    .sort((a, b) => (a.amStepOrder ?? 0) - (b.amStepOrder ?? 0))
+    .map((e) => e.productId);
+  const amOrder = new Map(amIds.map((id, i) => [id, i + 1]));
+  return entries.map((e) =>
+    e.amStepOrder !== null
+      ? { ...e, amStepOrder: amOrder.get(e.productId) ?? e.amStepOrder }
+      : e,
+  );
+}
+
+function reindexPmSteps(entries: BuilderProductNoteEntry[]): BuilderProductNoteEntry[] {
+  const pmIds = entries
+    .filter((e) => e.pmStepOrder !== null)
+    .sort((a, b) => (a.pmStepOrder ?? 0) - (b.pmStepOrder ?? 0))
+    .map((e) => e.productId);
+  const pmOrder = new Map(pmIds.map((id, i) => [id, i + 1]));
+  return entries.map((e) =>
+    e.pmStepOrder !== null
+      ? { ...e, pmStepOrder: pmOrder.get(e.productId) ?? e.pmStepOrder }
+      : e,
+  );
+}
+
+function reindexAll(entries: BuilderProductNoteEntry[]): BuilderProductNoteEntry[] {
+  return reindexPmSteps(reindexAmSteps(entries));
+}
+
+function dropEmptyEntries(entries: BuilderProductNoteEntry[]): BuilderProductNoteEntry[] {
+  return entries.filter(
+    (e) => e.amStepOrder !== null || e.pmStepOrder !== null,
+  );
+}
+
+function toDisplayRow(
+  entry: BuilderProductNoteEntry,
   timeOfDay: TimeOfDay,
-): RoutineNoteDisplay[] {
-  const block = notes
-    .filter((n) => n.timeOfDay === timeOfDay)
-    .sort((a, b) => a.stepOrder - b.stepOrder);
-  const orderMap = new Map(
-    block.map((n, i) => [`${n.productId}-${timeOfDay}`, i + 1]),
-  );
-  return notes.map((n) =>
-    n.timeOfDay === timeOfDay
-      ? { ...n, stepOrder: orderMap.get(`${n.productId}-${timeOfDay}`) ?? n.stepOrder }
-      : n,
-  );
+): RoutineNoteDisplay {
+  const isAm = timeOfDay === "AM";
+  return {
+    productId: entry.productId,
+    timeOfDay,
+    stepOrder: (isAm ? entry.amStepOrder : entry.pmStepOrder) ?? 1,
+    userNote: isAm ? entry.amNote : entry.pmNote,
+    productName: entry.productName,
+    productBrand: entry.productBrand,
+    category: entry.category,
+  };
+}
+
+function persistNotes(entries: BuilderProductNoteEntry[]) {
+  if (typeof window === "undefined") return;
+  const active = dropEmptyEntries(entries);
+  if (active.length === 0) {
+    localStorage.removeItem(STORAGE_KEY);
+    return;
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(active));
 }
 
 export function useBuilderProductNotes() {
-  const [notes, setNotes] = useState<RoutineNoteDisplay[]>([]);
+  const [entries, setEntries] = useState<BuilderProductNoteEntry[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -43,10 +95,10 @@ export function useBuilderProductNotes() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw) as RoutineNoteDisplay[];
-        setNotes(
-          reindexBlock(reindexBlock(dedupeNotes(parsed), "AM"), "PM"),
-        );
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setEntries(parsed as BuilderProductNoteEntry[]);
+        }
       }
     } catch (e) {
       console.error("Failed to parse product notes", e);
@@ -54,7 +106,11 @@ export function useBuilderProductNotes() {
     setIsLoaded(true);
   }, []);
 
-  useDebouncedLocalStorage(STORAGE_KEY, notes, isLoaded);
+  useEffect(() => {
+    if (!isLoaded) return;
+    const id = window.setTimeout(() => persistNotes(entries), 400);
+    return () => window.clearTimeout(id);
+  }, [entries, isLoaded]);
 
   const addProductNote = useCallback(
     (
@@ -63,25 +119,39 @@ export function useBuilderProductNotes() {
       timeOfDay: TimeOfDay,
       userNote: string,
     ) => {
-      setNotes((prev) => {
-        if (
-          prev.some(
-            (n) => n.productId === product.id && n.timeOfDay === timeOfDay,
-          )
-        ) {
-          return prev;
+      setEntries((prev) => {
+        const idx = prev.findIndex((e) => e.productId === product.id);
+        const isAm = timeOfDay === "AM";
+        const amCount = prev.filter((e) => e.amStepOrder !== null).length;
+        const pmCount = prev.filter((e) => e.pmStepOrder !== null).length;
+
+        if (idx === -1) {
+          const next = emptyEntry(product, category);
+          if (isAm) {
+            next.amNote = userNote;
+            next.amStepOrder = amCount + 1;
+          } else {
+            next.pmNote = userNote;
+            next.pmStepOrder = pmCount + 1;
+          }
+          return reindexAll([...prev, next]);
         }
-        const blockSize = prev.filter((n) => n.timeOfDay === timeOfDay).length;
-        const next: RoutineNoteDisplay = {
-          productId: product.id,
-          timeOfDay,
-          stepOrder: blockSize + 1,
-          userNote,
+
+        const existing = prev[idx];
+        if (isAm && existing.amStepOrder !== null) return prev;
+        if (!isAm && existing.pmStepOrder !== null) return prev;
+
+        const updated = [...prev];
+        updated[idx] = {
+          ...existing,
           productName: product.name,
           productBrand: product.brand,
           category,
+          ...(isAm
+            ? { amNote: userNote, amStepOrder: amCount + 1 }
+            : { pmNote: userNote, pmStepOrder: pmCount + 1 }),
         };
-        return reindexBlock([...prev, next], timeOfDay);
+        return reindexAll(updated);
       });
     },
     [],
@@ -89,12 +159,13 @@ export function useBuilderProductNotes() {
 
   const updateProductNote = useCallback(
     (productId: number, timeOfDay: TimeOfDay, userNote: string) => {
-      setNotes((prev) =>
-        prev.map((n) =>
-          n.productId === productId && n.timeOfDay === timeOfDay
-            ? { ...n, userNote }
-            : n,
-        ),
+      setEntries((prev) =>
+        prev.map((e) => {
+          if (e.productId !== productId) return e;
+          return timeOfDay === "AM"
+            ? { ...e, amNote: userNote }
+            : { ...e, pmNote: userNote };
+        }),
       );
     },
     [],
@@ -102,75 +173,50 @@ export function useBuilderProductNotes() {
 
   const removeProductNote = useCallback(
     (productId: number, timeOfDay: TimeOfDay) => {
-      setNotes((prev) =>
-        reindexBlock(
-          prev.filter(
-            (n) => !(n.productId === productId && n.timeOfDay === timeOfDay),
-          ),
-          timeOfDay,
-        ),
-      );
+      setEntries((prev) => {
+        const updated = prev.map((e) => {
+          if (e.productId !== productId) return e;
+          return timeOfDay === "AM"
+            ? { ...e, amNote: "", amStepOrder: null }
+            : { ...e, pmNote: "", pmStepOrder: null };
+        });
+        return reindexAll(dropEmptyEntries(updated));
+      });
     },
     [],
   );
 
-  /** Drop notes for a product removed from the routine grid. */
   const removeNotesForProduct = useCallback((productId: number) => {
-    setNotes((prev) => {
-      const filtered = prev.filter((n) => n.productId !== productId);
-      if (filtered.length === prev.length) return prev;
-      return reindexBlock(reindexBlock(filtered, "AM"), "PM");
-    });
-  }, []);
-
-  /** Keep only notes for products still in the routine (cleans stale localStorage). */
-  const pruneNotesToProductIds = useCallback((productIds: number[]) => {
-    const allowed = new Set(productIds);
-    setNotes((prev) => {
-      const filtered = prev.filter((n) => allowed.has(n.productId));
-      if (filtered.length === prev.length) return prev;
-      return reindexBlock(reindexBlock(filtered, "AM"), "PM");
-    });
+    setEntries((prev) => prev.filter((e) => e.productId !== productId));
   }, []);
 
   const clearProductNotes = useCallback(() => {
-    setNotes([]);
+    setEntries([]);
     if (typeof window !== "undefined") {
       localStorage.removeItem(STORAGE_KEY);
     }
   }, []);
 
-  const loadProductNotes = useCallback((next: RoutineNoteDisplay[]) => {
-    setNotes(next);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    }
-  }, []);
-
   const morningNotes = useMemo(
     () =>
-      notes
-        .filter((n) => n.timeOfDay === "AM")
-        .sort((a, b) => a.stepOrder - b.stepOrder),
-    [notes],
+      entries
+        .filter((e) => e.amStepOrder !== null)
+        .sort((a, b) => (a.amStepOrder ?? 0) - (b.amStepOrder ?? 0))
+        .map((e) => toDisplayRow(e, "AM")),
+    [entries],
   );
 
   const eveningNotes = useMemo(
     () =>
-      notes
-        .filter((n) => n.timeOfDay === "PM")
-        .sort((a, b) => a.stepOrder - b.stepOrder),
-    [notes],
-  );
-
-  const hasNoteFor = useCallback(
-    (productId: number, timeOfDay: TimeOfDay) =>
-      notes.some((n) => n.productId === productId && n.timeOfDay === timeOfDay),
-    [notes],
+      entries
+        .filter((e) => e.pmStepOrder !== null)
+        .sort((a, b) => (a.pmStepOrder ?? 0) - (b.pmStepOrder ?? 0))
+        .map((e) => toDisplayRow(e, "PM")),
+    [entries],
   );
 
   return {
-    notes,
+    entries,
     isLoaded,
     morningNotes,
     eveningNotes,
@@ -178,9 +224,6 @@ export function useBuilderProductNotes() {
     updateProductNote,
     removeProductNote,
     removeNotesForProduct,
-    pruneNotesToProductIds,
     clearProductNotes,
-    loadProductNotes,
-    hasNoteFor,
   };
 }

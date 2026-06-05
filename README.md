@@ -7,7 +7,7 @@ ClearUp is a full-stacks skincare organizer: browse a product catalog, compare m
 | Area | Summary |
 |------|---------|
 | **Catalog** | Products by category (cleanser → sunscreen), skin-type tags, PDP with multi-merchant pricing |
-| **Routine builder** | Slot-based AM/PM flow persisted in `localStorage`, saved to the API when signed in |
+| **Routine builder** | Slot-based AM/PM flow persisted in `localStorage`, saved to the API when signed in + notes |
 | **Guides** | Public routines from registered users; filter by skin type and max price |
 | **Admin** | Dashboard stats, CSV product import, featured-routine curation, user list |
 | **Auth** | Email/password + Google OAuth via [Better Auth](https://www.better-auth.com); SES for verification and password reset |
@@ -184,13 +184,6 @@ Rate limits: global (300 / 15 min), stricter caps on routine/merchant POST and a
 | `npm run analyze` | Bundle analysis (`ANALYZE=true`) |
 
 ## Feature documentation
-
-Deeper, feature-specific guides live in `docs/`:
-
-- [Authentication & sessions](docs/authentication.md)
-- [Routine builder & guides](docs/routine-builder-and-guides.md)
-- [Product catalog & merchants](docs/product-catalog-and-merchants.md)
-- [Admin operations](docs/admin-operations.md)
 
 Backend module notes remain under `backend/docs/modules/` for controller/service/repository detail.
 

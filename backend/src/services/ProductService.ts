@@ -15,10 +15,11 @@ import {
   parseScraperPrice,
   parseSkinTypes,
   isScraperRowSuccessful,
-  SCRAPER_DEFAULT_MERCHANT_NAME,
+  parseMerchantName,
 } from "../lib/csvProductImport";
 import ProductModel from "../models/Product";
 import ProductMerchantModel from "../models/ProductMerchant";
+import RoutineProductModel from "../models/RoutineProduct";
 import {
   Merchant,
   CreateProductMerchantInput,
@@ -207,6 +208,7 @@ export class ProductService {
 
   // DELETE product by ID
   async deleteProduct(id: number): Promise<boolean> {
+    await RoutineProductModel.destroy({ where: { productId: id } });
     return this.productRepository.delete(id);
   }
 
@@ -297,16 +299,15 @@ export class ProductService {
     return deleted;
   }
 
-  /** Link scraper `url` + `price` to the default merchant (YesStyle) when present in DB. */
+  /** Link scraper `url` + `price` to a merchant by name (must exist in DB). */
   private async upsertScraperMerchantOffer(
     productId: number,
     website: string,
     price: number,
-  ): Promise<void> {
-    const merchant = await this.merchantRepository.findModelByName(
-      SCRAPER_DEFAULT_MERCHANT_NAME,
-    );
-    if (!merchant) return;
+    merchantName: string,
+  ): Promise<boolean> {
+    const merchant = await this.merchantRepository.findModelByName(merchantName);
+    if (!merchant) return false;
 
     const merchantId = Number(merchant.getDataValue("id"));
     const [offer, wasCreated] = await ProductMerchantModel.findOrCreate({
@@ -331,6 +332,7 @@ export class ProductService {
     }
 
     await this.syncProductPriceFromLowestOffer(productId);
+    return true;
   }
 
   private async syncProductPriceFromLowestOffer(productId: number): Promise<void> {
@@ -343,7 +345,7 @@ export class ProductService {
 
   // POST batch import from datascraper CSV:
   // name, brand, category, labels, skinType, country, capacity, price, instructions,
-  // ingredients, imageUrls, averageRating, url, status
+  // ingredients, imageUrls, averageRating, url, merchant, status
   async importProductsCsv(csv: string): Promise<CsvImportResult> {
     const startedAt = Date.now();
     const rows = parseCsvText(csv);
@@ -410,6 +412,7 @@ export class ProductService {
       const imageUrls = parseImageUrls(row.imageurls);
       const averageRating = Number(row.averagerating || 0);
       const storeUrl = row.url?.trim() || "";
+      const merchantName = parseMerchantName(row.merchant);
 
       processed += 1;
 
@@ -467,7 +470,19 @@ export class ProductService {
         }
 
         if (storeUrl && price > 0) {
-          await this.upsertScraperMerchantOffer(productId, storeUrl, price);
+          const linked = await this.upsertScraperMerchantOffer(
+            productId,
+            storeUrl,
+            price,
+            merchantName,
+          );
+          if (!linked) {
+            errors.push({
+              row: rowNumber,
+              code: "MERCHANT_NOT_FOUND",
+              message: `Product saved but merchant "${merchantName}" was not found — offer link skipped.`,
+            });
+          }
         }
       } catch (error: any) {
         failed += 1;

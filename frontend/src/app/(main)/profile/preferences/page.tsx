@@ -129,7 +129,7 @@ export default function ProfilePage() {
                 Username
               </label>
               <span className="text-xs text-zinc-500 mt-1">
-                Display name used across ClearUp
+                Display name used across Clearup
               </span>
             </div>
             <Input
@@ -168,7 +168,7 @@ export default function ProfilePage() {
         <div className="py-10">
           <div className="text-2xl font-semibold mb-4">Account Removal</div>
           <p className="text-sm mb-4">
-            Permanently delete your ClearUp Account.
+            Permanently delete your Clearup Account.
           </p>
           <div className="border border-red-700/50 bg-red-700/10 p-6 rounded-lg">
             <div className="flex flex-col gap-2">

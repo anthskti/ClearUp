@@ -127,7 +127,7 @@ function Header() {
           <Link href="/" className="inline-flex min-w-0 shrink">
             <Image
               src="/assets/clearuplogov11.png"
-              alt="ClearUp"
+              alt="Clearup"
               width={2048}
               height={663}
               priority

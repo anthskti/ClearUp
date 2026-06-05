@@ -7,11 +7,11 @@ export default function FAQPage() {
       <ProceduralWave seed={3} height={190} />
       <InfoArticle
         title="Frequently Asked Question (FAQ)"
-        description="Answers to common questions about ClearUp."
+        description="Answers to common questions about Clearup."
       >
-        <h2>What is ClearUp?</h2>
+        <h2>What is Clearup?</h2>
         <p>
-          ClearUp is a skincare product database, with community-driven routines
+          Clearup is a skincare product database, with community-driven routines
           where users can learn and build routine for skincare. In this website,
           there are provided tools to help you discover new products, track your
           routine products, and share your customized routines with others.
@@ -24,9 +24,9 @@ export default function FAQPage() {
           featured on the guides page or the landing page features guides. Your
           account securely stores your routine data across your devices.
         </p>
-        <h2>What kind of emails will ClearUp send me?</h2>
+        <h2>What kind of emails will Clearup send me?</h2>
         <p>
-          ClearUp strictly sends transactional emails required for account
+          Clearup strictly sends transactional emails required for account
           security and access. You will only receive an email from us in the
           following scenarios:
         </p>

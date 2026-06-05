@@ -39,7 +39,7 @@ function Footer() {
             <div className="flex justify-center md:justify-start -mt-8 shrink-0">
               <Image
                 src="/assets/clearuplogo-white.png"
-                alt="ClearUp"
+                alt="Clearup"
                 width={2048}
                 height={663}
                 priority
@@ -124,7 +124,7 @@ function Footer() {
         {/* Bottom Section: Divider & Legal */}
         <div className="flex md:flex-row flex-col justify-between md:items-center items-start gap-2">
           <p className="text-white text-xs">
-            &copy; ClearUp {new Date().getFullYear()}
+            &copy; Clearup {new Date().getFullYear()}
           </p>
 
           <div className="flex gap-6 text-xs text-white">

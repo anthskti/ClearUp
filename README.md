@@ -1,16 +1,16 @@
-# ClearUp
+# Clearup
 
-ClearUp is a full-stacks skincare organizer: browse a product catalog, compare merchant offers, build step-by-step routines in a visual builder, and share them as community guides. Authentication, admin tooling, and email delivery are production-ready; the app is deployed at [clearup.skin](https://clearup.skin).
+Clearup is a full-stacks skincare organizer: browse a product catalog, compare merchant offers, build step-by-step routines in a visual builder, and share them as community guides. Authentication, admin tooling, and email delivery are production-ready; the app is deployed at [clearup.skin](https://clearup.skin).
 
 ## What it does
 
-| Area | Summary |
-|------|---------|
-| **Catalog** | Products by category (cleanser → sunscreen), skin-type tags, PDP with multi-merchant pricing |
-| **Routine builder** | Slot-based AM/PM flow persisted in `localStorage`, saved to the API when signed in + notes |
-| **Guides** | Public routines from registered users; filter by skin type and max price |
-| **Admin** | Dashboard stats, CSV product import, featured-routine curation, user list |
-| **Auth** | Email/password + Google OAuth via [Better Auth](https://www.better-auth.com); SES for verification and password reset |
+| Area                | Summary                                                                                                               |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Catalog**         | Products by category (cleanser → sunscreen), skin-type tags, PDP with multi-merchant pricing                          |
+| **Routine builder** | Slot-based AM/PM flow persisted in `localStorage`, saved to the API when signed in + notes                            |
+| **Guides**          | Public routines from registered users; filter by skin type and max price                                              |
+| **Admin**           | Dashboard stats, CSV product import, featured-routine curation, user list                                             |
+| **Auth**            | Email/password + Google OAuth via [Better Auth](https://www.better-auth.com); SES for verification and password reset |
 
 ## Architecture
 
@@ -46,14 +46,14 @@ ClearUp/
 
 ## Tech stack
 
-| Layer | Choices |
-|-------|---------|
+| Layer    | Choices                                                                    |
+| -------- | -------------------------------------------------------------------------- |
 | Frontend | Next.js 16, React 19, Tailwind CSS 4, Radix/shadcn-style UI, Framer Motion |
-| Backend | Bun, Express 5, TypeScript, Sequelize 6, Umzug |
-| Database | PostgreSQL 15 |
-| Auth | Better Auth (+ admin plugin), session cookies |
-| Email | AWS SES v2 (+ SNS webhooks for bounces/complaints) |
-| Images | Next/Image with remote allowlist; CDN assets (e.g. CloudFront) |
+| Backend  | Bun, Express 5, TypeScript, Sequelize 6, Umzug                             |
+| Database | PostgreSQL 15                                                              |
+| Auth     | Better Auth (+ admin plugin), session cookies                              |
+| Email    | AWS SES v2 (+ SNS webhooks for bounces/complaints)                         |
+| Images   | Next/Image with remote allowlist; CDN assets (e.g. CloudFront)             |
 
 ## Quick start (local)
 
@@ -116,72 +116,72 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment variables (production-oriented)
 
-| Variable | Where | Purpose |
-|----------|-------|---------|
-| `DATABASE_URL` | API | Hosted Postgres (Supabase, etc.); enables SSL via `certs/prod-ca-2021.crt` |
-| `DB_*` | API | Local fallback when `DATABASE_URL` is empty |
-| `PORT` | API | Listen port (e.g. `5050`) |
-| `TRUSTED_ORIGINS` | API | Comma-separated frontend origins (CORS + Better Auth) |
-| `BETTER_AUTH_URL` | API | Public API origin for OAuth redirects |
-| `BETTER_AUTH_CROSS_SITE_COOKIES` | API | `1` when frontend and API are on different hosts (HTTPS) |
-| `BETTER_AUTH_SECRET` | API | Auth signing secret |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | API | Google OAuth |
-| `ADMIN_EMAILS` | API | Comma-separated emails promoted to `admin` |
-| `AWS_REGION`, `SES_FROM_EMAIL`, `SES_CONFIGURATION_SET` | API | Outbound mail |
-| `NEXT_PUBLIC_API_URL` | Frontend | API base URL |
-| `NEXT_PUBLIC_APP_URL` | Frontend | Canonical site URL |
-| `NEXT_PUBLIC_IMAGE_DOMAIN` | Frontend | Optional default image host |
+| Variable                                                | Where    | Purpose                                                                    |
+| ------------------------------------------------------- | -------- | -------------------------------------------------------------------------- |
+| `DATABASE_URL`                                          | API      | Hosted Postgres (Supabase, etc.); enables SSL via `certs/prod-ca-2021.crt` |
+| `DB_*`                                                  | API      | Local fallback when `DATABASE_URL` is empty                                |
+| `PORT`                                                  | API      | Listen port (e.g. `5050`)                                                  |
+| `TRUSTED_ORIGINS`                                       | API      | Comma-separated frontend origins (CORS + Better Auth)                      |
+| `BETTER_AUTH_URL`                                       | API      | Public API origin for OAuth redirects                                      |
+| `BETTER_AUTH_CROSS_SITE_COOKIES`                        | API      | `1` when frontend and API are on different hosts (HTTPS)                   |
+| `BETTER_AUTH_SECRET`                                    | API      | Auth signing secret                                                        |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`             | API      | Google OAuth                                                               |
+| `ADMIN_EMAILS`                                          | API      | Comma-separated emails promoted to `admin`                                 |
+| `AWS_REGION`, `SES_FROM_EMAIL`, `SES_CONFIGURATION_SET` | API      | Outbound mail                                                              |
+| `NEXT_PUBLIC_API_URL`                                   | Frontend | API base URL                                                               |
+| `NEXT_PUBLIC_APP_URL`                                   | Frontend | Canonical site URL                                                         |
+| `NEXT_PUBLIC_IMAGE_DOMAIN`                              | Frontend | Optional default image host                                                |
 
 See [docs/authentication.md](docs/authentication.md) and [backend/testREADME.md](backend/testREADME.md) for OAuth, SES, and troubleshooting.
 
 ## API surface (summary)
 
-| Prefix | Auth | Role |
-|--------|------|------|
-| `/api/auth/*` | Better Auth | Sign-up, sign-in, OAuth, sessions |
-| `GET /api/auth/me` | Session | Current user `{ id, email, role }` |
-| `/api/products` | Mixed | Catalog CRUD; admin for writes/imports |
-| `/api/routines` | Mixed | Routines, guides, featured, admin stats |
-| `/api/merchant` | Admin writes | Merchant master data |
-| `/api/users/admin` | Admin | User listing |
-| `/api/webhooks/aws-ses` | SNS | Bounce/complaint handling |
-| `/health` | Public | DB connectivity probe |
+| Prefix                  | Auth         | Role                                    |
+| ----------------------- | ------------ | --------------------------------------- |
+| `/api/auth/*`           | Better Auth  | Sign-up, sign-in, OAuth, sessions       |
+| `GET /api/auth/me`      | Session      | Current user `{ id, email, role }`      |
+| `/api/products`         | Mixed        | Catalog CRUD; admin for writes/imports  |
+| `/api/routines`         | Mixed        | Routines, guides, featured, admin stats |
+| `/api/merchant`         | Admin writes | Merchant master data                    |
+| `/api/users/admin`      | Admin        | User listing                            |
+| `/api/webhooks/aws-ses` | SNS          | Bounce/complaint handling               |
+| `/health`               | Public       | DB connectivity probe                   |
 
 Rate limits: global (300 / 15 min), stricter caps on routine/merchant POST and auth brute-force paths.
 
 ## Frontend routes (high level)
 
-| Path | Description |
-|------|-------------|
-| `/` | Landing: hero, featured routines, how it works |
-| `/products/category/[slug]` | Category product grid |
-| `/product/id/[slug]` | Product detail + merchant offers |
-| `/builder` | Routine builder (local + save) |
-| `/routine/[id]` | Shared routine view |
-| `/guides` | Community guides with filters |
-| `/profile/*` | Saved/created routines, preferences |
-| `/login`, `/register`, … | Auth flows |
-| `/admin/*` | Admin dashboard (role-gated) |
+| Path                        | Description                                    |
+| --------------------------- | ---------------------------------------------- |
+| `/`                         | Landing: hero, featured routines, how it works |
+| `/products/category/[slug]` | Category product grid                          |
+| `/product/id/[slug]`        | Product detail + merchant offers               |
+| `/builder`                  | Routine builder (local + save)                 |
+| `/routine/[id]`             | Shared routine view                            |
+| `/guides`                   | Community guides with filters                  |
+| `/profile/*`                | Saved/created routines, preferences            |
+| `/login`, `/register`, …    | Auth flows                                     |
+| `/admin/*`                  | Admin dashboard (role-gated)                   |
 
 ## Scripts
 
 **Backend (`backend/`):**
 
-| Command | Description |
-|---------|-------------|
-| `bun run dev` | Watch mode API |
-| `bun run build` / `bun run start` | Production compile + run |
-| `bun run migrate:up` / `migrate:down` | Umzug migrations |
-| `bun run seed` | Dev seed (wipes via `force: true`) |
-| `bun run test:ses` | Send test email via SES |
+| Command                               | Description                        |
+| ------------------------------------- | ---------------------------------- |
+| `bun run dev`                         | Watch mode API                     |
+| `bun run build` / `bun run start`     | Production compile + run           |
+| `bun run migrate:up` / `migrate:down` | Umzug migrations                   |
+| `bun run seed`                        | Dev seed (wipes via `force: true`) |
+| `bun run test:ses`                    | Send test email via SES            |
 
 **Frontend (`frontend/`):**
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Next dev server |
-| `npm run build` / `start` | Production build |
-| `npm run analyze` | Bundle analysis (`ANALYZE=true`) |
+| Command                   | Description                      |
+| ------------------------- | -------------------------------- |
+| `npm run dev`             | Next dev server                  |
+| `npm run build` / `start` | Production build                 |
+| `npm run analyze`         | Bundle analysis (`ANALYZE=true`) |
 
 ## Feature documentation
 

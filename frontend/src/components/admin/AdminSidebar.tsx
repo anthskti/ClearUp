@@ -24,7 +24,7 @@ export default function AdminSidebar() {
       {/* Header */}
       <div className="flex h-16 items-center gap-2 border-b border-zinc-200 px-6">
         <span className="text-lg font-bold tracking-tight text-zinc-950">
-          ClearUp Admin
+          Clearup Admin
         </span>
       </div>
       {/* Nav */}

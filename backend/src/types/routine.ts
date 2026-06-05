@@ -20,51 +20,52 @@ export interface Routine {
   author?: RoutineAuthor;
 }
 
-export type TimeOfDay = "AM" | "PM";
-
+/** One junction row per product in a routine. */
 export interface RoutineProduct {
   id: number;
   routineId: number;
   productId: number;
   category: ProductCategory;
-  timeOfDay: TimeOfDay;
-  stepOrder: number;
-  userNote: string | null;
+  amNote: string | null;
+  pmNote: string | null;
+  amStepOrder: number | null;
+  pmStepOrder: number | null;
 }
 
-// Persisted row shape (all fields set after normalization).
 export type CreateRoutineProductInput = {
   routineId: number;
   productId: number;
   category: ProductCategory;
-  timeOfDay: TimeOfDay;
-  stepOrder: number;
-  userNote: string | null;
+  amNote: string | null;
+  pmNote: string | null;
+  amStepOrder: number | null;
+  pmStepOrder: number | null;
 };
 
-// POST /api/routines/id/:id/products — timeOfDay, stepOrder, userNote optional.
 export type AddRoutineProductInput = {
   productId: number;
   category: ProductCategory;
-  timeOfDay?: TimeOfDay;
-  stepOrder?: number;
-  userNote?: string | null;
+  amNote?: string | null;
+  pmNote?: string | null;
+  amStepOrder?: number | null;
+  pmStepOrder?: number | null;
 };
 
-// Same shape as AddRoutineProductInput (no routineId yet). 
 export type UpsertRoutineProductItem = AddRoutineProductInput;
 
-// POST /api/routines/bulk — routine metadata + product lineup. 
 export type CreateRoutineWithProductsInput = {
   name: string;
   description?: string;
   userId: string;
   skinTypeTags?: unknown;
-  // Becomes `routine_products` rows after create.
   items: AddRoutineProductInput[];
 };
+
 export type UpdateRoutineProductInput = Partial<
-  Pick<RoutineProduct, "category" | "timeOfDay" | "stepOrder" | "userNote">
+  Pick<
+    RoutineProduct,
+    "category" | "amNote" | "pmNote" | "amStepOrder" | "pmStepOrder"
+  >
 >;
 
 export type RoutineProductWithDetails = RoutineProduct & {
@@ -87,4 +88,3 @@ export type GuideRoutineView = {
   /** Sum of linked product prices (CAD in catalog). */
   estimatedTotalPrice: number;
 };
-

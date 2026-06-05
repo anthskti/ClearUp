@@ -1,30 +1,21 @@
 import { PRODUCT_CATEGORY_VALUES } from "../config/productCategories";
 import type { ProductCategory } from "../types/product";
-import type { CreateRoutineProductInput, TimeOfDay } from "../types/routine";
+import type { CreateRoutineProductInput } from "../types/routine";
+import {
+  parseOptionalPositiveInt,
+  parsePositiveInt,
+  parseUserNote,
+  RoutineProductValidationError,
+} from "./routineProductParse";
 
 export const MAX_ROUTINE_PRODUCTS = 20;
 
-export class RoutineProductValidationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "RoutineProductValidationError";
-  }
-}
+export { RoutineProductValidationError };
 
-function parsePositiveInt(value: unknown, label: string): number {
-  const n =
-    typeof value === "number"
-      ? value
-      : typeof value === "string"
-        ? parseInt(value, 10)
-        : NaN;
-  if (!Number.isFinite(n) || n < 1) {
-    throw new RoutineProductValidationError(`${label} must be a positive integer`);
-  }
-  return n;
-}
-
-export function parseProductCategory(value: unknown, label = "category"): ProductCategory {
+export function parseProductCategory(
+  value: unknown,
+  label = "category",
+): ProductCategory {
   if (typeof value !== "string") {
     throw new RoutineProductValidationError(`${label} must be a string`);
   }
@@ -38,31 +29,11 @@ function parseCategory(value: unknown, index: number): ProductCategory {
   return parseProductCategory(value, `items[${index}].category`);
 }
 
-function parseTimeOfDay(value: unknown): TimeOfDay {
-  if (value === "PM") return "PM";
-  if (value === "AM" || value === undefined || value === null) return "AM";
-  throw new RoutineProductValidationError(
-    'timeOfDay must be "AM" or "PM"',
-  );
-}
-
-function parseStepOrder(value: unknown, label: string): number | undefined {
-  if (value === undefined || value === null) return undefined;
-  return parsePositiveInt(value, label);
-}
-
-function parseUserNote(value: unknown): string | null {
-  if (value === undefined || value === null || value === "") return null;
-  if (typeof value !== "string") {
-    throw new RoutineProductValidationError("userNote must be a string");
-  }
-  return value;
-}
-
 function parseItem(
   entry: unknown,
   index: number,
-  counters: { AM: number; PM: number },
+  amStepCounter: { value: number },
+  pmStepCounter: { value: number },
 ): Omit<CreateRoutineProductInput, "routineId"> {
   if (!entry || typeof entry !== "object") {
     throw new RoutineProductValidationError(`items[${index}] must be an object`);
@@ -73,26 +44,42 @@ function parseItem(
     `items[${index}].productId`,
   );
   const category = parseCategory(o.category, index);
-  const timeOfDay = parseTimeOfDay(o.timeOfDay);
-  const explicitStep = parseStepOrder(
-    o.stepOrder,
-    `items[${index}].stepOrder`,
-  );
-  const stepOrder =
-    explicitStep ??
-    (() => {
-      counters[timeOfDay] += 1;
-      return counters[timeOfDay];
-    })();
-  const userNote = parseUserNote(o.userNote);
 
-  return { productId, category, timeOfDay, stepOrder, userNote };
+  let amNote = parseUserNote(o.amNote, `items[${index}].amNote`);
+  let pmNote = parseUserNote(o.pmNote, `items[${index}].pmNote`);
+  const legacyNote = parseUserNote(o.userNote, `items[${index}].userNote`);
+  if (legacyNote) {
+    if (o.timeOfDay === "PM") pmNote = legacyNote;
+    else amNote = legacyNote;
+  }
+
+  let amStepOrder = parseOptionalPositiveInt(
+    o.amStepOrder,
+    `items[${index}].amStepOrder`,
+  );
+  let pmStepOrder = parseOptionalPositiveInt(
+    o.pmStepOrder,
+    `items[${index}].pmStepOrder`,
+  );
+
+  if (amNote && amStepOrder === null) {
+    amStepOrder = ++amStepCounter.value;
+  }
+  if (pmNote && pmStepOrder === null) {
+    pmStepOrder = ++pmStepCounter.value;
+  }
+
+  return {
+    productId,
+    category,
+    amNote,
+    pmNote,
+    amStepOrder,
+    pmStepOrder,
+  };
 }
 
-/**
- * Normalizes bulk/upsert payloads. Older clients may omit timeOfDay, stepOrder, and userNote;
- * defaults: AM, ascending stepOrder per time block, null note.
- */
+// Normalizes bulk/upsert payloads. One row per productId.
 export function parseRoutineProductItems(
   raw: unknown,
   options: { fieldName?: "products" | "items" } = {},
@@ -106,6 +93,31 @@ export function parseRoutineProductItems(
       `max ${MAX_ROUTINE_PRODUCTS} products per routine`,
     );
   }
-  const counters = { AM: 0, PM: 0 };
-  return raw.map((entry, index) => parseItem(entry, index, counters));
+
+  const amStepCounter = { value: 0 };
+  const pmStepCounter = { value: 0 };
+  const parsed = raw.map((entry, index) =>
+    parseItem(entry, index, amStepCounter, pmStepCounter),
+  );
+
+  const byProduct = new Map<
+    number,
+    Omit<CreateRoutineProductInput, "routineId">
+  >();
+  for (const item of parsed) {
+    const prev = byProduct.get(item.productId);
+    if (!prev) {
+      byProduct.set(item.productId, item);
+      continue;
+    }
+    byProduct.set(item.productId, {
+      productId: item.productId,
+      category: item.category,
+      amNote: item.amNote ?? prev.amNote,
+      pmNote: item.pmNote ?? prev.pmNote,
+      amStepOrder: item.amStepOrder ?? prev.amStepOrder,
+      pmStepOrder: item.pmStepOrder ?? prev.pmStepOrder,
+    });
+  }
+  return [...byProduct.values()];
 }

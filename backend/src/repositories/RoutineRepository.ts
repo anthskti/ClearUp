@@ -65,8 +65,8 @@ export class RoutineRepository {
           as: "routineProducts",
           separate: true,
           order: [
-            ["timeOfDay", "ASC"],
-            ["stepOrder", "ASC"],
+            ["category", "ASC"],
+            ["productId", "ASC"], // Stable sort (same products per routine).
           ],
           include: [
             {
@@ -107,8 +107,8 @@ export class RoutineRepository {
           as: "routineProducts",
           separate: true,
           order: [
-            ["timeOfDay", "ASC"],
-            ["stepOrder", "ASC"],
+            ["category", "ASC"],
+            ["productId", "ASC"], // Same here, more stable
           ],
           include: [
             {
@@ -464,9 +464,10 @@ export class RoutineRepository {
               routineId: rp.routineId,
               productId: rp.productId,
               category: rp.category,
-              timeOfDay: rp.timeOfDay,
-              stepOrder: rp.stepOrder,
-              userNote: rp.userNote,
+              amNote: rp.amNote,
+              pmNote: rp.pmNote,
+              amStepOrder: rp.amStepOrder,
+              pmStepOrder: rp.pmStepOrder,
               product: rp.product
                 ? {
                     id: rp.product.id,

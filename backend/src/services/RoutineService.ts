@@ -6,7 +6,6 @@ import {
   RoutineWithProducts,
   RoutineProduct,
   GuideRoutineView,
-  TimeOfDay,
   AddRoutineProductInput,
   CreateRoutineWithProductsInput,
   UpdateRoutineProductInput,
@@ -15,7 +14,12 @@ import { AdminStats, FeaturedRoutineView } from "../types/routine-admin";
 import { BasicUserRow, UserDailyCountRow } from "../types/user";
 import { SkinType } from "../types/product";
 import { sanitizeSkinTypeTags } from "../types/routineSkinTypeTags";
-import { parseRoutineProductItems } from "../lib/routineProductItems";
+import {
+  parseRoutineProductItems,
+  RoutineProductValidationError,
+} from "../lib/routineProductItems";
+import { parseRoutineNoteUpdates } from "../lib/routineProductNotes";
+import { RoutineProductReplaceError } from "../lib/routineSecurity";
 import PAGINATION from "../config/pagination";
 
 export class RoutineService {
@@ -260,25 +264,67 @@ export class RoutineService {
   async upsertRoutineProducts(
     routineId: number,
     products: AddRoutineProductInput[],
+    options?: { confirmClear?: boolean },
   ): Promise<void> {
+    const existing = await this.routineProductRepository.findByRoutineId(
+      routineId,
+    );
     const items = parseRoutineProductItems(products, { fieldName: "products" });
+
+    if (items.length === 0 && existing.length > 0 && !options?.confirmClear) {
+      throw new RoutineProductReplaceError(
+        "Refusing to clear all routine products. Pass confirmClear: true to intentionally remove every product.",
+      );
+    }
+
     await this.routineProductRepository.replaceAllForRoutine(
       routineId,
       items,
     );
   }
 
-  // PATCH one junction row (note, order, or AM/PM). 
-  async patchRoutineProductSlot(
+  // PATCH batch usage notes — only touches note fields on existing junction rows. 
+  async saveRoutineNotes(
+    routineId: number,
+    rawUpdates: unknown,
+  ): Promise<RoutineProduct[]> {
+    const updates = parseRoutineNoteUpdates(rawUpdates);
+    const existing = await this.routineProductRepository.findByRoutineId(
+      routineId,
+    );
+    const productIds = new Set(existing.map((row) => row.productId));
+
+    for (const update of updates) {
+      if (!productIds.has(update.productId)) {
+        throw new RoutineProductValidationError(
+          `Product ${update.productId} is not in this routine`,
+        );
+      }
+    }
+
+    const results = await this.routineProductRepository.updateNotesBatch(
+      routineId,
+      updates,
+    );
+
+    if (results.length !== updates.length) {
+      throw new RoutineProductValidationError(
+        "One or more routine products could not be updated",
+      );
+    }
+
+    return results;
+  }
+
+  // PATCH one product row (notes, category).
+  async patchRoutineProduct(
     routineId: number,
     productId: number,
-    timeOfDay: TimeOfDay,
     updates: UpdateRoutineProductInput,
   ): Promise<RoutineProduct | null> {
-    return this.routineProductRepository.updateByRoutineProductSlot(
+    return this.routineProductRepository.updateByRoutineAndProduct(
       routineId,
       productId,
-      timeOfDay,
       updates,
     );
   }
@@ -331,6 +377,11 @@ export class RoutineService {
     });
 
     const items = parseRoutineProductItems(data.items, { fieldName: "items" });
+    if (items.length === 0) {
+      throw new RoutineProductValidationError(
+        "items must include at least one product",
+      );
+    }
     await this.routineProductRepository.replaceAllForRoutine(
       routine.id,
       items,

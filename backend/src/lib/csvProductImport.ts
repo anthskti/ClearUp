@@ -143,3 +143,9 @@ export function isScraperRowSuccessful(status: string | undefined): boolean {
 }
 
 export const SCRAPER_DEFAULT_MERCHANT_NAME = "YesStyle";
+
+/** CSV `merchant` column; falls back to YesStyle when blank. */
+export function parseMerchantName(raw: string | undefined): string {
+  const trimmed = raw?.trim();
+  return trimmed || SCRAPER_DEFAULT_MERCHANT_NAME;
+}

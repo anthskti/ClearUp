@@ -1,9 +1,12 @@
 import express from "express";
 import { RoutineController } from "../controllers/RoutineController";
 import { requireAdmin, requireAuth } from "../middleware/requireAuth";
+import { requireMutationHeader } from "../middleware/requireMutationHeader";
 
 const router = express.Router();
 const routineController = new RoutineController();
+
+router.use(requireMutationHeader);
 
 
 // ROUTINE 
@@ -79,7 +82,12 @@ router.put("/id/:id/products", requireAuth, (req, res) =>
   routineController.upsertRoutineProducts(req, res),
 );
 
-// PATCH one product slot (note, step order, AM/PM)
+// PATCH batch usage notes (routine owner editor)
+router.patch("/id/:id/notes", requireAuth, (req, res) =>
+  routineController.saveRoutineNotes(req, res),
+);
+
+// PATCH one product row (category / single-field edits)
 router.patch("/id/:id/products/:productId", requireAuth, (req, res) =>
   routineController.patchRoutineProduct(req, res),
 );

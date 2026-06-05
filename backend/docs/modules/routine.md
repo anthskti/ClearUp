@@ -7,7 +7,7 @@ The **routine** module is the core idea around ClearUp, as it supports developin
 Routine uses a relational PostgreSQL schema and constructed by two primary models:
 
 - Routines (`Routine.ts`): Holds standard information about a persons routine.
-- Routine's Product (`RoutineProduct.ts`): A junction model managing the many to many relationship between products and routines. Why? because if a routines products price updates, we want that to show in the routine, if its copied, it wouldn't get its new information.
+- Routine's Product (`RoutineProduct.ts`): Junction table — **one row per `(routine, product)`** with `category`, optional `amNote` / `pmNote`, and optional `amStepOrder` / `pmStepOrder` for note-block ordering only.
 
 ## Repositories
 
@@ -39,3 +39,7 @@ The HTTP communication layer. The controller is responsible for receiving client
 
 Routine routes hold all the server/backend endpoints to Routine.
 There are all the Admin Endpoints that requireAdmin to get to them, and the rest of the endpoints are standard CRUD endpoints available to any auth.
+
+**Notes:** Owners save usage notes via `PATCH /api/routines/id/:id/notes` (batch, atomic). Builder create still uses `POST /api/routines/bulk`.
+
+**Security:** State-changing requests require the `x-clearup-client: 1` header and are subject to replace guards on bulk product updates. See [routine-security-fixes.md](../routine-security-fixes.md).

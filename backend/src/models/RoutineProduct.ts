@@ -3,19 +3,22 @@ import Product from "./Product";
 import sequelize from "../db";
 import { PRODUCT_CATEGORY_VALUES } from "../config/productCategories";
 
-type TimeOfDay = "AM" | "PM";
-
 interface RoutineProductAttributes {
   id: number;
   routineId: number;
   productId: number;
   category: string;
-  timeOfDay: TimeOfDay; 
-  stepOrder: number;
-  userNote: string | null;
+  amNote: string | null;
+  pmNote: string | null;
+  amStepOrder: number | null;
+  pmStepOrder: number | null;
 }
+
 interface RoutineProductCreationAttributes
-  extends Optional<RoutineProductAttributes, "id" | "userNote"> {}
+  extends Optional<
+    RoutineProductAttributes,
+    "id" | "amNote" | "pmNote" | "amStepOrder" | "pmStepOrder"
+  > {}
 
 class RoutineProduct
   extends Model<RoutineProductAttributes, RoutineProductCreationAttributes>
@@ -25,9 +28,10 @@ class RoutineProduct
   declare routineId: number;
   declare productId: number;
   declare category: string;
-  declare timeOfDay: TimeOfDay;
-  declare stepOrder: number;
-  declare userNote: string | null;
+  declare amNote: string | null;
+  declare pmNote: string | null;
+  declare amStepOrder: number | null;
+  declare pmStepOrder: number | null;
   declare product?: Product;
 }
 
@@ -50,16 +54,20 @@ RoutineProduct.init(
       type: DataTypes.ENUM(...PRODUCT_CATEGORY_VALUES),
       allowNull: false,
     },
-    timeOfDay: {
-      type: DataTypes.ENUM('AM', 'PM'),
-      allowNull: false,
-    },
-    stepOrder: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    userNote: {
+    amNote: {
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    pmNote: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    amStepOrder: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    pmStepOrder: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
   },
@@ -67,7 +75,14 @@ RoutineProduct.init(
     sequelize,
     tableName: "routine_products",
     timestamps: true,
-  }
+    indexes: [
+      {
+        unique: true,
+        fields: ["routineId", "productId"],
+        name: "routine_products_routine_id_product_id_unique",
+      },
+    ],
+  },
 );
 
 export default RoutineProduct;

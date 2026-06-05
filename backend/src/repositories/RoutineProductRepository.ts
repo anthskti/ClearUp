@@ -1,9 +1,10 @@
 import sequelize from "../db";
 import RoutineProductModel from "../models/RoutineProduct";
+import type { RoutineNoteUpdateInput } from "../lib/routineProductNotes";
+import { toNoteOnlyPatch } from "../lib/routineProductNotes";
 import {
   CreateRoutineProductInput,
   RoutineProduct,
-  TimeOfDay,
   UpdateRoutineProductInput,
 } from "../types/routine";
 
@@ -13,8 +14,8 @@ export class RoutineProductRepository {
     const routineProducts = await RoutineProductModel.findAll({
       where: { routineId },
       order: [
-        ["timeOfDay", "ASC"],
-        ["stepOrder", "ASC"],
+        ["category", "ASC"],
+        ["productId", "ASC"],
       ],
     });
     return routineProducts.map((rp: any) => this.mapToRoutineProductType(rp));
@@ -38,14 +39,36 @@ export class RoutineProductRepository {
     });
   }
 
-  async updateByRoutineProductSlot(
+  // BATCH UPDATE: user product notes only (AM/PM text + step order).
+  async updateNotesBatch(
+    routineId: number,
+    updates: RoutineNoteUpdateInput[],
+  ): Promise<RoutineProduct[]> {
+    return sequelize.transaction(async (transaction) => {
+      const updated: RoutineProduct[] = [];
+      for (const entry of updates) {
+        const patch = toNoteOnlyPatch(entry);
+        const [rows, updatedRows] = await RoutineProductModel.update(patch, {
+          where: { routineId, productId: entry.productId },
+          returning: true,
+          transaction,
+        });
+        const row = Array.isArray(updatedRows) ? updatedRows[0] : updatedRows;
+        if (rows > 0 && row) {
+          updated.push(this.mapToRoutineProductType(row));
+        }
+      }
+      return updated;
+    });
+  }
+
+  async updateByRoutineAndProduct(
     routineId: number,
     productId: number,
-    timeOfDay: TimeOfDay,
     updates: UpdateRoutineProductInput,
   ): Promise<RoutineProduct | null> {
     const [rows, updatedRows] = await RoutineProductModel.update(updates, {
-      where: { routineId, productId, timeOfDay },
+      where: { routineId, productId },
       returning: true,
     });
     const updated = Array.isArray(updatedRows) ? updatedRows[0] : updatedRows;
@@ -63,12 +86,11 @@ export class RoutineProductRepository {
   // POST a routine with data
   async create(routineProductData: CreateRoutineProductInput): Promise<RoutineProduct> {
     try {
-      const routineProduct = await RoutineProductModel.create(
-        routineProductData
-      );
+      const routineProduct =
+        await RoutineProductModel.create(routineProductData);
       return this.mapToRoutineProductType(routineProduct);
     } catch (error: any) {
-      if (error.name === "SequilizeUniqueConstraintError") {
+      if (error.name === "SequelizeUniqueConstraintError") {
         throw new Error("This product already exists in this routine.");
       }
       if (error.name === "SequelizeForeignKeyConstraintError") {
@@ -88,7 +110,7 @@ export class RoutineProductRepository {
       {
         where: { id },
         returning: true,
-      }
+      },
     );
     return rows > 0
       ? this.mapToRoutineProductType(updatedRoutineProduct)
@@ -107,9 +129,10 @@ export class RoutineProductRepository {
       routineId: dbRoutineProduct.routineId,
       productId: dbRoutineProduct.productId,
       category: dbRoutineProduct.category,
-      timeOfDay: dbRoutineProduct.timeOfDay,
-      stepOrder: dbRoutineProduct.stepOrder,
-      userNote: dbRoutineProduct.userNote,
+      amNote: dbRoutineProduct.amNote,
+      pmNote: dbRoutineProduct.pmNote,
+      amStepOrder: dbRoutineProduct.amStepOrder,
+      pmStepOrder: dbRoutineProduct.pmStepOrder,
     };
   }
 }

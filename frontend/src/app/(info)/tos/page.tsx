@@ -17,7 +17,7 @@ export default function TermsOfServicePage() {
           by these Terms of Service. If you do not agree to these terms, please
           do not use this platform.
         </p>
-        <h2>The ClearUp Service</h2>
+        <h2>1. The ClearUp Service</h2>
         <p>
           Clearup is a platform designed to help users build, organize, and
           track personal skincare routines, as well as discover product
@@ -25,7 +25,7 @@ export default function TermsOfServicePage() {
           suspend, or discontinue any part of the Service at any time without
           notice.
         </p>
-        <h2>Medical Disclaimer (Not Professional Advice)</h2>
+        <h2>2. Medical Disclaimer (Not Professional Advice)</h2>
         <p>
           The information provided on Clearup including routine suggestions,
           product descriptions, skin type compatibility, and community

@@ -158,7 +158,7 @@ Rate limits: global (300 / 15 min), stricter caps on routine/merchant POST and a
 | `/product/id/[slug]`        | Product detail + merchant offers               |
 | `/builder`                  | Routine builder (local + save)                 |
 | `/routine/[id]`             | Shared routine view                            |
-| `/guides`                   | Community guides with filters                  |
+| `/routines`                 | Community routines with filters (`/guides` redirects here) |
 | `/profile/*`                | Saved/created routines, preferences            |
 | `/login`, `/register`, …    | Auth flows                                     |
 | `/admin/*`                  | Admin dashboard (role-gated)                   |

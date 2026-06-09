@@ -67,15 +67,22 @@ export default function RoutinePreviewCard({
       <div className={cn(cardShell, "overflow-hidden")}>
         <div className="flex flex-1 flex-col p-5">
           <div className="mb-3 flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <h3 className="line-clamp-2 font-bold leading-snug text-zinc-900 transition-colors group-hover/card:text-blue-600">
+            <div className="min-w-0 flex-1">
+              <h3
+                className="line-clamp-2 h-11 font-bold leading-snug text-zinc-900 transition-colors group-hover/card:text-blue-600"
+                title={name}
+              >
                 {name}
               </h3>
-              {authorLabel?.trim() && (
-                <p className="mt-1 text-xs text-zinc-500">
-                  by {authorLabel.trim()}
-                </p>
-              )}
+              <p
+                className={cn(
+                  "mt-1 line-clamp-1 min-h-4 text-xs text-zinc-500",
+                  !authorLabel?.trim() && "invisible",
+                )}
+                title={authorLabel?.trim() ? `by ${authorLabel.trim()}` : undefined}
+              >
+                {authorLabel?.trim() ? `by ${authorLabel.trim()}` : "\u00a0"}
+              </p>
             </div>
             {(showFeaturedStar || showPrice) && (
               <div className="flex shrink-0 items-center gap-2">
@@ -114,7 +121,7 @@ export default function RoutinePreviewCard({
             </div>
           )}
           {skinTypeTags.length > 0 && (
-            <div className="mb-3 flex flex-wrap gap-1.5">
+            <div className="mb-3 flex h-6 flex-wrap gap-1.5 overflow-hidden">
               {skinTypeTags.map((t) => (
                 <span
                   key={t}

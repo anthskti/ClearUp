@@ -319,7 +319,15 @@ export default async function ViewRoutine({ params }: RoutineProps) {
             </div>
           ))}
         </div>
-
+        {canEditRoutine ? (
+          <RoutineProductsNotesEditor
+            routineId={routineData.id}
+            canEdit={canEditRoutine}
+            initialProducts={routineProducts}
+          />
+        ) : (
+          <RoutineProductNotesView products={routineProducts} />
+        )}
         <div
           className={`
           bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-4 z-20 px-6 py-4
@@ -355,7 +363,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                 {totalItems} items selected
               </span>
               {routineData.description?.trim() ? (
-                <p className="mt-2 max-w-2xl text-sm text-zinc-500">
+                <p className="mt-2 max-w-2xl text-sm text-zinc-800">
                   <span className="font-bold">Description:</span> <br />{" "}
                   {routineData.description}
                 </p>
@@ -372,16 +380,6 @@ export default async function ViewRoutine({ params }: RoutineProps) {
             </div>
           </div>
         </div>
-
-        {canEditRoutine ? (
-          <RoutineProductsNotesEditor
-            routineId={routineData.id}
-            canEdit={canEditRoutine}
-            initialProducts={routineProducts}
-          />
-        ) : (
-          <RoutineProductNotesView products={routineProducts} />
-        )}
         {canEditRoutine && <DeleteRoutineButton routineId={routineData.id} />}
       </div>
     </div>

@@ -194,14 +194,14 @@ export default function Builder() {
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8]">
       <ProceduralWave seed={3} height={190} />
-      <div className="relative z-1 max-w-6xl mx-auto px-6 pt-20 pb-20">
+      <div className="relative z-1 max-w-6xl mx-auto px-6 pt-26 pb-20">
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#2E2E2E] uppercase">
-            Build Your Routine.
+            Build Your Routine
           </h1>
 
-          {/* External Link */}
-          <div className="flex items-center bg-white border border-zinc-200 rounded-md overflow-hidden shadow-sm max-w-lg w-full md:w-auto">
+          {/* External Link; removed */}
+          {/* <div className="flex items-center bg-white border border-zinc-200 rounded-md overflow-hidden shadow-sm max-w-lg w-full md:w-auto">
             <div className="bg-zinc-50 px-3 py-2 border-r border-zinc-200 text-zinc-400">
               <ExternalLink size={16} />
             </div>
@@ -221,7 +221,7 @@ export default function Builder() {
             >
               <Copy size={16} className="text-zinc-500 hover:text-black" />
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Table header */}
@@ -373,6 +373,14 @@ export default function Builder() {
             </div>
           ))}
         </div>
+        <BuilderProductNotesSection
+          modalProducts={modalProducts}
+          morningNotes={morningNotes}
+          eveningNotes={eveningNotes}
+          onAddNote={handleAddProductNote}
+          onUpdateNote={updateProductNote}
+          onRemoveNote={removeProductNote}
+        />
         <div
           className={`
           bottom-0 left-0 w-full bg-white border border-zinc-200 shadow-md rounded-lg mt-8 z-20 px-6 py-4
@@ -419,15 +427,6 @@ export default function Builder() {
             </div>
           </div>
         </div>
-
-        <BuilderProductNotesSection
-          modalProducts={modalProducts}
-          morningNotes={morningNotes}
-          eveningNotes={eveningNotes}
-          onAddNote={handleAddProductNote}
-          onUpdateNote={updateProductNote}
-          onRemoveNote={removeProductNote}
-        />
       </div>
     </div>
   );

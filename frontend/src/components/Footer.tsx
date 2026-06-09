@@ -91,7 +91,7 @@ function Footer() {
                   <Link href="/products/category/other">View Products</Link>
                 </li>
                 <li>
-                  <Link href="/guides">View Guides</Link>
+                  <Link href="/routines">View Routines</Link>
                 </li>
                 <li>
                   <Link href="/faq">FAQ</Link>

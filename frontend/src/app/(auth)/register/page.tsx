@@ -123,7 +123,7 @@ export default function RegisterPage() {
               <div className="relative">
                 <input
                   type={isVisible ? "text" : "password"}
-                  placeholder="clear up your skin safely"
+                  placeholder="password"
                   className="text-sm w-full p-2 border border-zinc-400 rounded"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

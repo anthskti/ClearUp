@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import ClearupLogoLink from "@/components/ClearupLogoLink";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import {
@@ -20,10 +20,10 @@ import { broadcastSignOut } from "@/hooks/useCrossTabSignOut";
 import { useEffectiveRole } from "@/hooks/useEffectiveRole";
 
 const navItems = [
-  { name: "Home", href: "/" },
+  // { name: "Home", href: "/" },
   { name: "Builder", href: "/builder" },
   { name: "Products", href: "/products" },
-  { name: "Guides", href: "/guides" },
+  { name: "Routines", href: "/routines" },
 ];
 
 const productCategories = [
@@ -105,7 +105,7 @@ function Header() {
   const authButtonClass = `flex items-center text-black text-xs px-2 py-2 transition-colors duration-300 rounded-md border shrink-0 ${
     isScrolled
       ? "border-gray-400 hover:bg-gray-200"
-      : "border-white hover:bg-gray-100/50"
+      : "border-gray-400 hover:bg-gray-100/50"
   }`;
 
   return (
@@ -124,17 +124,7 @@ function Header() {
           >
             <Menu className="h-5 w-5" />
           </button>
-          <Link href="/" className="inline-flex min-w-0 shrink">
-            <Image
-              src="/assets/clearuplogov11.png"
-              alt="Clearup"
-              width={2048}
-              height={663}
-              priority
-              draggable={false}
-              className="h-8 w-auto max-w-[min(42vw,140px)] md:h-10 md:max-w-[150px]"
-            />
-          </Link>
+          <ClearupLogoLink priority />
           {/* <p className="font-bold tracking-widest text-lg">CLEARUP</p> */}
         </div>
 

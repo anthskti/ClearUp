@@ -20,7 +20,7 @@ function buildGuidesHref(
     params.set("page", String(page));
   }
   const qs = params.toString();
-  return qs ? `/guides?${qs}` : "/guides";
+  return qs ? `/routines?${qs}` : "/routines";
 }
 
 export default function GuidesPagination({

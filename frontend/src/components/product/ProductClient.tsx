@@ -57,10 +57,10 @@ export default function ProductClient({
         <div className="lg:col-span-7 flex flex-col">
           {/* 1. Brand and Product Name */}
           <div className="mb-6">
-            <h1 className="text-4xl font-extrabold text-black mb-1 uppercase">
+            <h1 className="text-2xl text-zinc-600 font-semibold">
               {product.brand}
             </h1>
-            <h2 className="text-2xl text-zinc-600 font-light ">
+            <h2 className="text-4xl font-bold text-black mb-1">
               {product.name}
             </h2>
             <ProductRating

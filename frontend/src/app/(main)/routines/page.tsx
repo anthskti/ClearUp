@@ -21,7 +21,7 @@ type Props = {
   }>;
 };
 
-export default async function GuidesPage({ searchParams }: Props) {
+export default async function CommunityRoutinesPage({ searchParams }: Props) {
   const sp = await searchParams;
   const tagsParam = sp.tags?.trim() ?? "";
   const minPriceParam = sp.minPrice?.trim() ?? "";
@@ -31,11 +31,9 @@ export default async function GuidesPage({ searchParams }: Props) {
   const offset = (page - 1) * limit;
 
   const initialTags = parseSkinTypeTagsFromParam(tagsParam);
-  // to view loading
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
-  let guides: GuideRoutine[] = [];
+  let routines: GuideRoutine[] = [];
   try {
-    guides = await getPublicGuides({
+    routines = await getPublicGuides({
       tags: tagsParam,
       minPrice: minPriceParam,
       maxPrice: maxPriceParam,
@@ -44,15 +42,15 @@ export default async function GuidesPage({ searchParams }: Props) {
     });
   } catch {}
 
-  const hasNext = guides.length === limit;
+  const hasNext = routines.length === limit;
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8]">
       <ProceduralWave seed={7} height={160} />
-      <div className="relative z-1 mx-auto max-w-6xl px-6 pt-20 pb-20">
+      <div className="relative z-1 mx-auto max-w-6xl px-6 pt-26 pb-20">
         <header className="mb-10">
           <h1 className="text-3xl font-extrabold uppercase text-[#2E2E2E] md:text-4xl">
-            Community guides
+            Community Routines
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-zinc-600">
             Public routines from registered members. Use filters to narrow by
@@ -68,7 +66,7 @@ export default async function GuidesPage({ searchParams }: Props) {
           />
         </div>
 
-        <GuidesGrid items={guides} />
+        <GuidesGrid items={routines} />
 
         <GuidesPagination
           page={page}

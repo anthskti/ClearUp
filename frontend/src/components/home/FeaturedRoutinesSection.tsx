@@ -22,13 +22,12 @@ export default async function FeaturedRoutinesSection() {
   return (
     <section className="bg-white py-16 px-4 md:px-8">
       <div className="relative mx-auto max-w-7xl">
-        <div className="mb-8 text-center md:text-left md:pr-24">
+        <div className="mb-8 text-center">
           <h2 className="text-2xl font-bold text-zinc-900">
             Featured Skincare Routines
           </h2>
           <p className="mt-2 text-sm text-zinc-500">
-            These routines are hand-picked routines from the community along
-            with potential celebrity routines from sources.
+            Hand-picked routines from the community.
           </p>
         </div>
         <FeaturedRoutinesClient items={cards} />

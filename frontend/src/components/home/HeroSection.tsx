@@ -1,8 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
-
-import { ArrowRight, Sparkles, Droplets } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
   return (
@@ -22,9 +21,9 @@ const HeroSection = () => {
       <div className="container mx-auto relative grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10 px-6 py-12">
         {/* Left Column */}
         <div className="flex flex-col gap-6 max-w-2xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 text-sm font-medium w-fit mb-4">
+          {/* <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 text-sm font-medium w-fit mb-4">
             <Sparkles className="w-4 h-4" />
-            {/* <Image
+            <Image
               src="/assets/clearuploading.png"
               alt="logo"
               width="16"
@@ -32,9 +31,9 @@ const HeroSection = () => {
               draggable={false}
               className="object-cover"
               sizes="16px"
-            /> */}
+            />
             <span>Your Skincare Organizer</span>
-          </div>
+          </div> */}
           <h1 className="text-4xl md:text-5xl font-bold text-stone-900 mb-6 max-w-3xl">
             {/* font-medium font-serif */}
             Pick <span className="italic">Products</span>
@@ -63,13 +62,13 @@ const HeroSection = () => {
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
               </Button>
             </Link>
-            <Link href="/guides" passHref>
+            <Link href="/routines" passHref>
               <Button
                 variant="secondary"
                 size="lg"
                 className="w-full sm:w-auto transition-all hover:shadow-lg hover:shadow-[#0E4B84]/20"
               >
-                View Guides
+                View Routines
               </Button>
             </Link>
           </div>

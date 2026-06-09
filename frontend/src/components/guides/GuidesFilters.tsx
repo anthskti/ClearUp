@@ -52,22 +52,22 @@ export default function GuidesFilters({
       p.set("maxPrice", String(maxPrice));
     }
     const qs = p.toString();
-    router.push(qs ? `/guides?${qs}` : "/guides");
+    router.push(qs ? `/routines?${qs}` : "/routines");
   };
 
   const clear = () => {
     setTags([]);
     setPriceRange([0, GUIDES_PRICE_SLIDER_MAX]);
-    router.push("/guides");
+    router.push("/routines");
   };
 
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
-      <div className="mb-3 text-sm font-semibold text-zinc-900">Filters</div>
+      {/* <div className="mb-3 text-sm font-semibold text-zinc-900">Filters</div>
       <p className="mb-4 text-xs text-zinc-500">
         Tags match routine skin types. Price range uses the sum of catalog
         prices in each routine (CAD).
-      </p>
+      </p> */}
       <div className="mb-4">
         <div className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
           Matches any selected tag

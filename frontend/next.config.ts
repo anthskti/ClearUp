@@ -8,6 +8,15 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 });
 
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/guides",
+        destination: "/routines",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     unoptimized: false, // Enable Next.js optimization
     remotePatterns: [

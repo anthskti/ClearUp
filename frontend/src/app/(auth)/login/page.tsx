@@ -51,7 +51,9 @@ export default function LoginPage() {
         errorCallbackURL: `${window.location.origin}/login`,
       });
       if (error) {
-        alert(error.message || "Google sign-in failed. Check the API is running.");
+        alert(
+          error.message || "Google sign-in failed. Check the API is running.",
+        );
         return;
       }
       if (data?.url) {
@@ -69,7 +71,7 @@ export default function LoginPage() {
     <div className="flex flex-col items-center justify-center min-h-screen">
       <ProceduralWave seed={4} height={190} />
       <div className="w-full max-w-lg px-4 md:w-3/5 lg:w-2/5">
-        <h1 className="text-2xl font-semibold mb-4">Sign In to ClearUp</h1>
+        <h1 className="text-2xl font-semibold mb-4">Sign In to Clearup</h1>
         {/* Googles oauth button */}
         <Button
           type="button"
@@ -125,7 +127,7 @@ export default function LoginPage() {
               <div className="relative">
                 <input
                   type={isVisible ? "text" : "password"}
-                  placeholder="clear up your skin safely"
+                  placeholder="password"
                   className="text-sm w-full p-2 border rounded"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

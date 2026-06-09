@@ -110,11 +110,13 @@ export default function ProductListFiltersSidebar({
       ? ALL_PRODUCTS_CONFIG
       : (CATEGORY_CONFIG[scope.slug as CategoryKey] ?? CATEGORY_CONFIG.default);
 
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    skinType: true,
-    brand: false,
-    price: false,
-  });
+  // const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+  //   skinType: true,
+  //   brand: false,
+  //   price: false,
+  // });
+
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const toggleSection = (id: string) => {
     setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -127,7 +129,7 @@ export default function ProductListFiltersSidebar({
         key={filter.id}
         id={filter.id}
         title={filter.labels}
-        isOpen={openSections[filter.id] ?? false}
+        isOpen={openSections[filter.id] ?? true}
         onToggle={() => toggleSection(filter.id)}
       >
         {filter.options.map((opt) => {

@@ -1,5 +1,6 @@
 import { InfoArticle } from "@/components/info/InfoArticle";
 import ProceduralWave from "@/components/themes/ProceduralWave";
+import { SUPPORT_EMAIL, SUPPORT_MAILTO } from "@/constants/mail";
 
 export default function TermsOfServicePage() {
   return (
@@ -9,72 +10,98 @@ export default function TermsOfServicePage() {
         title="Terms of Service (TOS)"
         description="Terms that govern use of Clearup."
       >
-        <h3>Terms of Service Last Updated: May 9, 2026</h3>
+        <h3>Terms of Service Last Updated: June 8, 2026</h3>
         <h2>Welcome to Clearup!</h2>
         <p>
           By accessing or using this website and services, you agree to be bound
           by these Terms of Service. If you do not agree to these terms, please
           do not use this platform.
         </p>
-        <h2>1. Nature of the Platform & Medical Disclaimer</h2>
+        <h2>The ClearUp Service</h2>
         <p>
-          Clearup is a community-driven platform designed to help users
-          organize, track, and share their skincare routines. Clearup does not
-          provide medical advice. The routines, product lists, and guides shared
-          on this platform are for informational and educational purposes only.
-          Always consider consulting with a qualified dermatologist or
-          healthcare provider before starting a new skincare routine, especially
-          if you have existing skin conditions or allergies. Clearup is not
-          liable for any adverse reactions, skin damage, or health issues
-          resulting from products discovered or routines copied from our
-          platform.
+          Clearup is a platform designed to help users build, organize, and
+          track personal skincare routines, as well as discover product
+          information and marketplace pricing. We reserve the right to modify,
+          suspend, or discontinue any part of the Service at any time without
+          notice.
         </p>
-        <h2>2. User Accounts and Security</h2>
+        <h2>Medical Disclaimer (Not Professional Advice)</h2>
         <p>
-          To access certain features, such as having a history of your own
-          routines or being able to see your routine on the featured or guide
-          page, you must register for an account. You are responsible for
-          maintaining the confidentiality of your login credentials and for all
-          activities that occur under your account. You agree to provide
-          accurate email information during registration.
+          The information provided on Clearup including routine suggestions,
+          product descriptions, skin type compatibility, and community
+          comments—is for informational and educational purposes only. Clearup
+          is not a substitute for professional medical advice, diagnosis, or
+          treatment. Always seek the advice of a qualified dermatologist or
+          healthcare provider with any questions you may have regarding a skin
+          condition or product reaction. Never disregard professional medical
+          advice or delay in seeking it because of something you have read on
+          Clearup.
         </p>
-        <h2>3. User-Generated Content</h2>
+        <h2>3. Third-Party Products, Intellectual Property, and Pricing</h2>
         <p>
-          Clearup allows you to create, post, and share public skincare guides
-          and routines. You retain ownership of the content you create. However,
-          by setting a routine to "public," you grant Clearup a non-exclusive,
-          royalty-free license to display, distribute, and reproduce that
-          content across the platform. You agree not to post content that is
-          illegal, abusive, harassing, or spam.
+          Clearup gets product information, pricing, and availability from
+          various third-party retailers and marketplaces.
         </p>
-        <h2>4. Acceptable Use Policy</h2>
+        <ul>
+          <li>
+            Data Accuracy: While we strive to keep marketplace data updated,
+            product prices and availability are subject to change without
+            notice. The price and availability displayed on the respective
+            third-party merchant's site at the time of purchase will strictly
+            dictate the final transaction.
+          </li>
+          <li>
+            Trademarks: All product names, brand logos, and marketing images
+            featured on Clearup are the intellectual property and trademarks of
+            their respective owners. Clearup is an independent aggregator and is
+            not affiliated with, endorsed by, or sponsored by these brands or
+            retailers.
+          </li>
+          <li>
+            Affiliate Disclosure: Clearup may participate in affiliate marketing
+            programs and may allow affiliate links to be encoded on some of our
+            pages. This means that we may earn a commission when you click on or
+            make purchases via third-party links. We'll tell you this once it
+            happens though
+          </li>
+        </ul>
+        <h2>4. User Account and Content</h2>
         <p>
-          You agree to use Clearup only for its intended purpose. You may not:
-          Use the platform to send unauthorized commercial communications or
-          spam. Attempt to bypass, exploit, or hack our authentication systems
-          or email verification processes. Post false, misleading, or malicious
-          links within routine descriptions.
+          To utilize features such as saving routines or adding user notes, you
+          must create an account. You are responsible for safeguarding your
+          login credentials and for all activities that occur under your
+          account.
+          <br />
+          By posting notes, routine descriptions, or community comments on
+          Clearup, you grant us a non-exclusive, royalty-free license to use,
+          display, and distribute that content within the Service. We reserve
+          the right to remove any user-generated content that violates these
+          Terms or is deemed inappropriate, spam, or abusive.
         </p>
-        <h2>5. Account Termination </h2>
+        <h2>5. Limitation of Liability</h2>
         <p>
-          We reserve the right to suspend or terminate your account at any time,
-          without notice, if we determine that you have violated these Terms of
-          Service, engaged in spamming, or abused the platform's features.
+          To the fullest extent permitted by law, Clearup shall not be liable
+          for any indirect, incidental, special, consequential, or punitive
+          damages, or any loss of profits or revenues, whether incurred directly
+          or indirectly, or any loss of data, use, goodwill, or other intangible
+          losses, resulting from (a) your access to or use of or inability to
+          access or use the Service; (b) any conduct or content of any third
+          party on the Service; or (c) any adverse physical reactions to
+          products discovered or tracked through the Service.
         </p>
-        <h2>6. Limitation of Liability</h2>
+        <h2>6. Changes to Terms</h2>
         <p>
-          Clearup is provided on an "as-is" and "as-available" basis. We make no
-          warranties, expressed or implied, regarding the accuracy of product
-          data, the continuous availability of the site, or the efficiency of
-          any skincare routine. In no event shall Clearup be liable for any
-          direct, indirect, incidental, or consequential damages arising from
-          your use of the platform.
+          We may update these Terms from time to time. We will notify you of any
+          changes by posting the new Terms on this page. Your continued use of
+          the Service after any such changes constitutes your acceptance of the
+          new Terms.
         </p>
-        <h2>7. Changes to these Terms</h2>
+        <h2>7. Contact Us</h2>
         <p>
-          We may update these Terms of Service from time to time. We will notify
-          users of significant changes by updating the "Last Updated" date at
-          the top of this page.
+          If you have any questions about these Terms, please contact us at{" "}
+          <a href={SUPPORT_MAILTO} className="text-black hover:text-slate-800">
+            {SUPPORT_EMAIL}
+          </a>
         </p>
       </InfoArticle>
     </div>

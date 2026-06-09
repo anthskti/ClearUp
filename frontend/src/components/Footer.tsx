@@ -3,9 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import React from "react";
-
-const SUPPORT_EMAIL = "support.clearup@gmail.com";
-const SUPPORT_MAILTO = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("ClearUp — Question or concern")}`;
+import { SUPPORT_EMAIL, SUPPORT_MAILTO } from "@/constants/mail";
 
 export function InstagramIcon({ className }: { className?: string }) {
   return (

@@ -5,7 +5,7 @@ import { X, Search, Check, Loader2 } from "lucide-react";
 import { getAllMerchants } from "@/lib/merchants";
 import { addMerchantByProductId } from "@/lib/products";
 import { Merchant } from "@/types/merchant";
-import Image from "next/image";
+import ProductImage from "@/components/ui/ProductImage";
 import { useRouter } from "next/navigation";
 
 interface AddMerchantModalProps {
@@ -125,12 +125,12 @@ export default function AddMerchantModal({
                       <div className="w-8 h-8 rounded-full bg-white border border-zinc-100 flex items-center justify-center overflow-hidden shrink-0">
                         {/* No logo */}
                         {merchant.logo ? (
-                          <Image
+                          <ProductImage
                             src={merchant.logo}
                             alt={merchant.name}
                             width={32}
                             height={32}
-                            sizes="(max-width: 1200px) 50vw, 33vw"
+                            sizes="32px"
                           />
                         ) : (
                           <span className="text-xs font-bold text-zinc-400">

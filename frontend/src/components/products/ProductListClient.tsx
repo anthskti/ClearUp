@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import Image from "next/image";
+import ProductImage from "@/components/ui/ProductImage";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import ProductRating from "@/components/product/ProductRating";
@@ -130,7 +130,7 @@ export default function ProductListClient({
         return (
           <div className="flex items-center gap-3">
             {thumb ? (
-              <Image
+              <ProductImage
                 src={thumb}
                 alt={product.name}
                 width={44}

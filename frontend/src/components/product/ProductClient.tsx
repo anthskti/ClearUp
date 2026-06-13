@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import ProductImage from "@/components/ui/ProductImage";
 import dynamic from "next/dynamic";
 import { ChevronDown, ExternalLink, Check } from "lucide-react";
 
@@ -197,13 +197,13 @@ export default function ProductClient({
                     >
                       <td className="px-4 py-4 font-medium text-zinc-900">
                         <div className="flex flex-col items-center">
-                          <Image
+                          <ProductImage
                             src={merchant.merchant?.logo || ""}
                             alt={merchant.merchant?.name || "Unknown Merchant"}
                             width={20}
                             height={20}
                             className="object-cover"
-                            sizes="(max-width: 1200px) 50vw, 33vw"
+                            sizes="20px"
                           />
                           <span className="text-xs text-zinc-500">
                             {merchant.merchant?.name || "Unknown Merchant"}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import ProductImage from "@/components/ui/ProductImage";
 import { ExternalLink } from "lucide-react";
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import { getRoutineById, getRoutineWithProducts } from "@/lib/routines";
@@ -180,13 +180,13 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                         <div key={prod.id} className="flex items-center gap-4">
                           <div className="w-12 h-12 md:w-16 md:h-16 bg-zinc-100 rounded-md border border-zinc-200 shrink-0 overflow-hidden">
                             {prod.imageUrls && prod.imageUrls[0] ? (
-                              <Image
+                              <ProductImage
                                 src={prod.imageUrls[0]}
                                 alt={prod.name}
                                 width={64}
                                 height={64}
                                 className="w-full h-full object-cover"
-                                sizes="(max-width: 1200px) 50vw, 33vw"
+                                sizes="64px"
                               />
                             ) : (
                               <div className="w-full h-full bg-zinc-200" />

@@ -18,7 +18,10 @@ const nextConfig = {
     ];
   },
   images: {
-    unoptimized: false, // Enable Next.js optimization
+    unoptimized: false,
+    deviceSizes: [640, 828, 1080, 1200],
+    imageSizes: [32, 48, 64, 96, 128, 256],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       // Generic Cloudfront
       {

@@ -10,7 +10,7 @@ import {
 import { Copy, Plus, ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProceduralWave from "@/components/themes/ProceduralWave";
-import Image from "next/image";
+import ProductImage from "@/components/ui/ProductImage";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useBuilderRoutine } from "@/hooks/useBuilderRoutine";
@@ -277,13 +277,13 @@ export default function Builder() {
                       <div className="flex items-center gap-4 md:col-span-7 md:col-start-3">
                         <div className="w-12 h-12 md:w-16 md:h-16 bg-zinc-100 rounded-md border border-zinc-200 shrink-0 overflow-hidden">
                           {prod.imageUrls && prod.imageUrls[0] ? (
-                            <Image
+                            <ProductImage
                               src={prod.imageUrls[0]}
                               alt={prod.name}
                               width={64}
                               height={64}
                               className="w-full h-full object-cover"
-                              sizes="(max-width: 1200px) 50vw, 33vw"
+                              sizes="64px"
                             />
                           ) : (
                             <div className="w-full h-full bg-zinc-200" />
@@ -323,13 +323,13 @@ export default function Builder() {
                         <div className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm">
                           {prod.merchantLogo &&
                           prod.merchantLogo.startsWith("http") ? (
-                            <Image
+                            <ProductImage
                               src={prod.merchantLogo}
                               alt={prod.merchant || "Merchant"}
                               width={20}
                               height={20}
                               className="object-cover rounded-sm"
-                              sizes="(max-width: 1200px) 50vw, 33vw"
+                              sizes="20px"
                             />
                           ) : (
                             <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center text-[10px] text-blue-700">

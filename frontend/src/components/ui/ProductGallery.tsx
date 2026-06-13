@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import Image from "next/image";
+import ProductImage from "@/components/ui/ProductImage";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ProductImageGalleryProps {
@@ -49,13 +49,13 @@ const ProductImageGallery = ({ imageUrls }: ProductImageGalleryProps) => {
               key={index}
               className="min-w-full h-full relative flex items-center justify-center"
             >
-              <Image
+              <ProductImage
                 src={url}
                 alt={`Product view ${index + 1}`}
                 fill
                 className="object-contain p-2"
                 priority={index === 0}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 1024px) 100vw, 400px"
               />
             </div>
           ))}
@@ -95,12 +95,12 @@ const ProductImageGallery = ({ imageUrls }: ProductImageGalleryProps) => {
               }
             `}
           >
-            <Image
+            <ProductImage
               src={url}
               alt={`Thumbnail ${index + 1}`}
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="64px"
             />
           </button>
         ))}

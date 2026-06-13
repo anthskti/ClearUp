@@ -143,13 +143,40 @@ export function parseInstructions(raw: string | undefined): string[] {
 
 export function parseImageUrls(raw: string | undefined): string[] {
   if (!raw?.trim()) return [];
-  if (raw.includes("|")) {
-    return raw
+  const trimmed = raw.trim();
+
+  if (trimmed.includes("|")) {
+    return trimmed
       .split("|")
       .map((s) => s.trim())
       .filter(Boolean);
   }
-  return [raw.trim()];
+
+  // Comma-separated absolute URLs (e.g. The Ordinary scraper rows).
+  // Split only before "http(s)://" so query-string commas stay intact.
+  if (/,https?:\/\//i.test(trimmed)) {
+    return trimmed
+      .split(/,(?=https?:\/\/)/i)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  return [trimmed];
+}
+
+// Expands pipe/comma-joined strings stored as a single array element.
+export function normalizeImageUrls(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    if (typeof value === "string") return parseImageUrls(value);
+    return [];
+  }
+
+  const out: string[] = [];
+  for (const item of value) {
+    if (typeof item !== "string") continue;
+    out.push(...parseImageUrls(item));
+  }
+  return out;
 }
 
 export function parseCategory(raw: string | undefined): ProductCategory | null {

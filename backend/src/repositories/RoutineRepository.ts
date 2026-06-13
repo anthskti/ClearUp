@@ -19,6 +19,7 @@ import {
 import PAGINATION from "../config/pagination";
 import { Op, QueryTypes, fn, col, literal } from "sequelize";
 import { sanitizeSkinTypeTags } from "../types/routineSkinTypeTags";
+import { normalizeImageUrls } from "../lib/csvProductImport";
 import type { SkinType } from "../types/product";
 import sequelize from "../db";
 
@@ -239,9 +240,10 @@ export class RoutineRepository {
       if (!bucket || bucket.length >= limitPerRoutine) {
         continue;
       }
-      const urls = (row as { product?: { imageUrls?: unknown } }).product
-        ?.imageUrls;
-      if (!Array.isArray(urls) || urls.length === 0) {
+      const urls = normalizeImageUrls(
+        (row as { product?: { imageUrls?: unknown } }).product?.imageUrls,
+      );
+      if (urls.length === 0) {
         continue;
       }
       const firstUrl = urls[0];
@@ -474,7 +476,7 @@ export class RoutineRepository {
                     name: rp.product.name,
                     brand: rp.product.brand,
                     price: rp.product.price,
-                    imageUrls: rp.product.imageUrls,
+                    imageUrls: normalizeImageUrls(rp.product.imageUrls),
                   }
                 : undefined,
             }),

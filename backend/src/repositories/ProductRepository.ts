@@ -16,6 +16,7 @@ import {
   buildGlobalProductFilterWhere,
   hasProductListFilters,
 } from "../lib/productFilterQuery";
+import { normalizeImageUrls } from "../lib/csvProductImport";
 
 export class ProductRepository {
   // Get all products with pagination, infinite scroll
@@ -306,7 +307,7 @@ export class ProductRepository {
       instructions: dbProduct.instructions || [],
       activeIngredient: dbProduct.activeIngredient,
       ingredients: dbProduct.ingredients,
-      imageUrls: dbProduct.imageUrls || [],
+      imageUrls: normalizeImageUrls(dbProduct.imageUrls),
       averageRating: dbProduct.averageRating || 0,
       reviewCount: dbProduct.reviewCount || 0,
       tags: dbProduct.tags || [],

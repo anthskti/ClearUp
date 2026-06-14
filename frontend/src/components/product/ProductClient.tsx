@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import ProductImageGallery from "@/components/ui/ProductGallery";
 import ProceduralWave from "@/components/themes/ProceduralWave";
 import getProductData from "@/components/product/details";
-import { DETAIL_CONFIG, CategoryKey } from "@/components/product/details";
+import { DETAIL_CONFIG } from "@/components/product/details";
 import AddToRoutineButton from "@/components/routine/AddToRoutineButton";
 import ProductRating from "@/components/product/ProductRating";
 import { useEffectiveRole } from "@/hooks/useEffectiveRole";
@@ -32,7 +32,7 @@ export default function ProductClient({
   merchantList,
 }: ProductClientProps) {
   const config =
-    DETAIL_CONFIG[product.category as CategoryKey] || DETAIL_CONFIG.default;
+    DETAIL_CONFIG[product.category] ?? DETAIL_CONFIG.default;
 
   const [isMerchantModalOpen, setIsMerchantModalOpen] = useState(false);
   const [ingredientsOpen, setIngredientsOpen] = useState(false);
@@ -100,7 +100,7 @@ export default function ProductClient({
               </h3>
             </div>
 
-            {/* Grid Layout for Details*/}
+            {/* Grid Layout for Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
               {config.sheet.map((col, index) => {
                 const displayValue = getProductData(product, col.dataKey);

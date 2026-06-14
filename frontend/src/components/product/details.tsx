@@ -214,6 +214,55 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
       },
     ],
   },
+  other: {
+    sheet: [
+      {
+        label: "Size",
+        dataKey: "capacity",
+        icon: <FlaskConical size={16} />,
+      },
+      {
+        label: "Country of Origin",
+        dataKey: "country",
+        icon: <MapPin size={16} />,
+      },
+      {
+        label: "Type",
+        dataKey: "labels[0]",
+        icon: <Droplets size={16} />,
+      },
+      {
+        label: "SkinType",
+        dataKey: "skinType",
+        icon: <Info size={16} />,
+      },
+    ],
+  },
+  // Generic fall back
+  default: {
+    sheet: [
+      {
+        label: "Size",
+        dataKey: "capacity",
+        icon: <FlaskConical size={16} />,
+      },
+      {
+        label: "Country of Origin",
+        dataKey: "country",
+        icon: <MapPin size={16} />,
+      },
+      {
+        label: "Type",
+        dataKey: "labels[0]",
+        icon: <Droplets size={16} />,
+      },
+      {
+        label: "SkinType",
+        dataKey: "skinType",
+        icon: <Info size={16} />,
+      },
+    ],
+  },
 };
 
 export type CategoryKey = keyof typeof DETAIL_CONFIG;

@@ -70,7 +70,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
         labels: "Effect",
         options: [
           "Hydrating",
-          " Calming",
+          "Calming",
           "Brightening",
           "Nourishing",
           "Repairing",
@@ -117,6 +117,23 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       { id: "name", labels: "Product", width: "col-span-5" },
       { id: "ac", labels: "Key Active", width: "col-span-1 text-center" },
       { id: "concentration", labels: "Conc.", width: "col-span-1 text-center" },
+      { id: "skinType", labels: "SkinType", width: "col-span-1" },
+      { id: "country", labels: "Country", width: "col-span-1 text-center" },
+      { id: "rating", labels: "Rating", width: "col-span-1 text-center" },
+      { id: "price", labels: "Price", width: "col-span-1 text-right" },
+      { id: "add", labels: "", width: "col-span-1 text-right" },
+    ],
+  },
+  eyecare: {
+    category: "Eye Care",
+    specificFilters: [
+      { id: "concern", labels: "Concern", options: ["Dark Circles", "Puffiness", "Fine Lines", "Hydrating", "Brightening"] },
+      { id: "format", labels: "Format", options: ["Cream", "Gel", "Serum", "Balm", "Patch"] },
+    ],
+    tableColumns: [
+      { id: "name", labels: "Product", width: "col-span-5 text-left" },
+      { id: "concern", labels: "Concern", width: "col-span-1 text-center" },
+      { id: "format", labels: "Format", width: "col-span-1 text-center" },
       { id: "skinType", labels: "SkinType", width: "col-span-1" },
       { id: "country", labels: "Country", width: "col-span-1 text-center" },
       { id: "rating", labels: "Rating", width: "col-span-1 text-center" },

@@ -20,19 +20,59 @@ export interface RoutineSlot {
   >;
 }
 
-const ROUTINE_SLOTS: RoutineSlot[] = [
+const CORE_ROUTINE_SLOTS: RoutineSlot[] = [
   { id: "cleanser", label: "Cleanser", products: [] },
   { id: "toner", label: "Toner", products: [] },
   { id: "essence", label: "Essence", products: [] },
   { id: "serum", label: "Serum", products: [] },
+  { id: "eyecare", label: "Eye Care", products: [] },
   { id: "moisturizer", label: "Moisturizer", products: [] },
   { id: "sunscreen", label: "Sunscreen", products: [] },
 ];
 
+const OTHER_SLOT: RoutineSlot = {
+  id: "other",
+  label: "Other",
+  products: [],
+};
+
 const STORAGE_KEY = "builder-routine";
 
 function createEmptyRoutine(): RoutineSlot[] {
-  return ROUTINE_SLOTS.map((slot) => ({ ...slot, products: [] }));
+  return CORE_ROUTINE_SLOTS.map((slot) => ({ ...slot, products: [] }));
+}
+
+function ensureSlotExists(
+  slots: RoutineSlot[],
+  category: ProductCategory,
+): RoutineSlot[] {
+  if (slots.some((slot) => slot.id === category)) return slots;
+  if (category === "other") {
+    return [...slots, { ...OTHER_SLOT, products: [] }];
+  }
+  return slots;
+}
+
+function dropEmptyOtherSlot(slots: RoutineSlot[]): RoutineSlot[] {
+  return slots.filter(
+    (slot) => slot.id !== "other" || slot.products.length > 0,
+  );
+}
+
+function mergeStoredRoutine(stored: RoutineSlot[]): RoutineSlot[] {
+  const byId = new Map(stored.map((slot) => [slot.id, slot]));
+  const merged: RoutineSlot[] = CORE_ROUTINE_SLOTS.map((slot) => ({
+    ...slot,
+    products: dedupeProductsById(byId.get(slot.id)?.products ?? []),
+  }));
+  const otherStored = byId.get("other");
+  if (otherStored?.products.length) {
+    merged.push({
+      ...OTHER_SLOT,
+      products: dedupeProductsById(otherStored.products),
+    });
+  }
+  return merged;
 }
 
 // Deduplicate products by ID for hydration
@@ -46,7 +86,7 @@ function dedupeProductsById<T extends { id: number }>(products: T[]): T[] {
 }
 
 export const useBuilderRoutine = () => {
-  const [routine, setRoutine] = useState<RoutineSlot[]>(ROUTINE_SLOTS);
+  const [routine, setRoutine] = useState<RoutineSlot[]>(createEmptyRoutine);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from localStorage on mount
@@ -56,13 +96,8 @@ export const useBuilderRoutine = () => {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          const normalized = expandStoredRoutine(normalizeStoredSlots(parsed)).map(
-            (slot) => ({
-              ...slot,
-              products: dedupeProductsById(slot.products),
-            }),
-          );
-          setRoutine(normalized);
+          const normalized = expandStoredRoutine(normalizeStoredSlots(parsed));
+          setRoutine(mergeStoredRoutine(normalized));
         } catch (e) {
           console.error("Failed to parse saved routine", e);
         }
@@ -91,8 +126,9 @@ export const useBuilderRoutine = () => {
   const addProductToSlot = useCallback(
     async (category: ProductCategory, product: Product) => {
       // Add product to the array for the slot if not already present
-      setRoutine((prev) =>
-        prev.map((slot) =>
+      setRoutine((prev) => {
+        const slots = ensureSlotExists(prev, category);
+        return slots.map((slot) =>
           slot.id === category
             ? {
                 ...slot,
@@ -108,8 +144,8 @@ export const useBuilderRoutine = () => {
                     ],
               }
             : slot,
-        ),
-      );
+        );
+      });
 
       // Fetch merchant info for this product and update only that product entry
       try {
@@ -169,16 +205,18 @@ export const useBuilderRoutine = () => {
   const removeProductFromSlot = useCallback(
     (category: ProductCategory, productId?: number | string) => {
       setRoutine((prev) =>
-        prev.map((slot) => {
-          if (slot.id !== category) return slot;
-          if (!productId) return { ...slot, products: [] };
-          return {
-            ...slot,
-            products: slot.products.filter(
-              (p) => String(p.id) !== String(productId),
-            ),
-          };
-        }),
+        dropEmptyOtherSlot(
+          prev.map((slot) => {
+            if (slot.id !== category) return slot;
+            if (!productId) return { ...slot, products: [] };
+            return {
+              ...slot,
+              products: slot.products.filter(
+                (p) => String(p.id) !== String(productId),
+              ),
+            };
+          }),
+        ),
       );
     },
     [],

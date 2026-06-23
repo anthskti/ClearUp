@@ -27,8 +27,10 @@ const ROUTINE_SLOTS = [
   { id: "toner", label: "Toner" },
   { id: "essence", label: "Essence" },
   { id: "serum", label: "Serum" },
+  { id: "eyecare", label: "Eye Care" },
   { id: "moisturizer", label: "Moisturizer" },
   { id: "sunscreen", label: "Sunscreen" },
+  { id: "other", label: "Other" },
 ];
 
 export async function generateMetadata({

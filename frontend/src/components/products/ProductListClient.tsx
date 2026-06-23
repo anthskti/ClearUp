@@ -109,6 +109,7 @@ export default function ProductListClient({
       effect: 0, // Essences
       ac: 0, // Serums
       spf: 0, // Sunscreens
+      concern: 0, // Eyecare
       concentration: 1, // Serums
       finish: 1, // Sunscreens & Moisturizer
       format: 1, // Toners

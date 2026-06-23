@@ -5,6 +5,7 @@ const VALID_CATEGORIES = new Set<ProductCategory>([
   "toner",
   "essence",
   "serum",
+  "eyecare",
   "moisturizer",
   "sunscreen",
   "other",

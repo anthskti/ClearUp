@@ -7,6 +7,7 @@ import {
   TestTubeDiagonal,
   Bubbles,
   Sparkles,
+  CircleQuestionMark,
 } from "lucide-react";
 import { Product } from "@/types/product";
 
@@ -149,6 +150,35 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         label: "Concentration",
         dataKey: "labels[1]",
         icon: <TestTubeDiagonal size={16} />,
+      },
+      {
+        label: "SkinType",
+        dataKey: "skinType",
+        icon: <Info size={16} />,
+      },
+    ],
+  },
+  eyecare: {
+    sheet: [
+      {
+        label: "Size",
+        dataKey: "capacity",
+        icon: <FlaskConical size={16} />,
+      },
+      {
+        label: "Country of Origin",
+        dataKey: "country",
+        icon: <MapPin size={16} />,
+      },
+      {
+        label: "Concern",
+        dataKey: "labels[0]",
+        icon: <CircleQuestionMark size={16} />,
+      },
+      {
+        label: "Format",
+        dataKey: "labels[1]",
+        icon: <Sparkles size={16} />,
       },
       {
         label: "SkinType",

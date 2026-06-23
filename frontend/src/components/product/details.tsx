@@ -6,6 +6,7 @@ import {
   FlaskConical,
   TestTubeDiagonal,
   Bubbles,
+  Sparkles,
 } from "lucide-react";
 import { Product } from "@/types/product";
 
@@ -90,6 +91,11 @@ export const DETAIL_CONFIG: Record<string, CategoryConfigEntry> = {
         label: "Benefits",
         dataKey: "labels[0]",
         icon: <Droplets size={16} />,
+      },
+      {
+        label: "Format",
+        dataKey: "labels[1]",
+        icon: <Sparkles size={16} />,
       },
       {
         label: "SkinType",

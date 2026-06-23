@@ -12,15 +12,16 @@ export const LABEL_FILTER_INDEX: Record<string, number> = {
   effect: 0,
   spf: 0,
   activeIngredient: 0, 
-  concentration: 1,
-  finish: 1,
+  concentration: 1, // serum
+  finish: 1, // moisturizer and sunscreen
+  format: 1, // toner
   filter: 2,
 };
 
 // Allowed filter query keys per category (from filters.tsx specificFilters).
 export const CATEGORY_FILTER_IDS: Record<ProductCategory, readonly string[]> = {
   cleanser: ["texture"],
-  toner: ["benefits"],
+  toner: ["benefits", "format"],
   essence: ["effect"],
   serum: ["activeIngredient", "concentration"],
   moisturizer: ["texture", "finish"],

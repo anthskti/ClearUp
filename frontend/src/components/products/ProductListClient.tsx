@@ -111,6 +111,7 @@ export default function ProductListClient({
       spf: 0, // Sunscreens
       concentration: 1, // Serums
       finish: 1, // Sunscreens & Moisturizer
+      format: 1, // Toners
       filter: 2, // Sunscreens
     };
 

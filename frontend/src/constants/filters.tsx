@@ -45,16 +45,16 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
         labels: "Benefits",
         options: ["Hydrating", "Exfoliating", "Calming", "Balancing"],
       },
-      // {
-      //   id: "type",
-      //   labels: "Type",
-      //   options: ["Bottled", "Pad"],
-      // },
+      {
+        id: "format",
+        labels: "Format",
+        options: ["Bottled", "Pad"],
+      },
     ],
     tableColumns: [
-      { id: "name", labels: "Product", width: "col-span-6 text-left" },
+      { id: "name", labels: "Product", width: "col-span-5 text-left" },
       { id: "benefits", labels: "Benefits", width: "col-span-1 text-center" },
-      // { id: "type", labels: "Type", width: "col-span-1 text-center"},
+      { id: "format", labels: "Format", width: "col-span-1 text-center"},
       { id: "skinType", labels: "SkinType", width: "col-span-1" },
       { id: "country", labels: "Country", width: "col-span-1 text-center" },
       { id: "rating", labels: "Rating", width: "col-span-1 text-center" },

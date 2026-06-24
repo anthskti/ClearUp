@@ -31,6 +31,7 @@ const productCategories = [
   { name: "Toners", href: "/products/category/toner" },
   { name: "Essences", href: "/products/category/essence" },
   { name: "Serums", href: "/products/category/serum" },
+  { name: "Eye Care", href: "/products/category/eyecare" },
   { name: "Moisturizers", href: "/products/category/moisturizer" },
   { name: "Sunscreens", href: "/products/category/sunscreen" },
 ];

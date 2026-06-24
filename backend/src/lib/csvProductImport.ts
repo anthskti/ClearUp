@@ -146,6 +146,7 @@ export function parseImageUrls(raw: string | undefined): string[] {
   if (!raw?.trim()) return [];
   const trimmed = raw.trim();
 
+  // Used for image seperation in the scraper
   if (trimmed.includes("|")) {
     return trimmed
       .split("|")

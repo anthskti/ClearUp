@@ -146,12 +146,19 @@ export default async function ViewRoutine({ params }: RoutineProps) {
             <div
               key={step.id}
               className={`
-              group bg-white rounded-xl border border-zinc-200 shadow-sm p-4 grid grid-cols-1 gap-4 items-center transition-all hover:bg-zinc-50/50
-              md:bg-transparent md:rounded-none md:border-0 md:border-b md:border-zinc-200 md:shadow-none md:px-2 md:py-5 md:grid-cols-12 
+              group bg-white rounded-xl border border-zinc-200 shadow-sm p-4 grid grid-cols-1 gap-4 transition-all hover:bg-zinc-50/50
+              md:bg-transparent md:rounded-none md:border-0 md:border-b md:border-zinc-200 md:shadow-none md:px-2 md:py-5 md:grid-cols-12 md:gap-y-4 md:items-center
               `}
             >
               {/* Category Label */}
-              <div className="col-span-1 md:col-span-2 flex justify-between md:block">
+              <div
+                className="col-span-1 md:col-span-2 flex justify-between md:block md:self-start"
+                style={
+                  step.products.length > 0
+                    ? { gridRow: `span ${step.products.length}` }
+                    : undefined
+                }
+              >
                 <span className="font-bold text-zinc-900 uppercase text-sm md:text-xs tracking-wide">
                   {step.label}
                 </span>
@@ -166,96 +173,73 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                 )}
               </div>
 
-              {/* Selection Area */}
-              <div className="col-span-1 md:col-span-7">
-                {step.products.length > 0 ? (
-                  // FILLED STATE
-                  <div className="flex flex-col gap-4">
-                    {step.products.map((prod) => {
-                      const best = pickLowestPriceOffer(
-                        offersByProductId[prod.id] ?? [],
-                      );
-                      const merchantName = best?.merchant?.name ?? "Direct";
-                      const merchantHref = best?.website?.trim() || undefined;
+              {step.products.length > 0 ? (
+                step.products.map((prod) => {
+                  const best = pickLowestPriceOffer(
+                    offersByProductId[prod.id] ?? [],
+                  );
+                  const merchantName = best?.merchant?.name ?? "Direct";
+                  const merchantHref = best?.website?.trim() || undefined;
+                  const logo = best?.merchant?.logo?.trim();
 
-                      return (
-                        <div key={prod.id} className="flex items-center gap-4">
-                          <div className="w-12 h-12 md:w-16 md:h-16 bg-zinc-100 rounded-md border border-zinc-200 shrink-0 overflow-hidden">
-                            {prod.imageUrls && prod.imageUrls[0] ? (
-                              <ProductImage
-                                src={prod.imageUrls[0]}
-                                alt={prod.name}
-                                width={64}
-                                height={64}
-                                className="w-full h-full object-cover"
-                                sizes="64px"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-zinc-200" />
-                            )}
+                  return (
+                    <div key={prod.id} className="col-span-1 md:contents">
+                      <div className="flex items-center gap-4 md:col-span-7 md:col-start-3">
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-zinc-100 rounded-md border border-zinc-200 shrink-0 overflow-hidden">
+                          {prod.imageUrls && prod.imageUrls[0] ? (
+                            <ProductImage
+                              src={prod.imageUrls[0]}
+                              alt={prod.name}
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-cover"
+                              sizes="64px"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-zinc-200" />
+                          )}
+                        </div>
+
+                        <div className="grow min-w-0">
+                          <div className="text-xs font-bold text-zinc-400 uppercase mb-0.5">
+                            {prod.brand}
                           </div>
-
-                          <div className="grow min-w-0">
-                            <div className="text-xs font-bold text-zinc-400 uppercase mb-0.5">
-                              {prod.brand}
-                            </div>
-                            <Link
-                              href={`/product/id/${prod.id}`}
-                              className="font-medium text-black leading-tight hover:underline hover:text-blue-800 block transition-all duration-100"
-                            >
-                              {prod.name}
-                            </Link>
-                            {/* Mobile Merchant Display */}
-                            <div className="md:hidden text-xs text-zinc-500 mt-1 flex items-center gap-1 flex-wrap">
-                              <span>via</span>
-                              {merchantHref ? (
-                                <a
-                                  href={merchantHref}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="underline underline-offset-2"
-                                >
-                                  {merchantName}
-                                </a>
-                              ) : (
-                                <span>{merchantName}</span>
-                              )}
-                              {merchantHref ? (
-                                <ExternalLink size={10} className="shrink-0" />
-                              ) : null}
-                            </div>
+                          <Link
+                            href={`/product/id/${prod.id}`}
+                            className="font-medium text-black leading-tight hover:underline hover:text-blue-800 block transition-all duration-100"
+                          >
+                            {prod.name}
+                          </Link>
+                          {/* Mobile Merchant Display */}
+                          <div className="md:hidden text-xs text-zinc-500 mt-1 flex items-center gap-1 flex-wrap">
+                            <span>via</span>
+                            {merchantHref ? (
+                              <a
+                                href={merchantHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline underline-offset-2"
+                              >
+                                {merchantName}
+                              </a>
+                            ) : (
+                              <span>{merchantName}</span>
+                            )}
+                            {merchantHref ? (
+                              <ExternalLink size={10} className="shrink-0" />
+                            ) : null}
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <></> // Empty state shows nothing
-                )}
-              </div>
+                      </div>
 
-              {/* Merchant Column (Desktop Only) */}
-              <div className="hidden md:flex col-span-1 items-center justify-center">
-                {step.products.length > 0 && (
-                  <div className="flex flex-col gap-8">
-                    {step.products.map((prod) => {
-                      const best = pickLowestPriceOffer(
-                        offersByProductId[prod.id] ?? [],
-                      );
-                      const merchantName = best?.merchant?.name ?? "-";
-                      const logo = best?.merchant?.logo?.trim();
-
-                      return (
-                        <div
-                          key={prod.id}
-                          className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm min-h-[44px]"
-                        >
+                      <div className="hidden md:flex md:col-span-1 items-center justify-center">
+                        <div className="flex items-center gap-2 p-3 bg-white border border-zinc-200 rounded text-xs font-bold text-zinc-700 shadow-sm min-h-[44px]">
                           {logo &&
                           logo !== "-" &&
                           /^https?:\/\//i.test(logo) ? (
                             <img
                               src={logo}
-                              alt="merchantName"
+                              alt={merchantName}
                               className="w-5 h-5 rounded object-cover shrink-0"
                             />
                           ) : (
@@ -264,60 +248,27 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                             </div>
                           )}
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Price Column (Desktop Only) */}
-              <div className="hidden md:block col-span-1 text-right">
-                {step.products.length > 0 ? (
-                  <div className="flex flex-col items-end gap-13">
-                    {step.products.map((p) => (
-                      <div
-                        key={p.id}
-                        className="text-lg font-bold text-zinc-900"
-                      >
-                        ${getDisplayPrice(p.id, p.price).toFixed(2)}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="text-zinc-200 font-medium">---</span>
-                )}
-              </div>
 
-              {/* Buy Column (Desktop Only) */}
-              <div className="hidden md:block col-span-1">
-                {step.products.length > 0 && (
-                  <div className="flex flex-col gap-8">
-                    {step.products.map((prod) => {
-                      const best = pickLowestPriceOffer(
-                        offersByProductId[prod.id] ?? [],
-                      );
-                      const merchantHref = best?.website?.trim() || undefined;
+                      <div className="hidden md:block md:col-span-1 text-right text-lg font-bold text-zinc-900">
+                        ${getDisplayPrice(prod.id, prod.price).toFixed(2)}
+                      </div>
 
-                      return (
-                        <div
-                          key={prod.id}
-                          className="flex items-center justify-end"
+                      <div className="hidden md:flex md:col-span-1 items-center justify-end">
+                        <a
+                          href={merchantHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
-                          <a
-                            href={merchantHref}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <Button variant="secondary" size="sm">
-                              Buy
-                            </Button>
-                          </a>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+                          <Button variant="secondary" size="sm">
+                            Buy
+                          </Button>
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : null}
             </div>
           ))}
         </div>

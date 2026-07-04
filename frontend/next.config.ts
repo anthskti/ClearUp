@@ -1,8 +1,5 @@
 import type { NextConfig } from "next";
 
-const IMAGE_DOMAIN =
-  process.env.NEXT_PUBLIC_IMAGE_DOMAIN || "d1flfk77wl2xk4.cloudfront.net";
-
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true", // Only runs if ANALYZE=true
 });

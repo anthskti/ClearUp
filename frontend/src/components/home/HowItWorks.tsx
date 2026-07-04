@@ -12,8 +12,8 @@ const HowItWorks = () => {
         height={150}
         frequency={1.7} 
       /> */}
-      <div className="w-full bg-linear-to-b from-[#fbfefd] to-[#f8f8f8]">
-        <div className="w-full pt-5 pb-10 px-4 md:px-8 mx-auto">
+      <div className="w-full bg-linear-to-b from-[#f9fcfb] to-[#f8f8f8]">
+        <div className="w-full pt-5 pb-5 px-4 md:px-8 mx-auto">
           {/* Header */}
           <h2 className="flex justify-center items-center text-2xl font-bold text-zinc-900 mb-8">
             How Clearup Works

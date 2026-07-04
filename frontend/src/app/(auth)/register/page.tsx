@@ -47,7 +47,14 @@ export default function RegisterPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <ProceduralWave seed={4} height={190} />
+      <ProceduralWave 
+        seed={4}
+        frequency={2}
+        height={190} 
+        gradientFrom="#e9f6ff" 
+        gradientTo="#f0f8fc" 
+        flip={true} 
+      />
       <div className="w-full max-w-lg px-4 md:w-3/5 lg:w-2/5">
         <h1 className="text-2xl font-semibold mb-4">Create an Account</h1>
         {successMessage && (

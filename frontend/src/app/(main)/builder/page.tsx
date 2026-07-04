@@ -193,7 +193,13 @@ export default function Builder() {
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8]">
-      <ProceduralWave seed={3} height={190} />
+      <ProceduralWave 
+        seed={3}
+        height={190} 
+        gradientFrom="#e9f6ff" 
+        gradientTo="#f0f8fc" 
+        flip={true} 
+      />
       <div className="relative z-1 max-w-6xl mx-auto px-6 pt-26 pb-20">
         <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#2E2E2E] uppercase">

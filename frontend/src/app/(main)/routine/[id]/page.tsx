@@ -115,7 +115,14 @@ export default async function ViewRoutine({ params }: RoutineProps) {
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8]">
-      <ProceduralWave seed={123} height={190} />
+      <ProceduralWave 
+        seed={123}
+        frequency={2}
+        height={190} 
+        gradientFrom="#e9f6ff" 
+        gradientTo="#f0f8fc" 
+        flip={true} 
+      />
       <div className="relative z-1 max-w-6xl mx-auto px-6 pt-20 pb-20">
         {/* header */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-4 gap-4">
@@ -206,7 +213,7 @@ export default async function ViewRoutine({ params }: RoutineProps) {
                           </div>
                           <Link
                             href={`/product/id/${prod.id}`}
-                            className="font-medium text-black leading-tight hover:underline hover:text-blue-800 block transition-all duration-100"
+                            className="font-medium text-black leading-tight hover:text-blue-800 block transition-all duration-200 hover:underline"
                           >
                             {prod.name}
                           </Link>

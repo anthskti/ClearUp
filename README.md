@@ -195,10 +195,10 @@ Schema evolves via **Umzug migrations** (stored in `sequelize_meta`); `sequelize
 
 ### Auth & security
 
-- **Better Auth** on Express handles sign-up, sign-in, Google OAuth, and sessions. The frontend never holds a JWT — it forwards cookies.
+- **Better Auth** on Express handles sign-up, sign-in, Google OAuth, and sessions. The frontend never holds a JWT, it forwards cookies.
 - **`requireAuth`** resolves the session, hydrates the user from DB if needed, and promotes `ADMIN_EMAILS` whitelist entries to `role: "admin"`.
 - **`requireAdmin`** gates admin routes and CSV imports.
-- **`requireMutationHeader`** on routine POST/PUT/PATCH/DELETE — blocks cross-origin form CSRF.
+- **`requireMutationHeader`** on routine POST/PUT/PATCH/DELETE, blocks cross-origin form CSRF.
 - **Rate limits:** global 300/15 min; routine POST 10/hr; routine mutations 60/15 min; merchant POST 10/hr; dedicated auth brute-force limiters.
 - **Email:** SES for verification and password reset; `/api/webhooks/aws-ses` (SNS) updates `user.emailStatus` on bounces/complaints.
 
@@ -284,8 +284,7 @@ Rate limits: global (300 / 15 min), stricter caps on routine/merchant POST and a
 | `bun dev`                             | Watch mode API                     |
 | `bun run build` / `bun run start`     | Production compile + run           |
 | `bun run migrate:up` / `migrate:down` | Umzug migrations                   |
-| `bun run seed`                        | Dev seed (wipes via `force: true`) |
-| `bun run seed:merchants`              | Seed merchant master data from CSV   |
+| `bun run seed:merchants`              | Seed merchant data from CSV        |
 | `bun run test:ses`                    | Send test email via SES            |
 
 **Frontend (`frontend/`):**

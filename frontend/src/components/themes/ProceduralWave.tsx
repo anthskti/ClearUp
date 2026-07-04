@@ -1,10 +1,13 @@
-import React, { useMemo } from "react";
+"use client";
 
+import React, { useEffect, useId, useMemo, useState } from "react";
 // Set math.sin to fixedAt(2) for hydration consistency
 
 interface ProceduralWaveProps {
   className?: string;
   fill?: string;
+  gradientFrom?: string;
+  gradientTo?: string;
   height?: number; // Height of the SVG container
   width?: number; // Width of the SVG container
   amplitude?: number; // How tall
@@ -17,6 +20,8 @@ interface ProceduralWaveProps {
 const ProceduralWave: React.FC<ProceduralWaveProps> = ({
   className = "absolute top-0 z-0 w-full",
   fill = "fill-[#e8f6ff]",
+  gradientFrom,
+  gradientTo,
   height = 180,
   width = 1440,
   amplitude = 10,
@@ -25,7 +30,20 @@ const ProceduralWave: React.FC<ProceduralWaveProps> = ({
   seed = 5,
   flip = true,
 }) => {
+  const gradientId = useId().replace(/:/g, "");
+  const [viewportWidth, setViewportWidth] = useState(width);
+
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   const pathData = useMemo(() => {
+    const effectiveFrequency =
+      frequency * Math.min(1, viewportWidth / 1080);
+
     const points = [];
     const segments = 200;
     const waveHeight = height / 2;
@@ -40,15 +58,15 @@ const ProceduralWave: React.FC<ProceduralWaveProps> = ({
 
       // The Random/Harmonic Math
       const y1 = Math.sin(
-        normalizedX * Math.PI * 2 * frequency + offset + seed
+        normalizedX * Math.PI * 2 * effectiveFrequency + offset + seed
       );
       const y2 =
         Math.sin(
-          normalizedX * Math.PI * 2 * (frequency * 1.2) + offset + seed * 2
+          normalizedX * Math.PI * 2 * (effectiveFrequency * 1.2) + offset + seed * 2
         ) * 0.5;
       const y3 =
         Math.sin(
-          normalizedX * Math.PI * 2 * (frequency * 2.1) + offset + seed * 3
+          normalizedX * Math.PI * 2 * (effectiveFrequency * 2.1) + offset + seed * 3
         ) * 0.2;
 
       const combinedY = (y1 + y2 + y3) * amplitude;
@@ -59,14 +77,14 @@ const ProceduralWave: React.FC<ProceduralWaveProps> = ({
       points.push(`L ${x.toFixed(2)} ${finalY.toFixed(2)}`);
     }
 
-    // --- END POINT ---
-    // If flip is true, close at Top-Right (width, 0). If false, Bottom-Right (width, height)
     points.push(flip ? `L ${width} 0` : `L ${width} ${height}`);
 
     points.push(`Z`); // Close path
 
     return points.join(" ");
-  }, [width, height, amplitude, frequency, offset, seed, flip]);
+  }, [width, height, amplitude, frequency, offset, seed, flip, viewportWidth]);
+
+  const useGradient = gradientFrom && gradientTo;
 
   return (
     <div
@@ -80,7 +98,26 @@ const ProceduralWave: React.FC<ProceduralWaveProps> = ({
         preserveAspectRatio="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path d={pathData} className={fill} />
+        {useGradient && (
+          <defs>
+            <linearGradient
+              id={gradientId}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+              gradientUnits="objectBoundingBox"
+            >
+              <stop offset="0%" stopColor={gradientFrom} />
+              <stop offset="100%" stopColor={gradientTo} />
+            </linearGradient>
+          </defs>
+        )}
+        <path
+          d={pathData}
+          className={useGradient ? undefined : fill}
+          fill={useGradient ? `url(#${gradientId})` : undefined}
+        />
       </svg>
     </div>
   );

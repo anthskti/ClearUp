@@ -68,10 +68,7 @@ function Footer() {
               </h4>
               <ul className="space-y-3 text-sm text-white">
                 <li>
-                  <Link href="/about-us">About Us</Link>
-                </li>
-                <li>
-                  <Link href="/why-clearup">Why You'll Love ClearUp</Link>
+                  <Link href="/about-us">About Clearup</Link>
                 </li>
               </ul>
             </div>

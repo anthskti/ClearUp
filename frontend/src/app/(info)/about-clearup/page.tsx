@@ -5,7 +5,10 @@ export default function AboutUsPage() {
   return (
     <div>
       <ProceduralWave seed={7} height={190} />
-      <InfoArticle title="About Clearup" description="What is the purpose of Clearup?">
+      <InfoArticle
+        title="About Clearup"
+        description="What is the purpose of Clearup?"
+      >
         <h2>The Problem</h2>
         <p>
           When I was a teenager, I faced moments where my acne was terrible, so
@@ -25,10 +28,9 @@ export default function AboutUsPage() {
         </p>
         <h2>The Solution</h2>
         <p>
-          Clearup is on a goal to bring clarity to skincare. Building an
-          effective routine shouldn't require spending hundreds on potential
-          products, having spreadsheet of what work, and feeling like looking at
-          new products is a guessing game.
+          If you've ever built a computer, you've probably used PCPartPicker to
+          check compatibility, track prices, and share builds. I realized
+          skincare needed the exact same thing: a "PCPartPicker for skincare."
         </p>
         <p>
           Clearup is a community-driven routine builder and discovery platform.

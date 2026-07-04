@@ -20,7 +20,7 @@ export default async function FeaturedRoutinesSection() {
   }
 
   return (
-    <section className="bg-white py-16 px-4 md:px-8">
+    <section className="bg-white pt-4 pb-10 px-4 md:px-8">
       <div className="relative mx-auto max-w-7xl">
         <div className="mb-8 text-center">
           <h2 className="text-2xl font-bold text-zinc-900">

@@ -41,7 +41,14 @@ export default function ProductClient({
 
   return (
     <div className="relative min-h-screen w-full bg-[#F8F8F8] pt-20">
-      <ProceduralWave seed={20} height={140} offset={1} />
+      <ProceduralWave 
+        seed={20}
+        offset={1}
+        height={140} 
+        gradientFrom="#e9f6ff" 
+        gradientTo="#f0f8fc" 
+        flip={true} 
+      />
       <AddMerchantModal
         isOpen={isMerchantModalOpen}
         onClose={() => setIsMerchantModalOpen(false)}

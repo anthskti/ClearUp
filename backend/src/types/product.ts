@@ -50,7 +50,7 @@ export type ProductCategory =
   | "toner"
   | "essence"
   | "serum"
-  // | "eye cream"
+  | "eyecare"
   | "moisturizer"
   | "sunscreen"
   | "other";

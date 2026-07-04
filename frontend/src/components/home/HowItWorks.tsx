@@ -1,8 +1,19 @@
+import ProceduralWave from "../themes/ProceduralWave";
+
 const HowItWorks = () => {
-  return (
+  return ( 
     <section>
-      <div className="w-full bg-white pt-10">
-        <div className="bg-white w-full pt-5 pb-15 px-4 md:px-8 mx-auto">
+      {/* <ProceduralWave 
+        className="top-0 w-full" 
+        gradientFrom="#ffffff"
+        gradientTo="#f8f8f8"
+        flip={false} 
+        seed={6} 
+        height={150}
+        frequency={1.7} 
+      /> */}
+      <div className="w-full bg-linear-to-b from-[#f9fcfb] to-[#f8f8f8]">
+        <div className="w-full pt-5 pb-5 px-4 md:px-8 mx-auto">
           {/* Header */}
           <h2 className="flex justify-center items-center text-2xl font-bold text-zinc-900 mb-8">
             How Clearup Works
@@ -45,6 +56,14 @@ const HowItWorks = () => {
           </div>
         </div>
       </div>
+      <ProceduralWave 
+        className="top-0 w-full" 
+        gradientFrom="#f8f8f8"
+        gradientTo="#e8f6ff"
+        flip={true} 
+        seed={3} 
+        frequency={2} 
+      />
     </section>
   );
 };

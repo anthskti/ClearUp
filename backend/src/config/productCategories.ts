@@ -3,7 +3,7 @@ export const PRODUCT_CATEGORY_VALUES = [
     "toner",
     "essence",
     "serum",
-    // "eye-cream",      
+    "eyecare",      
     // "lip-balm",
     // "makeup-remover",
     "moisturizer",

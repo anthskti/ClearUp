@@ -109,8 +109,10 @@ export default function ProductListClient({
       effect: 0, // Essences
       ac: 0, // Serums
       spf: 0, // Sunscreens
+      concern: 0, // Eyecare
       concentration: 1, // Serums
       finish: 1, // Sunscreens & Moisturizer
+      format: 1, // Toners
       filter: 2, // Sunscreens
     };
 
@@ -281,7 +283,15 @@ export default function ProductListClient({
 
   return (
     <div className="relative min-h-screen bg-[#F8F8F8] pt-24">
-      <ProceduralWave seed={6} offset={2} frequency={1.5} />
+      {/* <ProceduralWave seed={6} offset={2} frequency={1.5} /> */}
+      <ProceduralWave 
+        seed={6}
+        height={190} 
+        frequency={1.5}
+        gradientFrom="#e9f6ff" 
+        gradientTo="#f0f8fc" 
+        flip={true} 
+      />
       <div className="relative z-1 mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 sm:px-6 lg:grid-cols-12 lg:gap-10">
         {/* --- LEFT SIDEBAR (FILTERS) --- */}
         <ProductListFiltersSidebar

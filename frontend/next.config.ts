@@ -19,7 +19,8 @@ const nextConfig = {
   },
   images: {
     unoptimized: false,
-    deviceSizes: [640, 828, 1080, 1200],
+    qualities: [75, 90],
+    deviceSizes: [640, 828, 1080, 1200, 1920, 2560],
     imageSizes: [32, 48, 64, 96, 128, 256],
     minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [

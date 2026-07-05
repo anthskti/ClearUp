@@ -1,0 +1,32 @@
+name: Deploy to EC2 Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute Remote SSH Commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # 1. Load Bun into the automated shell's path
+            export PATH="/home/ubuntu/.bun/bin:$PATH"
+            
+            # 2. Navigate to the backend folder
+            cd ~/app/backend
+            
+            # 3. Pull the latest code
+            git pull origin main
+            
+            # 4. Install any new dependencies
+            bun install
+            
+            # 5. Restart the backend engine
+            sudo systemctl restart myapp.service

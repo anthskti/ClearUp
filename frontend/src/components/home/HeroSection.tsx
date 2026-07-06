@@ -4,8 +4,8 @@ import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
 
 const Hero_Images = {
-  desktop: "/assets/landingpage.png",
-  mobile: "/assets/landingpagemobile.png",
+  desktop: "/assets/culandingdesktop.png", // culanding.png
+  mobile: "/assets/culandingmobile.png",
 }
 
 const HeroSection = () => {
@@ -31,6 +31,7 @@ const HeroSection = () => {
           draggable={false}
           sizes="(max-width: 767px) 100vw, 0px"
           quality={90}
+          unoptimized={false}
         />
       </div>
       {/* Blobs */}
@@ -39,9 +40,9 @@ const HeroSection = () => {
       {/* <div className="bg-linear-to-r from-black to-[#0E4B84]/0" /> */}
 
       {/* Desktop Fade */}
-      <div className="hidden md:block absolute top-0 left-0 w-full h-full bg-linear-to-r from-[#f8f8f8]/50 to-[#f8f8f8]/0" />
+      <div className="hidden md:block absolute top-0 left-0 w-full h-full bg-linear-to-r from-[#f8f8f8]/50 via-[#f8f8f8]/0 to-[#f8f8f8]/0" />
       {/* Mobile Fade */}
-      <div className="md:hidden absolute top-0 left-[-20%] w-full h-full bg-[#f8f8f8]/50 rounded-full blur-3xl" />
+      <div className="md:hidden absolute top-0 left-[-20%] w-full h-full bg-[#f8f8f8]/30 rounded-full blur-3xl" />
 
       <div className="container mx-auto relative grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10 px-6 py-12">
         {/* Left Column */}

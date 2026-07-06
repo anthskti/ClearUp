@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
 
 const Hero_Images = {
-  desktop: "/assets/culandingdesktop.png", // culanding.png
+  desktop: "/assets/culandingdesktop2.png", // culanding.png
   mobile: "/assets/culandingmobile.png",
 }
 

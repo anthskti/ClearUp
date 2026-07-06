@@ -4,13 +4,13 @@ import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
 
 const Hero_Images = {
-  desktop: "/assets/culandingdesktop2.png", // culanding.png
+  desktop: "/assets/landingpagedesktop.png",
   mobile: "/assets/culandingmobile.png",
 }
 
 const HeroSection = () => {
   return (
-    <div className="relative flex items-center w-full h-[80vh] overflow-hidden bg-white">
+    <div className="relative flex items-center w-full h-[80vh] overflow-hidden bg-[#f9fcfb]/50">
       <div className="absolute inset-0">
         <Image
           src={Hero_Images.desktop}

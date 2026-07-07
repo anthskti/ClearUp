@@ -105,14 +105,16 @@ function Header() {
 
   const authButtonClass = `flex items-center text-black text-xs px-2 py-2 transition-colors duration-300 rounded-md border shrink-0 ${
     isScrolled
-      ? "border-gray-400 hover:bg-gray-200"
-      : "border-gray-400 hover:bg-gray-100/50"
+      ? "border-zinc-800 hover:bg-gray-200"
+      : "border-zinc-800 hover:bg-gray-100/50"
   }`;
 
   return (
     <div
       className={`fixed top-0 left-0 w-full z-20 transition-all duration-300 ${
-        isScrolled ? "bg-[#F8F8F8] shadow-md" : "bg-transparent"
+        isScrolled
+          ? "backdrop-blur supports-backdrop-filter:bg-white/70 shadow-md"
+          : "bg-transparent"
       }`}
     >
       <nav className="container mx-auto flex items-center justify-between gap-3 px-4 py-4 md:grid md:grid-cols-3 md:px-6">
@@ -126,7 +128,6 @@ function Header() {
             <Menu className="h-5 w-5" />
           </button>
           <ClearupLogoLink priority />
-          {/* <p className="font-bold tracking-widest text-lg">CLEARUP</p> */}
         </div>
 
         <div className="hidden items-center justify-center space-x-10 text-xs font-semibold uppercase md:flex">

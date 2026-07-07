@@ -54,7 +54,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
     tableColumns: [
       { id: "name", labels: "Product", width: "col-span-5 text-left" },
       { id: "benefits", labels: "Benefits", width: "col-span-1 text-center" },
-      { id: "format", labels: "Format", width: "col-span-1 text-center"},
+      { id: "format", labels: "Format", width: "col-span-1 text-center" },
       { id: "skinType", labels: "SkinType", width: "col-span-1" },
       { id: "country", labels: "Country", width: "col-span-1 text-center" },
       { id: "rating", labels: "Rating", width: "col-span-1 text-center" },
@@ -127,8 +127,22 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
   eyecare: {
     category: "Eye Care",
     specificFilters: [
-      { id: "concern", labels: "Concern", options: ["Dark Circles", "Puffiness", "Fine Lines", "Hydrating", "Brightening"] },
-      { id: "format", labels: "Format", options: ["Cream", "Gel", "Serum", "Balm", "Patch"] },
+      {
+        id: "concern",
+        labels: "Concern",
+        options: [
+          "Dark Circles",
+          "Puffiness",
+          "Fine Lines",
+          "Hydrating",
+          "Brightening",
+        ],
+      },
+      {
+        id: "format",
+        labels: "Format",
+        options: ["Cream", "Gel", "Serum", "Balm", "Patch"],
+      },
     ],
     tableColumns: [
       { id: "name", labels: "Product", width: "col-span-5 text-left" },
@@ -170,7 +184,11 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
     category: "Sunscreens",
     specificFilters: [
       { id: "spf", labels: "SPF Level", options: ["15+", "30+", "50+"] },
-      { id: "finish", labels: "Finish", options: ["Matte", "Dewy", "Natural"] },
+      {
+        id: "finish",
+        labels: "Finish",
+        options: ["Matte", "Natural", "Dewy", "Glassy"],
+      },
       {
         id: "filter",
         labels: "Filter",

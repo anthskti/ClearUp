@@ -54,6 +54,7 @@ function Header() {
     const scrolling = () => {
       setIsScrolled(window.scrollY > 25);
     };
+    scrolling();
     window.addEventListener("scroll", scrolling);
     return () => window.removeEventListener("scroll", scrolling);
   }, []);
@@ -110,14 +111,17 @@ function Header() {
   }`;
 
   return (
-    <div
-      className={`fixed top-0 left-0 w-full z-20 transition-all duration-300 ${
-        isScrolled
-          ? "backdrop-blur supports-backdrop-filter:bg-white/70 shadow-md"
-          : "bg-transparent"
-      }`}
-    >
-      <nav className="container mx-auto flex items-center justify-between gap-3 px-4 py-4 md:grid md:grid-cols-3 md:px-6">
+    <div className="fixed top-0 inset-x-0 z-20">
+      {/* Frosted glass layer — separate from nav so blur spans full width */}
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute inset-0 transition-all duration-300 ${
+          isScrolled
+            ? "border-b border-black/5 bg-white/70 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-white/60"
+            : "bg-transparent"
+        }`}
+      />
+      <nav className="relative z-10 container mx-auto flex items-center justify-between gap-3 px-4 py-4 md:grid md:grid-cols-3 md:px-6">
         <div className="flex min-w-0 items-center gap-2">
           <button
             type="button"

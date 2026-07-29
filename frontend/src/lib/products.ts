@@ -22,7 +22,7 @@ function parseProductCatalogResponse(data: unknown): ProductCatalogPage {
   return { products: [], total: 0 };
 }
 
-/** Category lists + PDP product body (server Data Cache). */
+// Category lists (server Data Cache). PDP product body uses no-store.
 export const CATALOG_REVALIDATE_SEC = 3600; // 1h
 
 /** Per-product merchant offers on PDP (server Data Cache). */
@@ -231,7 +231,7 @@ export const searchProductsByCategory = async (
 
 export const getProductById = async (id: string): Promise<Product> => {
   const res = await fetch(`${API_URL}/api/products/id/${id}`, {
-    next: { revalidate: CATALOG_REVALIDATE_SEC },
+    cache: "no-store",
   });
   if (!res.ok) {
     throw new Error(`Failed to fetch product ${id}`);

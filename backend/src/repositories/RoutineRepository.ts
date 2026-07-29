@@ -77,6 +77,7 @@ export class RoutineRepository {
                 "id",
                 "name",
                 "brand",
+                "category",
                 "price",
                 "imageUrls",
               ],
@@ -119,6 +120,7 @@ export class RoutineRepository {
                 "id",
                 "name",
                 "brand",
+                "category",
                 "price",
                 "imageUrls",
               ],
@@ -475,6 +477,7 @@ export class RoutineRepository {
                     id: rp.product.id,
                     name: rp.product.name,
                     brand: rp.product.brand,
+                    category: rp.product.category,
                     price: rp.product.price,
                     imageUrls: normalizeImageUrls(rp.product.imageUrls),
                   }

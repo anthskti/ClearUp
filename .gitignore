@@ -1,6 +1,6 @@
 .env
 
-/docs
+/docs/local
 /data
 
 # dependencies

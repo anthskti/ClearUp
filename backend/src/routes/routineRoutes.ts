@@ -87,7 +87,7 @@ router.patch("/id/:id/notes", requireAuth, (req, res) =>
   routineController.saveRoutineNotes(req, res),
 );
 
-// PATCH one product row (category / single-field edits)
+// PATCH one product row (notes / step order, category follows catalog)
 router.patch("/id/:id/products/:productId", requireAuth, (req, res) =>
   routineController.patchRoutineProduct(req, res),
 );

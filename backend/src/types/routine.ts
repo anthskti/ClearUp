@@ -62,14 +62,14 @@ export type CreateRoutineWithProductsInput = {
 };
 
 export type UpdateRoutineProductInput = Partial<
-  Pick<
-    RoutineProduct,
-    "category" | "amNote" | "pmNote" | "amStepOrder" | "pmStepOrder"
-  >
+  Pick<RoutineProduct, "amNote" | "pmNote" | "amStepOrder" | "pmStepOrder">
 >;
 
 export type RoutineProductWithDetails = RoutineProduct & {
-  product?: Pick<Product, "id" | "name" | "brand" | "price" | "imageUrls">;
+  product?: Pick<
+    Product,
+    "id" | "name" | "brand" | "category" | "price" | "imageUrls"
+  >;
 };
 
 export interface RoutineWithProducts extends Routine {

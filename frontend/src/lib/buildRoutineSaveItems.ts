@@ -5,6 +5,7 @@ import type {
 } from "@/types/builder";
 import type { ProductCategory } from "@/types/product";
 import type { RoutineProductWithDetails, TimeOfDay } from "@/types/routine";
+import { effectiveRoutineProductCategory } from "@/lib/routineProductCategory";
 
 type GridSlot = {
   id: ProductCategory;
@@ -80,7 +81,7 @@ function pushNoteFromRow(
     userNote,
     productName: rp.product.name,
     productBrand: rp.product.brand,
-    category: rp.category,
+    category: effectiveRoutineProductCategory(rp),
   });
 }
 

@@ -7,6 +7,7 @@ import {
   getMerchantOffersByProductIds,
   pickLowestPriceOffer,
 } from "@/lib/products";
+import { effectiveRoutineProductCategory } from "@/lib/routineProductCategory";
 
 import DeleteRoutineButton from "@/components/routine/DeleteRoutineButton";
 import RoutineDetailsEditor from "@/components/routine/RoutineDetailsEditor";
@@ -88,7 +89,10 @@ export default async function ViewRoutine({ params }: RoutineProps) {
   const finalRoutine = ROUTINE_SLOTS.map((slot) => {
     const products =
       routineProducts
-        ?.filter((p) => p.category === slot.id && p.product)
+        ?.filter(
+          (p) =>
+            effectiveRoutineProductCategory(p) === slot.id && p.product,
+        )
         .map((item) => item.product!) ?? [];
     return {
       ...slot,

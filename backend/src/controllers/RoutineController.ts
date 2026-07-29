@@ -3,10 +3,7 @@ import { RoutineService } from "../services/RoutineService";
 import PAGINATION from "../config/pagination";
 import { sanitizeSkinTypeTags } from "../types/routineSkinTypeTags";
 import { handleInternalError } from "../lib/httpError";
-import {
-  RoutineProductValidationError,
-  parseProductCategory,
-} from "../lib/routineProductItems";
+import { RoutineProductValidationError } from "../lib/routineProductItems";
 import {
   parseOptionalStepField,
   parseOptionalUserNote,
@@ -27,6 +24,48 @@ export class RoutineController {
 
   constructor() {
     this.routineService = new RoutineService();
+  }
+
+  // Notes / step order only. Category is owned by the product catalog.
+  private parseRoutineProductNotePatch(
+    body: Record<string, unknown>,
+  ):
+    | { ok: true; patch: UpdateRoutineProductInput }
+    | { ok: false; error: string } {
+    if (body.category !== undefined) {
+      return {
+        ok: false,
+        error: "category cannot be updated here; it follows the product catalog",
+      };
+    }
+
+    try {
+      const patch: UpdateRoutineProductInput = {};
+      const amNote = parseOptionalUserNote(body.amNote, "amNote");
+      if (amNote !== undefined) patch.amNote = amNote;
+      const pmNote = parseOptionalUserNote(body.pmNote, "pmNote");
+      if (pmNote !== undefined) patch.pmNote = pmNote;
+      const amStepOrder = parseOptionalStepField(
+        body.amStepOrder,
+        "amStepOrder",
+      );
+      if (amStepOrder !== undefined) patch.amStepOrder = amStepOrder;
+      const pmStepOrder = parseOptionalStepField(
+        body.pmStepOrder,
+        "pmStepOrder",
+      );
+      if (pmStepOrder !== undefined) patch.pmStepOrder = pmStepOrder;
+
+      if (Object.keys(patch).length === 0) {
+        return { ok: false, error: "No valid fields to update" };
+      }
+      return { ok: true, patch };
+    } catch (error: unknown) {
+      if (error instanceof RoutineProductValidationError) {
+        return { ok: false, error: error.message };
+      }
+      throw error;
+    }
   }
 
   private canAccessUserScopedResource(
@@ -495,10 +534,17 @@ export class RoutineController {
         return;
       }
 
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      const parsed = this.parseRoutineProductNotePatch(body);
+      if (!parsed.ok) {
+        res.status(400).json({ error: parsed.error });
+        return;
+      }
+
       const updatedRoutineProduct =
         await this.routineService.updateProductInRoutine(
           routineProductId,
-          req.body,
+          parsed.patch,
         );
 
       if (!updatedRoutineProduct) {
@@ -646,42 +692,15 @@ export class RoutineController {
         return;
       }
       const body = (req.body ?? {}) as Record<string, unknown>;
-      const patch: UpdateRoutineProductInput = {};
-
-      try {
-        if (body.category !== undefined) {
-          patch.category = parseProductCategory(body.category);
-        }
-        const amNote = parseOptionalUserNote(body.amNote, "amNote");
-        if (amNote !== undefined) patch.amNote = amNote;
-        const pmNote = parseOptionalUserNote(body.pmNote, "pmNote");
-        if (pmNote !== undefined) patch.pmNote = pmNote;
-        const amStepOrder = parseOptionalStepField(
-          body.amStepOrder,
-          "amStepOrder",
-        );
-        if (amStepOrder !== undefined) patch.amStepOrder = amStepOrder;
-        const pmStepOrder = parseOptionalStepField(
-          body.pmStepOrder,
-          "pmStepOrder",
-        );
-        if (pmStepOrder !== undefined) patch.pmStepOrder = pmStepOrder;
-      } catch (error: unknown) {
-        if (error instanceof RoutineProductValidationError) {
-          res.status(400).json({ error: error.message });
-          return;
-        }
-        throw error;
-      }
-
-      if (Object.keys(patch).length === 0) {
-        res.status(400).json({ error: "No valid fields to update" });
+      const parsed = this.parseRoutineProductNotePatch(body);
+      if (!parsed.ok) {
+        res.status(400).json({ error: parsed.error });
         return;
       }
       const updated = await this.routineService.patchRoutineProduct(
         routineId,
         productId,
-        patch,
+        parsed.patch,
       );
       if (!updated) {
         res.status(404).json({ error: "Routine product not found" });

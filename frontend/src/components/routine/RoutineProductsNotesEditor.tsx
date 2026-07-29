@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { hydrateRoutineProductNotesFromApi } from "@/lib/buildRoutineSaveItems";
+import { effectiveRoutineProductCategory } from "@/lib/routineProductCategory";
 import { saveRoutineNotes } from "@/lib/routines";
 import type { RoutineNoteDisplay } from "@/types/builder";
 import type { ProductCategory } from "@/types/product";
@@ -138,7 +139,7 @@ export default function RoutineUsageNotesEditor({
       map.set(rp.productId, {
         name: rp.product.name,
         brand: rp.product.brand,
-        category: rp.category,
+        category: effectiveRoutineProductCategory(rp),
       });
     }
     return map;

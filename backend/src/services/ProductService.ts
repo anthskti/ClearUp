@@ -29,6 +29,7 @@ import {
   UpdateProductMerchantInput,
 } from "../types/merchant";
 import { MerchantRepository } from "../repositories/MerchantRepository";
+import { RoutineProductRepository } from "../repositories/RoutineProductRepository";
 import { CsvImportResult, CsvRowError } from "../types/csv";
 import PAGINATION from "../config/pagination";
 import {
@@ -41,11 +42,13 @@ export class ProductService {
   private productRepository: ProductRepository;
   private productMerchantRepository: ProductMerchantRepository;
   private merchantRepository: MerchantRepository;
+  private routineProductRepository: RoutineProductRepository;
 
   constructor() {
     this.productRepository = new ProductRepository();
     this.productMerchantRepository = new ProductMerchantRepository();
     this.merchantRepository = new MerchantRepository();
+    this.routineProductRepository = new RoutineProductRepository();
   }
 
   // GET all products
@@ -203,7 +206,14 @@ export class ProductService {
     id: number,
     updates: UpdateProductInput,
   ): Promise<Product | null> {
-    return this.productRepository.update(id, updates);
+    const updated = await this.productRepository.update(id, updates);
+    if (updated && updates.category) {
+      await this.routineProductRepository.updateCategoryForProduct(
+        id,
+        updates.category as ProductCategory,
+      );
+    }
+    return updated;
   }
 
   // DELETE product by ID
@@ -425,6 +435,9 @@ export class ProductService {
         let productId: number;
 
         if (existing) {
+          const previousCategory = existing.getDataValue(
+            "category",
+          ) as ProductCategory;
           await existing.update({
             category,
             labels: labels.length ? labels : existing.getDataValue("labels"),
@@ -449,6 +462,12 @@ export class ProductService {
           } as any);
           productId = Number(existing.getDataValue("id"));
           updated += 1;
+          if (category !== previousCategory) {
+            await this.routineProductRepository.updateCategoryForProduct(
+              productId,
+              category,
+            );
+          }
         } else {
           const createdProduct = await ProductModel.create({
             name,

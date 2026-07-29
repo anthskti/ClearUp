@@ -1,5 +1,6 @@
 import { RoutineRepository } from "../repositories/RoutineRepository";
 import { RoutineProductRepository } from "../repositories/RoutineProductRepository";
+import { ProductRepository } from "../repositories/ProductRepository";
 import { UserRepository } from "../repositories/UserRepository";
 import {
   Routine,
@@ -9,6 +10,7 @@ import {
   AddRoutineProductInput,
   CreateRoutineWithProductsInput,
   UpdateRoutineProductInput,
+  CreateRoutineProductInput,
 } from "../types/routine";
 import { AdminStats, FeaturedRoutineView } from "../types/routine-admin";
 import { BasicUserRow, UserDailyCountRow } from "../types/user";
@@ -25,11 +27,13 @@ import PAGINATION from "../config/pagination";
 export class RoutineService {
   private routineRepository: RoutineRepository;
   private routineProductRepository: RoutineProductRepository;
+  private productRepository: ProductRepository;
   private userRepository: UserRepository;
 
   constructor() {
     this.routineRepository = new RoutineRepository();
     this.routineProductRepository = new RoutineProductRepository();
+    this.productRepository = new ProductRepository();
     this.userRepository = new UserRepository();
   }
   // Standard CRUD Methods
@@ -254,9 +258,10 @@ export class RoutineService {
     const [item] = parseRoutineProductItems([productData], {
       fieldName: "items",
     });
+    const [withLiveCategory] = await this.applyLiveProductCategories([item]);
     return this.routineProductRepository.create({
       routineId,
-      ...item,
+      ...withLiveCategory,
     });
   }
 
@@ -269,7 +274,9 @@ export class RoutineService {
     const existing = await this.routineProductRepository.findByRoutineId(
       routineId,
     );
-    const items = parseRoutineProductItems(products, { fieldName: "products" });
+    const items = await this.applyLiveProductCategories(
+      parseRoutineProductItems(products, { fieldName: "products" }),
+    );
 
     if (items.length === 0 && existing.length > 0 && !options?.confirmClear) {
       throw new RoutineProductReplaceError(
@@ -376,7 +383,9 @@ export class RoutineService {
           : undefined,
     });
 
-    const items = parseRoutineProductItems(data.items, { fieldName: "items" });
+    const items = await this.applyLiveProductCategories(
+      parseRoutineProductItems(data.items, { fieldName: "items" }),
+    );
     if (items.length === 0) {
       throw new RoutineProductValidationError(
         "items must include at least one product",
@@ -394,5 +403,26 @@ export class RoutineService {
       ...routine,
       products,
     };
+  }
+
+  // Overwrite client-sent category with live products.category before persisting join rows. 
+  private async applyLiveProductCategories(
+    items: Omit<CreateRoutineProductInput, "routineId">[],
+  ): Promise<Omit<CreateRoutineProductInput, "routineId">[]> {
+    if (!items.length) return items;
+
+    const categories = await this.productRepository.findCategoriesByIds(
+      items.map((item) => item.productId),
+    );
+
+    return items.map((item) => {
+      const live = categories.get(item.productId);
+      if (!live) {
+        throw new RoutineProductValidationError(
+          `Product ${item.productId} was not found`,
+        );
+      }
+      return { ...item, category: live };
+    });
   }
 }

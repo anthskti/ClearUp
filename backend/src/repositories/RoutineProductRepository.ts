@@ -1,7 +1,9 @@
 import sequelize from "../db";
+import { Op } from "sequelize";
 import RoutineProductModel from "../models/RoutineProduct";
 import type { RoutineNoteUpdateInput } from "../lib/routineProductNotes";
 import { toNoteOnlyPatch } from "../lib/routineProductNotes";
+import type { ProductCategory } from "../types/product";
 import {
   CreateRoutineProductInput,
   RoutineProduct,
@@ -121,6 +123,23 @@ export class RoutineProductRepository {
   async delete(id: number): Promise<boolean> {
     const deleted = await RoutineProductModel.destroy({ where: { id } });
     return deleted > 0;
+  }
+
+  // UPDATE product category whenever the main list changes
+  async updateCategoryForProduct(
+    productId: number,
+    category: ProductCategory,
+  ): Promise<number> {
+    const [count] = await RoutineProductModel.update(
+      { category },
+      {
+        where: {
+          productId,
+          category: { [Op.ne]: category },
+        },
+      },
+    );
+    return count;
   }
 
   private mapToRoutineProductType(dbRoutineProduct: any): RoutineProduct {

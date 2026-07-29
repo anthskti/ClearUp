@@ -112,6 +112,29 @@ export class ProductRepository {
     return product ? this.mapToProductType(product) : null;
   }
 
+  // GET product id to live catalog category (for routine join overwrite)
+  async findCategoriesByIds(
+    ids: number[],
+  ): Promise<Map<number, ProductCategory>> {
+    const unique = [...new Set(ids)].filter(
+      (id) => Number.isFinite(id) && id > 0,
+    );
+    const map = new Map<number, ProductCategory>();
+    if (!unique.length) return map;
+
+    const rows = await ProductModel.findAll({
+      where: { id: { [Op.in]: unique } },
+      attributes: ["id", "category"],
+    });
+    for (const row of rows) {
+      map.set(
+        Number(row.getDataValue("id")),
+        row.getDataValue("category") as ProductCategory,
+      );
+    }
+    return map;
+  }
+
   // POST a single product
   async create(productData: CreateProductInput): Promise<Product> {
     try {

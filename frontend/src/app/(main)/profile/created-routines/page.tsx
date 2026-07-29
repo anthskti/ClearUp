@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { skinTypeLabel } from "@/lib/routineSkinTypeTags";
 import { getMyRoutines } from "@/lib/routines";
+import { effectiveRoutineProductCategory } from "@/lib/routineProductCategory";
 import type {
   RoutineProductWithDetails,
   RoutineWithProducts,
@@ -172,11 +173,13 @@ export default function CreatedRoutinesPage() {
                     <div className="flex items-center">
                       {routine.products
                         .slice(0, 6)
-                        .map((rp: RoutineProductWithDetails, idx: number) => (
+                        .map((rp: RoutineProductWithDetails, idx: number) => {
+                          const category = effectiveRoutineProductCategory(rp);
+                          return (
                           <div
                             key={idx}
                             className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-zinc-50 shrink-0 -ml-2 first:ml-0 shadow-sm relative group/tooltip"
-                            title={rp.product?.name || rp.category}
+                            title={rp.product?.name || category}
                           >
                             {rp.product?.imageUrls?.[0] ? (
                               <img
@@ -186,11 +189,12 @@ export default function CreatedRoutinesPage() {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-zinc-400 bg-zinc-100 uppercase">
-                                {rp.category.substring(0, 2)}
+                                {category.substring(0, 2)}
                               </div>
                             )}
                           </div>
-                        ))}
+                          );
+                        })}
 
                       {/* If there are more than 6 products, show a "+X" bubble */}
                       {routine.products.length > 6 && (

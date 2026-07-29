@@ -323,7 +323,7 @@ export class RoutineService {
     return results;
   }
 
-  // PATCH one product row (notes, category).
+  // PATCH one product row (notes / step order only, category follows catalog).
   async patchRoutineProduct(
     routineId: number,
     productId: number,

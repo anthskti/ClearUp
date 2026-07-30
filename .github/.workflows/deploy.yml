@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Execute Remote SSH Commands
+      - name: Execute Remote SSH Commands to AWS EC2 Instance
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -19,11 +19,11 @@ jobs:
             # 1. Load Bun into the automated shell's path
             export PATH="/home/ubuntu/.bun/bin:$PATH"
             
-            # 2. Navigate to the backend folder
-            cd ~/app/backend
+            # 2. Navigate to app
+            cd ~/app
             
             # 3. Pull the latest code
-            git pull origin main
+            git pull
             
             # 4. Install any new dependencies
             bun install

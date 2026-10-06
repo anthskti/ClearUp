@@ -112,7 +112,7 @@ function Header() {
 
   return (
     <div className="fixed top-0 inset-x-0 z-20">
-      {/* Frosted glass layer — separate from nav so blur spans full width */}
+      {/* Frosted glass layer, separate from nav so blur spans full width */}
       <div
         aria-hidden
         className={`pointer-events-none absolute inset-0 transition-all duration-300 ${

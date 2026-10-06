@@ -36,7 +36,6 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
       { id: "add", labels: "", width: "col-span-1 text-right" },
     ],
   },
-  // TODO: Implement Toner Pads with backend
   toner: {
     category: "Toners",
     specificFilters: [
@@ -222,7 +221,7 @@ export const CATEGORY_CONFIG: Record<string, CategoryConfigEntry> = {
   },
 };
 
-/** Full-catalog page: all categories, skin type + brand filters only. */
+// Full-catalog page: all categories, skin type + brand filters only.
 export const ALL_PRODUCTS_CONFIG: CategoryConfigEntry = {
   category: "All Products",
   specificFilters: [],
